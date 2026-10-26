@@ -92,11 +92,53 @@ class WinampAudioEngine {
       this.masterGain.connect(this.analyser);
       this.analyser.connect(this.ctx.destination);
 
-      document.addEventListener('visibilitychange', () => {
-        if (this.ctx && this.ctx.state === 'suspended' && !this.audio.paused) {
+      // Set audioSession type to 'playback' for iOS Safari
+      if ('audioSession' in navigator) {
+        try {
+          navigator.audioSession.type = 'playback';
+        } catch (e) {}
+      }
+
+      // Check if iOS / Safari environment and setup background stream destination
+      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
+                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+      if (isIOS && this.ctx.createMediaStreamDestination) {
+        try {
+          this.streamDest = this.ctx.createMediaStreamDestination();
+          this.analyser.connect(this.streamDest);
+
+          this.streamAudio = document.createElement('audio');
+          this.streamAudio.id = 'winampBackgroundStream';
+          this.streamAudio.playsInline = true;
+          this.streamAudio.setAttribute('playsinline', '');
+          this.streamAudio.setAttribute('webkit-playsinline', '');
+          this.streamAudio.srcObject = this.streamDest.stream;
+          document.body.appendChild(this.streamAudio);
+        } catch (err) {
+          console.warn('iOS MediaStream destination setup:', err);
+        }
+      }
+
+      if (this.ctx) {
+        this.ctx.addEventListener('statechange', () => {
+          if ((this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') && !this.audio.paused) {
+            this.ctx.resume().catch(() => {});
+          }
+        });
+      }
+
+      const resumeFn = () => {
+        if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') && !this.audio.paused) {
           this.ctx.resume().catch(() => {});
         }
-      });
+        if (this.streamAudio && this.streamAudio.paused && !this.audio.paused) {
+          this.streamAudio.play().catch(() => {});
+        }
+      };
+
+      document.addEventListener('visibilitychange', resumeFn);
+      window.addEventListener('pageshow', resumeFn);
 
       this.isInitialized = true;
     } catch (e) {
@@ -212,16 +254,25 @@ class WinampAudioEngine {
 
   play() {
     this.ensureRunning();
+    if (this.streamAudio && this.streamAudio.paused) {
+      this.streamAudio.play().catch(() => {});
+    }
     return this.audio.play();
   }
 
   pause() {
     this.audio.pause();
+    if (this.streamAudio) {
+      this.streamAudio.pause();
+    }
   }
 
   stop() {
     this.audio.pause();
     this.audio.currentTime = 0;
+    if (this.streamAudio) {
+      this.streamAudio.pause();
+    }
   }
 
   seek(seconds) {

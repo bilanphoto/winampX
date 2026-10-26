@@ -1182,10 +1182,41 @@ body.skin-modern .btn-next::after {
   background-size: contain;
 }
 
-body.skin-modern .btn-play::after  { content: '▶'; font-size: 9px; font-family: Arial, sans-serif; color: #1e293b; line-height: 1; }
-body.skin-modern .btn-pause::after { content: '❚❚'; font-size: 8px; font-family: Arial, sans-serif; color: #1e293b; line-height: 1; letter-spacing: -1px; }
-body.skin-modern .btn-stop::after  { content: '■'; font-size: 8px; font-family: Arial, sans-serif; color: #1e293b; line-height: 1; }
-body.skin-modern .btn-eject::after { content: '▲'; font-size: 7px; font-family: Arial, sans-serif; color: #1e293b; line-height: 1; }
+body.skin-modern .btn-play::after {
+  content: '';
+  display: block;
+  width: 9px;
+  height: 8px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 8' fill='%231e293b'><polygon points='1.5,0 8.5,4 1.5,8'/></svg>") no-repeat center;
+  background-size: contain;
+}
+
+body.skin-modern .btn-pause::after {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 8px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 8' fill='%231e293b'><rect x='0.5' y='0' width='2' height='8'/><rect x='4.5' y='0' width='2' height='8'/></svg>") no-repeat center;
+  background-size: contain;
+}
+
+body.skin-modern .btn-stop::after {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' fill='%231e293b'><rect x='0.5' y='0.5' width='6' height='6'/></svg>") no-repeat center;
+  background-size: contain;
+}
+
+body.skin-modern .btn-eject::after {
+  content: '';
+  display: block;
+  width: 9px;
+  height: 7px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 7' fill='%231e293b'><polygon points='4.5,0 0.5,5 8.5,5'/><rect x='0.5' y='6' width='8' height='1'/></svg>") no-repeat center;
+  background-size: contain;
+}
 body.skin-modern .btn-shuffle::after { content: 'SHUF'; font-size: 7px; }
 body.skin-modern .btn-repeat::after  { content: 'REP';  font-size: 7px; }
 body.skin-modern .lightning-btn::after { content: '⚡'; color: #ff9900; font-size: 11px; }
@@ -1623,10 +1654,41 @@ body.skin-midnight .btn-next::after {
   background-size: contain;
 }
 
-body.skin-midnight .btn-play::after  { content: '▶'; font-size: 9px; font-family: Arial, sans-serif; color: #1e293b; line-height: 1; }
-body.skin-midnight .btn-pause::after { content: '❚❚'; font-size: 8px; font-family: Arial, sans-serif; color: #1e293b; line-height: 1; letter-spacing: -1px; }
-body.skin-midnight .btn-stop::after  { content: '■'; font-size: 8px; font-family: Arial, sans-serif; color: #1e293b; line-height: 1; }
-body.skin-midnight .btn-eject::after { content: '▲'; font-size: 7px; font-family: Arial, sans-serif; color: #1e293b; line-height: 1; }
+body.skin-midnight .btn-play::after {
+  content: '';
+  display: block;
+  width: 9px;
+  height: 8px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 8' fill='%231e293b'><polygon points='1.5,0 8.5,4 1.5,8'/></svg>") no-repeat center;
+  background-size: contain;
+}
+
+body.skin-midnight .btn-pause::after {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 8px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 8' fill='%231e293b'><rect x='0.5' y='0' width='2' height='8'/><rect x='4.5' y='0' width='2' height='8'/></svg>") no-repeat center;
+  background-size: contain;
+}
+
+body.skin-midnight .btn-stop::after {
+  content: '';
+  display: block;
+  width: 7px;
+  height: 7px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 7 7' fill='%231e293b'><rect x='0.5' y='0.5' width='6' height='6'/></svg>") no-repeat center;
+  background-size: contain;
+}
+
+body.skin-midnight .btn-eject::after {
+  content: '';
+  display: block;
+  width: 9px;
+  height: 7px;
+  background: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 9 7' fill='%231e293b'><polygon points='4.5,0 0.5,5 8.5,5'/><rect x='0.5' y='6' width='8' height='1'/></svg>") no-repeat center;
+  background-size: contain;
+}
 body.skin-midnight .btn-shuffle::after { content: 'SHUFFLE'; font-size: 6.5px; }
 body.skin-midnight .btn-repeat::after  { content: 'REPEAT';  font-size: 6.5px; }
 

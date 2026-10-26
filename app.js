@@ -4,6 +4,12 @@
  */
 
 document.addEventListener('DOMContentLoaded', async () => {
+  if ('audioSession' in navigator) {
+    try {
+      navigator.audioSession.type = 'playback';
+    } catch (e) {}
+  }
+
   // DOM Elements - Main Window
   const mainWindow = document.getElementById('mainWindow');
   const mainTitlebar = document.getElementById('mainTitlebar');
