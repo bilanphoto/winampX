@@ -1,0 +1,23 @@
+{
+  "name": "Winamp",
+  "short_name": "Winamp",
+  "description": "Winamp Player for Web and Mobile",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#181622",
+  "theme_color": "#2b283d",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Winamp</title>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Winamp">
+  <meta name="theme-color" content="#2b283d">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
+</head>
+<body class="skin-midnight">
+  <!-- Desktop / Background container -->
+  <div id="desktop">
+    <!-- Hidden file inputs -->
+    <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac" multiple style="display:none">
+    <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+
+    <!-- WINAMP WINDOW WORKSPACE -->
+    <div id="windows-container">
+
+      <!-- ============================================== -->
+      <!-- 1. MAIN PLAYER WINDOW (275 x 116) -->
+      <!-- ============================================== -->
+      <div id="mainWindow" class="wa-window winamp-main" data-window="main">
+        <!-- Title Bar -->
+        <div class="wa-titlebar" id="mainTitlebar">
+          <div class="menu-btn-wrap main-menu-wrap">
+            <div class="wa-titlebar-menu" id="mainMenuBtn" title="Winamp Menu"></div>
+            <div class="popup-menu top-menu hidden" id="mainContextMenu">
+              <div class="menu-header">⚡ WINAMP MENU</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuSkinClassic">🎨 Skin: Classic 2.91 Original</div>
+              <div class="menu-item" id="menuSkinModern">🎨 Skin: Modern Silver Blue</div>
+              <div class="menu-item" id="menuSkinMidnight">🎨 Skin: Midnight Gold</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuTogglePlay">⏯ Play / Pause (Space)</div>
+              <div class="menu-item" id="menuStopTrack">⏹ Stop (V)</div>
+              <div class="menu-item" id="menuPrevTrack">⏮ Previous (Z)</div>
+              <div class="menu-item" id="menuNextTrack">⏭ Next (B)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuToggleEqWin">🎚 Equalizer (Alt+G)</div>
+              <div class="menu-item" id="menuTogglePlWin">📜 Playlist Editor (Alt+E)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuOpenFiles">📂 Add Audio Files... (L)</div>
+              <div class="menu-item" id="menuOpenDemo">🎵 Load Demo Songs</div>
+              <div class="menu-item" id="menuResetWin">⟲ Reset Windows</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuShowHelp">⌨ Shortcuts & Help (F1)</div>
+            </div>
+          </div>
+          <div class="wa-titlebar-title-drag">WINAMP</div>
+          <div class="wa-titlebar-controls">
+            <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
+            <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
+            <button class="win-btn win-btn-close" id="mainCloseBtn" title="Close"></button>
+          </div>
+        </div>
+
+        <!-- Main Window Body -->
+        <div class="main-body">
+          <!-- Play / Pause / Stop Status Indicator -->
+          <div id="playStatusIcon" class="play-status-icon stop"></div>
+
+          <!-- 7-Segment Digital Time Display -->
+          <div class="time-display" id="timeDisplay" title="Click to toggle Elapsed / Remaining time">
+            <div class="digit-box digit-minus" id="timeMinus"></div>
+            <div class="digit-box digit-0" id="timeMinTen"></div>
+            <div class="digit-box digit-0" id="timeMinOne"></div>
+            <div class="digit-box digit-colon"></div>
+            <div class="digit-box digit-0" id="timeSecTen"></div>
+            <div class="digit-box digit-0" id="timeSecOne"></div>
+          </div>
+
+          <!-- Visualizer canvas (Spectrum Analyzer & Oscilloscope) -->
+          <div class="visualizer-container" id="visContainer" title="Click to switch Visualizer Mode (Spectrum / Oscilloscope / Off)">
+            <canvas id="visCanvas" width="76" height="16"></canvas>
+          </div>
+
+          <!-- Song title scrolling marquee banner -->
+          <div class="title-marquee-container" id="titleMarqueeContainer">
+            <div class="title-marquee" id="titleMarquee">WINAMP 2.91 (READY)</div>
+          </div>
+
+          <!-- KBPS, KHZ, MONO/STEREO Indicators -->
+          <div class="info-indicators">
+            <div class="kbps-box" id="kbpsDisplay">128</div>
+            <div class="khz-box" id="khzDisplay">44</div>
+            <div class="monoster-box stereo" id="monosterIndicator"></div>
+          </div>
+
+          <!-- Volume Slider -->
+          <div class="vol-slider-wrap" id="volTrack" title="Volume">
+            <div class="vol-track-bg" id="volTrackBg"></div>
+            <div class="vol-thumb" id="volThumb"></div>
+          </div>
+
+          <!-- Balance Slider -->
+          <div class="bal-slider-wrap" id="balTrack" title="Balance / Pan">
+            <div class="bal-track-bg" id="balTrackBg"></div>
+            <div class="bal-thumb" id="balThumb"></div>
+          </div>
+
+          <!-- EQ and PL Toggle Buttons -->
+          <button class="toggle-btn btn-eq active" id="btnToggleEQ" title="Toggle Equalizer Window"></button>
+          <button class="toggle-btn btn-pl active" id="btnTogglePL" title="Toggle Playlist Window"></button>
+
+          <!-- Song Position Scrubber (POSBAR) -->
+          <div class="posbar-wrap" id="seekTrack" title="Seek Position">
+            <div class="posbar-thumb" id="seekThumb"></div>
+          </div>
+
+          <!-- Bottom Transport Buttons (CBUTTONS) -->
+          <button class="cbutton btn-prev" id="btnPrev" title="Previous Track (Z)"></button>
+          <button class="cbutton btn-play" id="btnPlay" title="Play (X)"></button>
+          <button class="cbutton btn-pause" id="btnPause" title="Pause (C)"></button>
+          <button class="cbutton btn-stop" id="btnStop" title="Stop (V)"></button>
+          <button class="cbutton btn-next" id="btnNext" title="Next Track (B)"></button>
+          <button class="cbutton btn-eject" id="btnEject" title="Open Audio File(s) (L)"></button>
+
+          <!-- Shuffle & Repeat (SHUFREP) -->
+          <button class="shufrep-btn btn-shuffle" id="btnShuffle" title="Shuffle Mode (S)"></button>
+          <button class="shufrep-btn btn-repeat active" id="btnRepeat" title="Repeat Mode (R)"></button>
+
+          <!-- About / Lightning bolt button -->
+          <div class="lightning-btn" id="btnAbout" title="Winamp Web - Info"></div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- 2. EQUALIZER WINDOW (275 x 116) -->
+      <!-- ============================================== -->
+      <div id="eqWindow" class="wa-window winamp-eq" data-window="eq">
+        <!-- Title Bar -->
+        <div class="wa-titlebar eq-titlebar" id="eqTitlebar">
+          <div class="wa-titlebar-menu"></div>
+          <div class="wa-titlebar-title-drag">WINAMP EQUALIZER</div>
+          <div class="wa-titlebar-controls">
+            <button class="win-btn win-btn-shade" id="eqShadeBtn" title="Window Shade Mode"></button>
+            <button class="win-btn win-btn-close" id="eqCloseBtn" title="Close Equalizer"></button>
+          </div>
+        </div>
+
+        <!-- Equalizer Body -->
+        <div class="eq-body">
+          <!-- Top Row: On/Auto switches, curve screen, and presets -->
+          <button class="eq-toggle-btn eq-on-btn active" id="eqOnBtn" title="Toggle EQ"></button>
+          <button class="eq-toggle-btn eq-auto-btn" id="eqAutoBtn" title="Toggle Auto EQ"></button>
+
+          <!-- EQ Curve Graphic Display -->
+          <div class="eq-curve-display">
+            <canvas id="eqCanvas" width="113" height="19"></canvas>
+          </div>
+
+          <!-- Presets Button & Dropdown Menu -->
+          <div class="eq-presets-wrap">
+            <button class="eq-presets-btn" id="eqPresetsBtn" title="Presets"></button>
+            <div class="presets-dropdown hidden" id="presetsMenu">
+              <div class="preset-item" data-preset="flat">Flat (Default)</div>
+              <div class="preset-item" data-preset="rock">Rock</div>
+              <div class="preset-item" data-preset="pop">Pop</div>
+              <div class="preset-item" data-preset="techno">Techno</div>
+              <div class="preset-item" data-preset="classical">Classical</div>
+              <div class="preset-item" data-preset="club">Club</div>
+              <div class="preset-item" data-preset="dance">Dance</div>
+              <div class="preset-item" data-preset="fullbass">Full Bass</div>
+              <div class="preset-item" data-preset="fullbasstreble">Full Bass & Treble</div>
+              <div class="preset-item" data-preset="fulltreble">Full Treble</div>
+              <div class="preset-item" data-preset="laptopspeakers">Laptop Speakers</div>
+              <div class="preset-item" data-preset="live">Live</div>
+              <div class="preset-item" data-preset="party">Party</div>
+              <div class="preset-item" data-preset="reggae">Reggae</div>
+              <div class="preset-item" data-preset="softrock">Soft Rock</div>
+              <div class="preset-item" data-preset="vocal">Vocal</div>
+              <div class="preset-divider"></div>
+              <div class="preset-item" id="btnResetEQ">Reset to Flat</div>
+            </div>
+          </div>
+
+          <!-- Sliders Grid: Preamp + 10 Bands -->
+          <div class="eq-sliders-container">
+            <!-- Preamp Slider -->
+            <div class="eq-fader-track" data-band="preamp" id="faderTrackPreamp">
+              <div class="eq-fader-thumb" id="faderPreamp" style="bottom: 50%;"></div>
+            </div>
+
+            <!-- 10 Frequency Bands -->
+            <div class="eq-fader-track" data-band="60" id="faderTrack60">
+              <div class="eq-fader-thumb" id="fader60" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="170" id="faderTrack170">
+              <div class="eq-fader-thumb" id="fader170" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="310" id="faderTrack310">
+              <div class="eq-fader-thumb" id="fader310" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="600" id="faderTrack600">
+              <div class="eq-fader-thumb" id="fader600" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="1000" id="faderTrack1000">
+              <div class="eq-fader-thumb" id="fader1000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="3000" id="faderTrack3000">
+              <div class="eq-fader-thumb" id="fader3000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="6000" id="faderTrack6000">
+              <div class="eq-fader-thumb" id="fader6000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="12000" id="faderTrack12000">
+              <div class="eq-fader-thumb" id="fader12000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="14000" id="faderTrack14000">
+              <div class="eq-fader-thumb" id="fader14000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="16000" id="faderTrack16000">
+              <div class="eq-fader-thumb" id="fader16000" style="bottom: 50%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- 3. PLAYLIST WINDOW (275 x RESIZABLE) -->
+      <!-- ============================================== -->
+      <div id="plWindow" class="wa-window winamp-pl" data-window="pl">
+        <!-- Title Bar -->
+        <div class="pl-top-bar" id="plTitlebar">
+          <div class="pl-titlebar-drag"></div>
+          <div class="pl-titlebar-controls">
+            <button class="win-btn win-btn-shade" id="plShadeBtn" title="Window Shade Mode"></button>
+            <button class="win-btn win-btn-close" id="plCloseBtn" title="Close Playlist"></button>
+          </div>
+        </div>
+
+        <!-- Playlist Middle Screen Area (Bounded & Scrollable) -->
+        <div class="pl-middle-wrap">
+          <div class="pl-border-left"></div>
+          
+          <div class="pl-screen" id="plListDropZone">
+            <div class="pl-scrollable" id="plList">
+              <div class="pl-empty-tip">
+                <div>(Playlist is empty)</div>
+                <div class="pl-sub-tip">Drop MP3 / WAV files here or click + ADD below</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pl-border-right">
+            <div class="pl-scrollbar-track" id="plScrollTrack">
+              <div class="pl-scrollbar-thumb" id="plScrollThumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Playlist Bottom Control Bar (Fixed Anchor) -->
+        <div class="pl-bottom-bar">
+          <!-- Action Buttons: ADD, REM, SEL, MISC -->
+          <div class="menu-btn-wrap pl-btn-wrap-add">
+            <button class="pledif-btn btn-pl-add" id="plAddBtn" title="Add tracks"></button>
+            <div class="popup-menu hidden" id="plAddMenu">
+              <div class="menu-item" id="menuAddFile">Add File(s)...</div>
+              <div class="menu-item" id="menuAddFolder">Add Directory...</div>
+              <div class="menu-item" id="menuAddDemo">Add Demo Songs</div>
+            </div>
+          </div>
+
+          <div class="menu-btn-wrap pl-btn-wrap-rem">
+            <button class="pledif-btn btn-pl-rem" id="plRemBtn" title="Remove tracks"></button>
+            <div class="popup-menu hidden" id="plRemMenu">
+              <div class="menu-item" id="menuRemSelected">Remove Selected</div>
+              <div class="menu-item" id="menuRemCrop">Crop (Keep Selected)</div>
+              <div class="menu-item" id="menuRemAll">Clear Entire Playlist</div>
+            </div>
+          </div>
+
+          <div class="menu-btn-wrap pl-btn-wrap-sel">
+            <button class="pledif-btn btn-pl-sel" id="plSelBtn" title="Selection options"></button>
+            <div class="popup-menu hidden" id="plSelMenu">
+              <div class="menu-item" id="menuSelAll">Select All</div>
+              <div class="menu-item" id="menuSelNone">Select None</div>
+              <div class="menu-item" id="menuSelInvert">Invert Selection</div>
+            </div>
+          </div>
+
+          <div class="menu-btn-wrap pl-btn-wrap-misc">
+            <button class="pledif-btn btn-pl-misc" id="plMiscBtn" title="Misc actions"></button>
+            <div class="popup-menu hidden" id="plMiscMenu">
+              <div class="menu-item" id="menuSortTitle">Sort List by Title</div>
+              <div class="menu-item" id="menuSortFilename">Sort List by Filename</div>
+              <div class="menu-item" id="menuShuffleList">Randomize / Shuffle List</div>
+              <div class="menu-item" id="menuReverseList">Reverse List</div>
+            </div>
+          </div>
+
+          <!-- Time Displays in Playlist -->
+          <div class="pl-time-display-box" id="plTotalTime">0:00/0:00</div>
+          <div class="pl-cur-time-box" id="plCurTime">00:00</div>
+
+          <!-- Mini Transport Controls in Playlist -->
+          <div class="pl-mini-transport">
+            <button class="pl-mini-btn mini-prev" id="plMiniPrev" title="Previous"></button>
+            <button class="pl-mini-btn mini-play" id="plMiniPlay" title="Play"></button>
+            <button class="pl-mini-btn mini-pause" id="plMiniPause" title="Pause"></button>
+            <button class="pl-mini-btn mini-stop" id="plMiniStop" title="Stop"></button>
+            <button class="pl-mini-btn mini-next" id="plMiniNext" title="Next"></button>
+            <button class="pl-mini-btn mini-eject" id="plMiniEject" title="Open"></button>
+          </div>
+
+          <!-- LIST OPTS Button on Right -->
+          <div class="menu-btn-wrap pl-btn-wrap-opts">
+            <button class="pledif-btn btn-pl-opts" id="plOptsBtn" title="Playlist Options"></button>
+            <div class="popup-menu right-aligned hidden" id="plOptsMenu">
+              <div class="menu-item" id="menuExportM3U">Export to M3U...</div>
+              <div class="menu-item" id="menuSavePlaylist">Save Playlist to DB</div>
+              <div class="menu-item" id="menuReloadStorage">Reload Stored Songs</div>
+            </div>
+          </div>
+
+          <!-- Resizable Handles (Authentic Winamp Bottom-Right Grip & Bottom Edge) -->
+          <div class="pl-resize-bottom" id="plResizeBottom" title="Drag to Resize Playlist Window"></div>
+          <div class="pl-resize-handle" id="plResizeHandle" title="Drag to Resize Playlist (Double-click to toggle size)"></div>
+        </div>
+      </div>
+
+    </div> <!-- End windows-container -->
+
+    <!-- Status toast message -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Modal for Help / Shortcuts -->
+    <div id="helpModal" class="modal-backdrop hidden">
+      <div class="modal-window">
+        <div class="modal-titlebar">
+          <span>Winamp 2.91 Web Player - Shortcuts & Guide</span>
+          <button class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+        <div class="modal-content">
+          <h3>Keyboard Shortcuts</h3>
+          <table>
+            <tr><td><kbd>Z</kbd></td><td>Previous Track</td></tr>
+            <tr><td><kbd>X</kbd></td><td>Play</td></tr>
+            <tr><td><kbd>C</kbd></td><td>Pause / Unpause</td></tr>
+            <tr><td><kbd>V</kbd></td><td>Stop</td></tr>
+            <tr><td><kbd>B</kbd></td><td>Next Track</td></tr>
+            <tr><td><kbd>L</kbd></td><td>Open File(s)</td></tr>
+            <tr><td><kbd>S</kbd></td><td>Toggle Shuffle</td></tr>
+            <tr><td><kbd>R</kbd></td><td>Toggle Repeat</td></tr>
+            <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Volume Up / Down (5%)</td></tr>
+            <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Seek Back / Forward (5s)</td></tr>
+            <tr><td><kbd>Space</kbd></td><td>Toggle Play / Pause</td></tr>
+            <tr><td><kbd>Delete</kbd></td><td>Remove Selected Song from Playlist</td></tr>
+          </table>
+          <h3>Features</h3>
+          <ul>
+            <li><strong>Authentic Winamp 2.91 Engine:</strong> 275px modular windows with magnetic snapping.</li>
+            <li><strong>Resizable Playlist:</strong> Drag the bottom-right corner of the Playlist window to resize it to any height!</li>
+            <li><strong>Skins:</strong> Classic 2.91 (Original Titanium) and Modern Silver Blue.</li>
+            <li><strong>Persistence:</strong> Audio files and playlists are saved automatically to browser <em>IndexedDB</em> and restored across reloads!</li>
+            <li><strong>Equalizer:</strong> Genuine 10-band BiquadFilter equalizer (-12dB to +12dB) with Preamp and 16 presets.</li>
+            <li><strong>Visualizer:</strong> Real-time 60FPS frequency spectrum analyzer with falling peak dots and oscilloscope!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Audio Element -->
+  <audio id="audioElement" preload="auto" crossorigin="anonymous"></audio>
+
+  <!-- Scripts -->
+  <script src="db.js"></script>
+  <script src="id3.js"></script>
+  <script src="audio-engine.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
