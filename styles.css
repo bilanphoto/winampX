@@ -127,6 +127,11 @@ body {
 /* ==========================================================================
    WORKSPACE CONTAINER & WINDOWS
    ========================================================================== */
+:root {
+  --mobile-scale: 1;
+  --ws-height: 464px;
+}
+
 #windows-container {
   position: relative;
   width: 100vw;
@@ -135,6 +140,43 @@ body {
   overflow-x: hidden;
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
+  box-sizing: border-box;
+}
+
+#winamp-workspace {
+  position: relative;
+  width: 275px;
+  transform-origin: top center;
+}
+
+@media (max-width: 650px) {
+  #windows-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: max(48px, env(safe-area-inset-top, 48px));
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 20px));
+    padding-left: max(8px, env(safe-area-inset-left, 8px));
+    padding-right: max(8px, env(safe-area-inset-right, 8px));
+  }
+
+  #winamp-workspace {
+    margin: 0 auto;
+    transform: scale(var(--mobile-scale, 1));
+    height: var(--ws-height, 464px);
+    margin-bottom: calc((var(--mobile-scale, 1) - 1) * var(--ws-height, 464px) + 24px);
+    flex-shrink: 0;
+  }
+}
+
+@media (min-width: 651px) {
+  #winamp-workspace {
+    position: static;
+    width: 100%;
+    height: 100%;
+    transform: none !important;
+    margin: 0 !important;
+  }
 }
 
 .wa-window {
@@ -547,14 +589,14 @@ body {
   width: 275px;
   height: 232px;
   min-height: 116px;
-  max-height: 600px;
+  max-height: 900px;
   display: flex;
   flex-direction: column;
   position: absolute;
   top: 257px;
   left: 20px;
   z-index: 10;
-  overflow: hidden;
+  overflow: visible;
 }
 
 .pl-top-bar {
@@ -643,32 +685,41 @@ body {
   position: relative;
 }
 
+.pl-bottom-bar .menu-btn-wrap {
+  position: absolute !important;
+}
+
 .pledif-btn {
   width: 22px;
   height: 18px;
   border: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  box-sizing: border-box;
   font-size: 0;
 }
 
-.pl-btn-wrap-add  { position: absolute; left: 14px;  top: 8px; }
-.pl-btn-wrap-rem  { position: absolute; left: 55px;  top: 8px; }
-.pl-btn-wrap-sel  { position: absolute; left: 96px;  top: 8px; }
-.pl-btn-wrap-misc { position: absolute; left: 137px; top: 8px; }
-.pl-btn-wrap-opts { position: absolute; right: 6px;  top: 8px; }
+.pl-btn-wrap-add  { position: absolute !important; left: 8px;   top: 10px; z-index: 60; }
+.pl-btn-wrap-rem  { position: absolute !important; left: 33px;  top: 10px; z-index: 60; }
+.pl-btn-wrap-sel  { position: absolute !important; left: 58px;  top: 10px; z-index: 60; }
+.pl-btn-wrap-misc { position: absolute !important; left: 83px;  top: 10px; z-index: 60; }
+.pl-btn-wrap-opts { position: absolute !important; right: 8px;  top: 10px; z-index: 60; }
 
 .pl-time-display-box {
   position: absolute;
-  left: 126px;
-  top: 17px;
+  left: 110px;
+  top: 14px;
   font-family: 'VT323', monospace;
   font-size: 11px;
 }
 
 .pl-cur-time-box {
   position: absolute;
-  left: 198px;
-  top: 17px;
+  left: 172px;
+  top: 14px;
   font-family: 'VT323', monospace;
   font-size: 11px;
 }
@@ -676,8 +727,8 @@ body {
 .pl-mini-transport {
   display: flex;
   position: absolute;
-  left: 167px;
-  top: 27px;
+  left: 206px;
+  top: 15px;
   gap: 2px;
 }
 
@@ -868,6 +919,14 @@ body.skin-classic .btn-pl-rem  { background-position: -55px -72px; }
 body.skin-classic .btn-pl-sel  { background-position: -96px -72px; }
 body.skin-classic .btn-pl-misc { background-position: -137px -72px; }
 body.skin-classic .btn-pl-opts { background-position: -247px -72px; }
+body.skin-classic .pl-btn-wrap-add  { left: 14px; }
+body.skin-classic .pl-btn-wrap-rem  { left: 55px; }
+body.skin-classic .pl-btn-wrap-sel  { left: 96px; }
+body.skin-classic .pl-btn-wrap-misc { left: 137px; }
+body.skin-classic .pl-btn-wrap-opts { right: 6px; }
+body.skin-classic .pl-time-display-box { left: 126px; top: 17px; }
+body.skin-classic .pl-cur-time-box     { left: 198px; top: 17px; }
+body.skin-classic .pl-mini-transport   { left: 167px; top: 27px; }
 
 body.skin-classic .pl-time-display-box,
 body.skin-classic .pl-cur-time-box {
@@ -1170,12 +1229,24 @@ body.skin-modern .pl-bottom-bar {
 }
 
 body.skin-modern .pledif-btn {
+  width: 22px;
+  height: 18px;
   background: linear-gradient(180deg, #ffffff 0%, #cbd5e1 100%);
   border: 1px solid #64748b;
   border-radius: 3px;
   color: #1e293b;
   font-size: 7px;
   font-weight: bold;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  box-sizing: border-box;
+}
+body.skin-modern .btn-pl-opts {
+  width: 28px;
 }
 body.skin-modern .btn-pl-add::after  { content: '+ADD'; }
 body.skin-modern .btn-pl-rem::after  { content: '-REM'; }
@@ -1557,18 +1628,33 @@ body.skin-midnight .pl-bottom-bar {
 }
 
 body.skin-midnight .pledif-btn {
+  width: 22px;
+  height: 18px;
   background: linear-gradient(180deg, #f1f5f9 0%, #cbd5e1 40%, #94a3b8 100%);
   border: 1px solid #475569;
   border-radius: 2px;
   color: #1e293b;
   font-size: 7px;
   font-weight: bold;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  box-sizing: border-box;
+}
+body.skin-midnight .pledif-btn:active {
+  background: linear-gradient(180deg, #94a3b8 0%, #cbd5e1 100%);
+}
+body.skin-midnight .btn-pl-opts {
+  width: 28px;
 }
 body.skin-midnight .btn-pl-add::after  { content: 'ADD'; }
 body.skin-midnight .btn-pl-rem::after  { content: 'REM'; }
 body.skin-midnight .btn-pl-sel::after  { content: 'SEL'; }
 body.skin-midnight .btn-pl-misc::after { content: 'MISC'; }
-body.skin-midnight .btn-pl-opts::after { content: 'LIST OPTS'; }
+body.skin-midnight .btn-pl-opts::after { content: 'OPTS'; }
 
 body.skin-midnight .pl-time-display-box,
 body.skin-midnight .pl-cur-time-box {
@@ -1640,6 +1726,10 @@ body.skin-midnight .pl-resize-handle {
 /* Popups & Menus */
 .menu-btn-wrap {
   position: relative;
+}
+
+.pl-bottom-bar .menu-btn-wrap {
+  position: absolute !important;
 }
 
 .main-menu-wrap {

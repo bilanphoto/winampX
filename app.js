@@ -310,10 +310,68 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupWindowDragging(eqWindow, eqTitlebar);
   setupWindowDragging(plWindow, plTitlebar);
 
+  function updateResponsiveLayout() {
+    const isMobile = window.innerWidth <= 650;
+    if (isMobile) {
+      // Calculate scale factor so 275px fills mobile screen nicely with 8-10px margins
+      const targetW = Math.max(275, window.innerWidth - 18);
+      const scale = Math.min(1.52, Math.max(1.0, targetW / 275));
+      document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
+
+      // Calculate safe margins and heights
+      const winContainer = document.getElementById('windows-container');
+      const padTop = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 48 : 48;
+      const padBottom = winContainer ? parseInt(getComputedStyle(winContainer).paddingBottom, 10) || 20 : 20;
+
+      const availHeight = (window.innerHeight - padTop - padBottom) / scale;
+      const mainH = mainWindow.classList.contains('shaded') ? 14 : 116;
+      let eqH = 0;
+      if (!eqWindow.classList.contains('hidden')) {
+        eqH = eqWindow.classList.contains('shaded') ? 14 : 116;
+      }
+
+      mainWindow.style.left = '0px';
+      mainWindow.style.top = '0px';
+
+      if (!eqWindow.classList.contains('hidden')) {
+        eqWindow.style.left = '0px';
+        eqWindow.style.top = `${mainH}px`;
+      }
+
+      const plTop = mainH + eqH;
+      plWindow.style.left = '0px';
+      plWindow.style.top = `${plTop}px`;
+
+      // Fill remaining vertical space down to the bottom
+      const targetPlH = Math.max(180, Math.floor(availHeight - plTop));
+      plWindow.style.height = `${targetPlH}px`;
+
+      const totalH = plTop + targetPlH;
+      document.documentElement.style.setProperty('--ws-height', `${totalH}px`);
+
+      if (typeof updatePlScrollbarThumb === 'function') {
+        updatePlScrollbarThumb();
+      }
+    } else {
+      document.documentElement.style.setProperty('--mobile-scale', '1');
+    }
+  }
+
   function resetWindowLayout() {
+    if (window.innerWidth <= 650) {
+      mainWindow.classList.remove('hidden', 'shaded');
+      eqWindow.classList.remove('hidden', 'shaded');
+      plWindow.classList.remove('hidden', 'shaded');
+      btnToggleEQ.classList.add('active');
+      btnTogglePL.classList.add('active');
+      updateResponsiveLayout();
+      saveWindowPositions();
+      return;
+    }
+
     const width = 275;
     const startX = Math.max(0, Math.floor((window.innerWidth - width) / 2));
-    const startY = window.innerWidth < 450 ? 10 : 25;
+    const startY = 25;
 
     mainWindow.style.left = `${startX}px`;
     mainWindow.style.top = `${startY}px`;
@@ -349,24 +407,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function restoreWindowPositions() {
+    const isMobile = window.innerWidth <= 650;
     const layout = await window.winampDB.getSetting('layout', null);
+
+    if (isMobile) {
+      if (layout) {
+        if (layout.main && layout.main.shaded) mainWindow.classList.add('shaded');
+        if (layout.eq) {
+          if (!layout.eq.visible) {
+            eqWindow.classList.add('hidden');
+            btnToggleEQ.classList.remove('active');
+          }
+          if (layout.eq.shaded) eqWindow.classList.add('shaded');
+        }
+        if (layout.pl) {
+          if (!layout.pl.visible) {
+            plWindow.classList.add('hidden');
+            btnTogglePL.classList.remove('active');
+          }
+          if (layout.pl.shaded) plWindow.classList.add('shaded');
+        }
+      }
+      updateResponsiveLayout();
+      return;
+    }
+
     const maxLeft = Math.max(0, window.innerWidth - 275);
-    const isMobile = window.innerWidth < 450;
     const defaultX = Math.max(0, Math.floor((window.innerWidth - 275) / 2));
 
     if (layout) {
       if (layout.main) {
         let leftVal = parseInt(layout.main.left, 10);
-        if (isNaN(leftVal) || leftVal > maxLeft || isMobile) leftVal = defaultX;
+        if (isNaN(leftVal) || leftVal > maxLeft) leftVal = defaultX;
         mainWindow.style.left = `${leftVal}px`;
-        mainWindow.style.top = layout.main.top || (isMobile ? '10px' : '25px');
+        mainWindow.style.top = layout.main.top || '25px';
         if (layout.main.shaded) mainWindow.classList.add('shaded');
       }
       if (layout.eq) {
         let leftVal = parseInt(layout.eq.left, 10);
-        if (isNaN(leftVal) || leftVal > maxLeft || isMobile) leftVal = defaultX;
+        if (isNaN(leftVal) || leftVal > maxLeft) leftVal = defaultX;
         eqWindow.style.left = `${leftVal}px`;
-        eqWindow.style.top = layout.eq.top || (isMobile ? '126px' : '141px');
+        eqWindow.style.top = layout.eq.top || '141px';
         if (!layout.eq.visible) {
           eqWindow.classList.add('hidden');
           btnToggleEQ.classList.remove('active');
@@ -375,9 +456,9 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
       if (layout.pl) {
         let leftVal = parseInt(layout.pl.left, 10);
-        if (isNaN(leftVal) || leftVal > maxLeft || isMobile) leftVal = defaultX;
+        if (isNaN(leftVal) || leftVal > maxLeft) leftVal = defaultX;
         plWindow.style.left = `${leftVal}px`;
-        plWindow.style.top = layout.pl.top || (isMobile ? '242px' : '257px');
+        plWindow.style.top = layout.pl.top || '257px';
         if (layout.pl.height) {
           plWindow.style.height = layout.pl.height;
         }
@@ -397,14 +478,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   mainShadeBtn.addEventListener('click', () => {
     mainWindow.classList.toggle('shaded');
+    if (window.innerWidth <= 650) updateResponsiveLayout();
     saveWindowPositions();
   });
   eqShadeBtn.addEventListener('click', () => {
     eqWindow.classList.toggle('shaded');
+    if (window.innerWidth <= 650) updateResponsiveLayout();
     saveWindowPositions();
   });
   plShadeBtn.addEventListener('click', () => {
     plWindow.classList.toggle('shaded');
+    if (window.innerWidth <= 650) updateResponsiveLayout();
     saveWindowPositions();
   });
 
@@ -412,6 +496,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     eqWindow.classList.toggle('hidden');
     btnToggleEQ.classList.toggle('active', !eqWindow.classList.contains('hidden'));
     if (!eqWindow.classList.contains('hidden')) bringToFront(eqWindow);
+    if (window.innerWidth <= 650) updateResponsiveLayout();
     saveWindowPositions();
   });
 
@@ -419,18 +504,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     plWindow.classList.toggle('hidden');
     btnTogglePL.classList.toggle('active', !plWindow.classList.contains('hidden'));
     if (!plWindow.classList.contains('hidden')) bringToFront(plWindow);
+    if (window.innerWidth <= 650) updateResponsiveLayout();
     saveWindowPositions();
   });
 
   eqCloseBtn.addEventListener('click', () => {
     eqWindow.classList.add('hidden');
     btnToggleEQ.classList.remove('active');
+    if (window.innerWidth <= 650) updateResponsiveLayout();
     saveWindowPositions();
   });
 
   plCloseBtn.addEventListener('click', () => {
     plWindow.classList.add('hidden');
     btnTogglePL.classList.remove('active');
+    if (window.innerWidth <= 650) updateResponsiveLayout();
     saveWindowPositions();
   });
 
@@ -518,7 +606,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    window.addEventListener('resize', updatePlScrollbarThumb);
+    window.addEventListener('resize', () => {
+      updateResponsiveLayout();
+      updatePlScrollbarThumb();
+    });
+    window.addEventListener('orientationchange', () => {
+      setTimeout(() => {
+        updateResponsiveLayout();
+        updatePlScrollbarThumb();
+      }, 100);
+    });
   }
 
   function setupPlaylistResize() {
