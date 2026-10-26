@@ -168,6 +168,9 @@ body {
 .winamp-main {
   height: 116px;
   position: absolute;
+  top: 25px;
+  left: 20px;
+  z-index: 30;
 }
 
 /* Titlebar */
@@ -452,6 +455,9 @@ body {
 .winamp-eq {
   height: 116px;
   position: absolute;
+  top: 141px;
+  left: 20px;
+  z-index: 20;
 }
 
 .eq-body {
@@ -545,6 +551,9 @@ body {
   display: flex;
   flex-direction: column;
   position: absolute;
+  top: 257px;
+  left: 20px;
+  z-index: 10;
   overflow: hidden;
 }
 

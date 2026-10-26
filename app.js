@@ -187,11 +187,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.currentSkin = skinName;
     document.body.className = skinName;
 
-    btnSkinModern.classList.toggle('active', skinName === 'skin-modern');
-    btnSkinClassic.classList.toggle('active', skinName === 'skin-classic');
-    if (btnSkinMidnight) {
-      btnSkinMidnight.classList.toggle('active', skinName === 'skin-midnight');
-    }
+    if (btnSkinModern) btnSkinModern.classList.toggle('active', skinName === 'skin-modern');
+    if (btnSkinClassic) btnSkinClassic.classList.toggle('active', skinName === 'skin-classic');
+    if (btnSkinMidnight) btnSkinMidnight.classList.toggle('active', skinName === 'skin-midnight');
 
     window.winampDB.setSetting('skin', skinName);
     const skinLabels = {
@@ -221,11 +219,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  btnSkinModern.addEventListener('click', () => switchSkin('skin-modern'));
-  btnSkinClassic.addEventListener('click', () => switchSkin('skin-classic'));
-  if (btnSkinMidnight) {
-    btnSkinMidnight.addEventListener('click', () => switchSkin('skin-midnight'));
-  }
+  if (btnSkinModern) btnSkinModern.addEventListener('click', () => switchSkin('skin-modern'));
+  if (btnSkinClassic) btnSkinClassic.addEventListener('click', () => switchSkin('skin-classic'));
+  if (btnSkinMidnight) btnSkinMidnight.addEventListener('click', () => switchSkin('skin-midnight'));
 
   // =========================================================================
   // WINDOW DOCKING, SNAPPING & DRAGGING
@@ -438,7 +434,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveWindowPositions();
   });
 
-  btnResetLayout.addEventListener('click', resetWindowLayout);
+  if (btnResetLayout) btnResetLayout.addEventListener('click', resetWindowLayout);
 
   // =========================================================================
   // PLAYLIST RESIZING & SCROLLBAR
@@ -629,9 +625,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (menuToggleEqWin) menuToggleEqWin.addEventListener('click', () => { btnToggleEQ.click(); mainContextMenu.classList.add('hidden'); });
     if (menuTogglePlWin) menuTogglePlWin.addEventListener('click', () => { btnTogglePL.click(); mainContextMenu.classList.add('hidden'); });
     if (menuOpenFiles) menuOpenFiles.addEventListener('click', () => { fileInput.click(); mainContextMenu.classList.add('hidden'); });
-    if (menuOpenDemo) menuOpenDemo.addEventListener('click', () => { btnLoadDemo.click(); mainContextMenu.classList.add('hidden'); });
+    if (menuOpenDemo) menuOpenDemo.addEventListener('click', () => { loadDemoSongs(); mainContextMenu.classList.add('hidden'); });
     if (menuResetWin) menuResetWin.addEventListener('click', () => { resetWindowLayout(); mainContextMenu.classList.add('hidden'); });
-    if (menuShowHelp) menuShowHelp.addEventListener('click', () => { btnKeyboardHelp.click(); mainContextMenu.classList.add('hidden'); });
+    if (menuShowHelp) menuShowHelp.addEventListener('click', () => { helpModal.classList.remove('hidden'); mainContextMenu.classList.add('hidden'); });
   }
 
   setupPlaylistScrollbar();
@@ -1337,6 +1333,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   const dropTargets = [document.body, plListDropZone, mainWindow, eqWindow, plWindow];
   dropTargets.forEach(target => {
+    if (!target) return;
     target.addEventListener('dragover', (e) => {
       e.preventDefault();
       e.dataTransfer.dropEffect = 'copy';
@@ -1469,7 +1466,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     plAddMenu.classList.add('hidden');
   });
 
-  btnLoadDemo.addEventListener('click', loadDemoSongs);
+  if (btnLoadDemo) btnLoadDemo.addEventListener('click', loadDemoSongs);
 
   document.getElementById('menuRemSelected').addEventListener('click', async () => {
     plRemMenu.classList.add('hidden');
@@ -1804,8 +1801,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     timeMinus.classList.toggle('active', remMode);
   }
 
-  btnKeyboardHelp.addEventListener('click', () => helpModal.classList.remove('hidden'));
-  btnAbout.addEventListener('click', () => helpModal.classList.remove('hidden'));
+  if (btnKeyboardHelp) btnKeyboardHelp.addEventListener('click', () => helpModal.classList.remove('hidden'));
+  if (btnAbout) btnAbout.addEventListener('click', () => helpModal.classList.remove('hidden'));
   modalCloseBtn.addEventListener('click', () => helpModal.classList.add('hidden'));
   helpModal.addEventListener('click', (e) => {
     if (e.target === helpModal) helpModal.classList.add('hidden');

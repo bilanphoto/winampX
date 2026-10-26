@@ -134,14 +134,25 @@ class WinampDB {
       localStorage.setItem('wa_' + key, JSON.stringify(value));
     } catch (e) {}
 
-    if (!this.db) await this.init();
-    return new Promise((resolve, reject) => {
-      const transaction = this.db.transaction(['settings'], 'readwrite');
-      const store = transaction.objectStore('settings');
-      const req = store.put({ key, value });
+    if (!this.db) {
+      try {
+        await this.init();
+      } catch (e) {
+        return false;
+      }
+    }
 
-      req.onsuccess = () => resolve(true);
-      req.onerror = () => reject(req.error);
+    return new Promise((resolve) => {
+      try {
+        const transaction = this.db.transaction(['settings'], 'readwrite');
+        const store = transaction.objectStore('settings');
+        const req = store.put({ key, value });
+
+        req.onsuccess = () => resolve(true);
+        req.onerror = () => resolve(false);
+      } catch (err) {
+        resolve(false);
+      }
     });
   }
 
@@ -163,18 +174,22 @@ class WinampDB {
     }
 
     return new Promise((resolve) => {
-      const transaction = this.db.transaction(['settings'], 'readonly');
-      const store = transaction.objectStore('settings');
-      const req = store.get(key);
+      try {
+        const transaction = this.db.transaction(['settings'], 'readonly');
+        const store = transaction.objectStore('settings');
+        const req = store.get(key);
 
-      req.onsuccess = () => {
-        if (req.result && req.result.value !== undefined) {
-          resolve(req.result.value);
-        } else {
-          resolve(localVal);
-        }
-      };
-      req.onerror = () => resolve(localVal);
+        req.onsuccess = () => {
+          if (req.result && req.result.value !== undefined) {
+            resolve(req.result.value);
+          } else {
+            resolve(localVal);
+          }
+        };
+        req.onerror = () => resolve(localVal);
+      } catch (err) {
+        resolve(localVal);
+      }
     });
   }
 }
