@@ -311,14 +311,66 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupWindowDragging(plWindow, plTitlebar);
 
   function updateResponsiveLayout() {
-    const isMobile = window.innerWidth <= 650;
-    if (isMobile) {
-      // Calculate scale factor so 275px fills mobile screen nicely with 8-10px margins
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    const isLandscape = window.innerWidth > window.innerHeight && (window.innerHeight <= 550 || (isTouch && window.innerWidth <= 1000));
+    const isPortrait = !isLandscape && (window.innerWidth <= 650 || (isTouch && window.innerWidth <= 650));
+
+    if (isLandscape) {
+      document.body.classList.remove('layout-portrait', 'layout-desktop');
+      document.body.classList.add('layout-landscape');
+
+      // Landscape Dual Column Layout (matching attached car photo):
+      // Left Column (275px wide): Main window (top) + EQ window (bottom)
+      // Right Column (275px wide): Playlist window docked to the right of Main and EQ
+      const baseW = 550; // 275 + 275
+      const baseH = 232; // 116 + 116
+
+      const winContainer = document.getElementById('windows-container');
+      const padL = winContainer ? parseInt(getComputedStyle(winContainer).paddingLeft, 10) || 24 : 24;
+      const padR = winContainer ? parseInt(getComputedStyle(winContainer).paddingRight, 10) || 24 : 24;
+      const padT = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 6 : 6;
+      const padB = winContainer ? parseInt(getComputedStyle(winContainer).paddingBottom, 10) || 6 : 6;
+
+      const availW = Math.max(300, window.innerWidth - padL - padR - 10);
+      const availH = Math.max(180, window.innerHeight - padT - padB - 8);
+
+      const scale = Math.min(availW / baseW, availH / baseH, 1.6);
+      const finalScale = Math.max(0.65, scale);
+
+      document.documentElement.style.setProperty('--mobile-scale', finalScale.toFixed(3));
+      document.documentElement.style.setProperty('--ws-width', '550px');
+      document.documentElement.style.setProperty('--ws-height', '232px');
+
+      // Left column: Main window
+      mainWindow.style.left = '0px';
+      mainWindow.style.top = '0px';
+      mainWindow.classList.remove('hidden');
+
+      // Left column: Equalizer window below Main
+      eqWindow.style.left = '0px';
+      eqWindow.style.top = '116px';
+      eqWindow.classList.remove('hidden');
+
+      // Right column: Playlist window docked to the right of Main & EQ
+      plWindow.style.left = '275px';
+      plWindow.style.top = '0px';
+      plWindow.style.height = '232px';
+      plWindow.classList.remove('hidden');
+
+      if (typeof updatePlScrollbarThumb === 'function') {
+        updatePlScrollbarThumb();
+      }
+    } else if (isPortrait) {
+      document.body.classList.remove('layout-landscape', 'layout-desktop');
+      document.body.classList.add('layout-portrait');
+
+      // Portrait Single Column Stack:
+      // Top: Main, Middle: EQ, Bottom: Playlist (filling height)
       const targetW = Math.max(275, window.innerWidth - 18);
       const scale = Math.min(1.52, Math.max(1.0, targetW / 275));
       document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
+      document.documentElement.style.setProperty('--ws-width', '275px');
 
-      // Calculate safe margins and heights
       const winContainer = document.getElementById('windows-container');
       const padTop = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 48 : 48;
       const padBottom = winContainer ? parseInt(getComputedStyle(winContainer).paddingBottom, 10) || 20 : 20;
@@ -342,7 +394,6 @@ document.addEventListener('DOMContentLoaded', async () => {
       plWindow.style.left = '0px';
       plWindow.style.top = `${plTop}px`;
 
-      // Fill remaining vertical space down to the bottom
       const targetPlH = Math.max(180, Math.floor(availHeight - plTop));
       plWindow.style.height = `${targetPlH}px`;
 
@@ -353,12 +404,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         updatePlScrollbarThumb();
       }
     } else {
+      document.body.classList.remove('layout-portrait', 'layout-landscape');
+      document.body.classList.add('layout-desktop');
       document.documentElement.style.setProperty('--mobile-scale', '1');
+      document.documentElement.style.setProperty('--ws-width', '100%');
+      document.documentElement.style.setProperty('--ws-height', '100%');
     }
   }
 
   function resetWindowLayout() {
-    if (window.innerWidth <= 650) {
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    const isMobile = window.innerWidth <= 650 || (window.innerWidth > window.innerHeight && (window.innerHeight <= 550 || isTouch));
+    if (isMobile) {
       mainWindow.classList.remove('hidden', 'shaded');
       eqWindow.classList.remove('hidden', 'shaded');
       plWindow.classList.remove('hidden', 'shaded');
@@ -407,7 +464,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function restoreWindowPositions() {
-    const isMobile = window.innerWidth <= 650;
+    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+    const isMobile = window.innerWidth <= 650 || (window.innerWidth > window.innerHeight && (window.innerHeight <= 550 || isTouch));
     const layout = await window.winampDB.getSetting('layout', null);
 
     if (isMobile) {
