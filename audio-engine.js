@@ -92,6 +92,12 @@ class WinampAudioEngine {
       this.masterGain.connect(this.analyser);
       this.analyser.connect(this.ctx.destination);
 
+      document.addEventListener('visibilitychange', () => {
+        if (this.ctx && this.ctx.state === 'suspended' && !this.audio.paused) {
+          this.ctx.resume().catch(() => {});
+        }
+      });
+
       this.isInitialized = true;
     } catch (e) {
       console.warn("Web Audio API could not be initialized yet:", e);

@@ -372,8 +372,8 @@
 
   </div>
 
-  <!-- Audio Element -->
-  <audio id="audioElement" preload="auto" crossorigin="anonymous"></audio>
+  <!-- Audio Element (Configured for background and inline playback on iOS / mobile) -->
+  <audio id="audioElement" preload="auto" playsinline webkit-playsinline crossorigin="anonymous"></audio>
 
   <!-- Scripts -->
   <script src="db.js"></script>

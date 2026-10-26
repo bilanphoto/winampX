@@ -899,6 +899,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.isPlaying = true;
     state.isPaused = false;
     playStatusIcon.className = 'play-status-icon play';
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
   });
 
   audioElement.addEventListener('pause', () => {
@@ -906,6 +907,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       state.isPlaying = false;
       state.isPaused = true;
       playStatusIcon.className = 'play-status-icon pause';
+      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
     }
   });
 
@@ -1336,6 +1338,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
+  function updateMediaSession(track) {
+    if ('mediaSession' in navigator && track) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({
+          title: track.title || 'Unknown Title',
+          artist: track.artist || 'Winamp Web Player',
+          album: 'Winamp',
+          artwork: [
+            { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
+            { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
+          ],
+        });
+      } catch (e) {}
+    }
+  }
+
   async function playTrackIndex(idx) {
     if (idx < 0 || idx >= state.playlist.length) return;
     const track = state.playlist[idx];
@@ -1343,6 +1361,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const fullTitle = `${idx + 1}. ${track.artist ? `${track.artist} - ` : ''}${track.title} (${AudioMetadataParser.formatTime(track.duration)})`;
     titleMarquee.textContent = fullTitle;
+    titleMarquee.style.animation = 'none';
+    void titleMarquee.offsetWidth;
+    titleMarquee.style.animation = '';
+    updateMediaSession(track);
+
     kbpsDisplay.textContent = `${track.bitrate || 128} KBPS`;
     khzDisplay.textContent = `${Math.round((track.sampleRate || 44100) / 1000)} KHZ`;
     
@@ -1494,6 +1517,47 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnEject.addEventListener('click', () => {
     fileInput.click();
   });
+
+  if (mainMinBtn) {
+    mainMinBtn.addEventListener('click', () => {
+      mainWindow.classList.toggle('shaded');
+      if (window.innerWidth <= 650) updateResponsiveLayout();
+      saveWindowPositions();
+    });
+  }
+
+  // Setup MediaSession API for lock-screen & background playback controls on iOS / Android / Desktop
+  if ('mediaSession' in navigator) {
+    try {
+      navigator.mediaSession.setActionHandler('play', () => {
+        engine.play();
+      });
+      navigator.mediaSession.setActionHandler('pause', () => {
+        engine.pause();
+      });
+      navigator.mediaSession.setActionHandler('previoustrack', () => {
+        btnPrev.click();
+      });
+      navigator.mediaSession.setActionHandler('nexttrack', () => {
+        btnNext.click();
+      });
+      navigator.mediaSession.setActionHandler('seekto', (details) => {
+        if (details.seekTime !== undefined) {
+          engine.seek(details.seekTime);
+        }
+      });
+      navigator.mediaSession.setActionHandler('seekbackward', (details) => {
+        const skip = details.seekOffset || 10;
+        engine.seek(Math.max(0, audioElement.currentTime - skip));
+      });
+      navigator.mediaSession.setActionHandler('seekforward', (details) => {
+        const skip = details.seekOffset || 10;
+        engine.seek(Math.min(audioElement.duration || 0, audioElement.currentTime + skip));
+      });
+    } catch (e) {
+      console.warn('MediaSession handler registration failed:', e);
+    }
+  }
 
   btnShuffle.addEventListener('click', () => {
     state.shuffle = !state.shuffle;
@@ -1849,6 +1913,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         state.currentIndex = lastIdx;
         const track = state.playlist[lastIdx];
         titleMarquee.textContent = `${lastIdx + 1}. ${track.artist ? `${track.artist} - ` : ''}${track.title} (${AudioMetadataParser.formatTime(track.duration)})`;
+        titleMarquee.style.animation = 'none';
+        void titleMarquee.offsetWidth;
+        titleMarquee.style.animation = '';
+        updateMediaSession(track);
         kbpsDisplay.textContent = `${track.bitrate || 128} KBPS`;
         khzDisplay.textContent = `${Math.round((track.sampleRate || 44100) / 1000)} KHZ`;
       }
