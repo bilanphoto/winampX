@@ -261,8 +261,9 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     function onMouseMove(e) {
       if (!isDragging) return;
-      let newLeft = initialLeft + (e.clientX - startX);
-      let newTop = initialTop + (e.clientY - startY);
+      const scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mobile-scale')) || 1;
+      let newLeft = initialLeft + (e.clientX - startX) / scale;
+      let newTop = initialTop + (e.clientY - startY) / scale;
 
       if (Math.abs(newLeft) < SNAP_DISTANCE) newLeft = 0;
       if (Math.abs(newTop) < SNAP_DISTANCE) newTop = 0;
@@ -317,146 +318,142 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupWindowDragging(plWindow, plTitlebar);
 
   function updateResponsiveLayout() {
-    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    const isLandscape = window.innerWidth > window.innerHeight && (window.innerHeight <= 550 || (isTouch && window.innerWidth <= 1000));
-    const isPortrait = !isLandscape && (window.innerWidth <= 650 || (isTouch && window.innerWidth <= 650));
+    // Universal responsive auto-resizing across all screen sizes:
+    // Landscape (width >= height * 1.05): Dual-column layout (Left: Main + EQ, Right: Playlist)
+    // Portrait (width < height * 1.05): Single-column stack (Top: Main, Middle: EQ, Bottom: Playlist)
+    const isLandscape = window.innerWidth >= window.innerHeight * 1.05;
+    const winContainer = document.getElementById('windows-container');
+    const isEqVisible = !eqWindow.classList.contains('hidden');
+    const isPlVisible = !plWindow.classList.contains('hidden');
 
     if (isLandscape) {
       document.body.classList.remove('layout-portrait', 'layout-desktop');
       document.body.classList.add('layout-landscape');
 
-      // Landscape Dual Column Layout (matching attached car photo):
-      // Left Column (275px wide): Main window (top) + EQ window (bottom)
-      // Right Column (275px wide): Playlist window docked to the right of Main and EQ
-      const baseW = 550; // 275 + 275
-      const baseH = 232; // 116 + 116
+      const padL = winContainer ? parseInt(getComputedStyle(winContainer).paddingLeft, 10) || 16 : 16;
+      const padR = winContainer ? parseInt(getComputedStyle(winContainer).paddingRight, 10) || 16 : 16;
+      const padT = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 8 : 8;
+      const padB = winContainer ? parseInt(getComputedStyle(winContainer).paddingBottom, 10) || 8 : 8;
 
-      const winContainer = document.getElementById('windows-container');
-      const padL = winContainer ? parseInt(getComputedStyle(winContainer).paddingLeft, 10) || 24 : 24;
-      const padR = winContainer ? parseInt(getComputedStyle(winContainer).paddingRight, 10) || 24 : 24;
-      const padT = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 6 : 6;
-      const padB = winContainer ? parseInt(getComputedStyle(winContainer).paddingBottom, 10) || 6 : 6;
+      const mainH = mainWindow.classList.contains('shaded') ? 14 : 116;
+      const eqH = isEqVisible ? (eqWindow.classList.contains('shaded') ? 14 : 116) : 0;
+      const leftColH = mainH + eqH;
 
-      const availW = Math.max(300, window.innerWidth - padL - padR - 10);
-      const availH = Math.max(180, window.innerHeight - padT - padB - 8);
+      let baseW = 550;
+      let baseH = 232;
 
-      const scale = Math.min(availW / baseW, availH / baseH, 1.6);
-      const finalScale = Math.max(0.65, scale);
+      if (!isPlVisible && !isEqVisible) {
+        baseW = 275;
+        baseH = mainH;
+      } else if (!isPlVisible) {
+        baseW = 275;
+        baseH = leftColH;
+      } else if (!isEqVisible) {
+        baseW = 550;
+        baseH = 232;
+      }
 
-      document.documentElement.style.setProperty('--mobile-scale', finalScale.toFixed(3));
-      document.documentElement.style.setProperty('--ws-width', '550px');
-      document.documentElement.style.setProperty('--ws-height', '232px');
+      const availW = Math.max(280, window.innerWidth - padL - padR);
+      const availH = Math.max(160, window.innerHeight - padT - padB);
+
+      let scale = Math.min(availW / baseW, availH / baseH);
+      scale = Math.max(0.5, Math.min(scale, 3.2));
+
+      document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
+      document.documentElement.style.setProperty('--ws-width', `${baseW}px`);
+      document.documentElement.style.setProperty('--ws-height', `${baseH}px`);
 
       // Left column: Main window
       mainWindow.style.left = '0px';
       mainWindow.style.top = '0px';
-      mainWindow.classList.remove('hidden');
 
-      // Left column: Equalizer window below Main
-      eqWindow.style.left = '0px';
-      eqWindow.style.top = '116px';
-      eqWindow.classList.remove('hidden');
-
-      // Right column: Playlist window docked to the right of Main & EQ
-      plWindow.style.left = '275px';
-      plWindow.style.top = '0px';
-      plWindow.style.height = '232px';
-      plWindow.classList.remove('hidden');
-
-      if (typeof updatePlScrollbarThumb === 'function') {
-        updatePlScrollbarThumb();
-      }
-    } else if (isPortrait) {
-      document.body.classList.remove('layout-landscape', 'layout-desktop');
-      document.body.classList.add('layout-portrait');
-
-      // Portrait Single Column Stack:
-      // Top: Main, Middle: EQ, Bottom: Playlist (filling height)
-      const targetW = Math.max(275, window.innerWidth - 18);
-      const scale = Math.min(1.52, Math.max(1.0, targetW / 275));
-      document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
-      document.documentElement.style.setProperty('--ws-width', '275px');
-
-      const winContainer = document.getElementById('windows-container');
-      const padTop = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 48 : 48;
-      const padBottom = winContainer ? parseInt(getComputedStyle(winContainer).paddingBottom, 10) || 20 : 20;
-
-      const availHeight = (window.innerHeight - padTop - padBottom) / scale;
-      const mainH = mainWindow.classList.contains('shaded') ? 14 : 116;
-      let eqH = 0;
-      if (!eqWindow.classList.contains('hidden')) {
-        eqH = eqWindow.classList.contains('shaded') ? 14 : 116;
-      }
-
-      mainWindow.style.left = '0px';
-      mainWindow.style.top = '0px';
-
-      if (!eqWindow.classList.contains('hidden')) {
+      // Left column: EQ window below Main
+      if (isEqVisible) {
         eqWindow.style.left = '0px';
         eqWindow.style.top = `${mainH}px`;
       }
 
-      const plTop = mainH + eqH;
-      plWindow.style.left = '0px';
-      plWindow.style.top = `${plTop}px`;
-
-      const targetPlH = Math.max(180, Math.floor(availHeight - plTop));
-      plWindow.style.height = `${targetPlH}px`;
-
-      const totalH = plTop + targetPlH;
-      document.documentElement.style.setProperty('--ws-height', `${totalH}px`);
+      // Right column: Playlist window docked to the right
+      if (isPlVisible) {
+        plWindow.style.left = baseW > 275 ? '275px' : '0px';
+        plWindow.style.top = '0px';
+        plWindow.style.height = '232px';
+      }
 
       if (typeof updatePlScrollbarThumb === 'function') {
         updatePlScrollbarThumb();
       }
     } else {
-      document.body.classList.remove('layout-portrait', 'layout-landscape');
-      document.body.classList.add('layout-desktop');
-      document.documentElement.style.setProperty('--mobile-scale', '1');
-      document.documentElement.style.setProperty('--ws-width', '100%');
-      document.documentElement.style.setProperty('--ws-height', '100%');
+      // Portrait layout: vertical stack Main -> EQ -> Playlist
+      document.body.classList.remove('layout-landscape', 'layout-desktop');
+      document.body.classList.add('layout-portrait');
+
+      const padL = winContainer ? parseInt(getComputedStyle(winContainer).paddingLeft, 10) || 8 : 8;
+      const padR = winContainer ? parseInt(getComputedStyle(winContainer).paddingRight, 10) || 8 : 8;
+      const padT = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 20 : 20;
+      const padB = winContainer ? parseInt(getComputedStyle(winContainer).paddingBottom, 10) || 20 : 20;
+
+      const availW = Math.max(260, window.innerWidth - padL - padR);
+      const availH = Math.max(200, window.innerHeight - padT - padB);
+
+      const mainH = mainWindow.classList.contains('shaded') ? 14 : 116;
+      const eqH = isEqVisible ? (eqWindow.classList.contains('shaded') ? 14 : 116) : 0;
+      const minReqH = mainH + eqH + (isPlVisible ? 160 : 0);
+
+      // Width-based scale
+      let scale = availW / 275;
+      scale = Math.min(scale, 2.2);
+
+      // Check if vertical height is too tight for minimum elements
+      if (minReqH * scale > availH && availH > 200) {
+        const heightScale = availH / minReqH;
+        if (heightScale < scale) {
+          scale = Math.max(0.65, heightScale);
+        }
+      }
+      scale = Math.max(0.65, scale);
+
+      document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
+      document.documentElement.style.setProperty('--ws-width', '275px');
+
+      // Top: Main window
+      mainWindow.style.left = '0px';
+      mainWindow.style.top = '0px';
+
+      // Middle: EQ window
+      if (isEqVisible) {
+        eqWindow.style.left = '0px';
+        eqWindow.style.top = `${mainH}px`;
+      }
+
+      // Bottom: Playlist window dynamically filling available height
+      let totalH = mainH + eqH;
+      if (isPlVisible) {
+        const plTop = totalH;
+        plWindow.style.left = '0px';
+        plWindow.style.top = `${plTop}px`;
+
+        const availPlH = (availH / scale) - plTop;
+        const targetPlH = Math.max(160, Math.floor(availPlH));
+        plWindow.style.height = `${targetPlH}px`;
+        totalH = plTop + targetPlH;
+      }
+
+      document.documentElement.style.setProperty('--ws-height', `${totalH}px`);
+
+      if (typeof updatePlScrollbarThumb === 'function') {
+        updatePlScrollbarThumb();
+      }
     }
   }
 
   function resetWindowLayout() {
-    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    const isMobile = window.innerWidth <= 650 || (window.innerWidth > window.innerHeight && (window.innerHeight <= 550 || isTouch));
-    if (isMobile) {
-      mainWindow.classList.remove('hidden', 'shaded');
-      eqWindow.classList.remove('hidden', 'shaded');
-      plWindow.classList.remove('hidden', 'shaded');
-      btnToggleEQ.classList.add('active');
-      btnTogglePL.classList.add('active');
-      updateResponsiveLayout();
-      saveWindowPositions();
-      return;
-    }
-
-    const width = 275;
-    const startX = Math.max(0, Math.floor((window.innerWidth - width) / 2));
-    const startY = 25;
-
-    mainWindow.style.left = `${startX}px`;
-    mainWindow.style.top = `${startY}px`;
     mainWindow.classList.remove('hidden', 'shaded');
-
-    const mainH = 116;
-    const eqH = 116;
-
-    eqWindow.style.left = `${startX}px`;
-    eqWindow.style.top = `${startY + mainH}px`;
     eqWindow.classList.remove('hidden', 'shaded');
-
-    plWindow.style.left = `${startX}px`;
-    plWindow.style.top = `${startY + mainH + eqH}px`;
-    plWindow.style.height = '232px';
     plWindow.classList.remove('hidden', 'shaded');
-
     btnToggleEQ.classList.add('active');
     btnTogglePL.classList.add('active');
-    if (typeof updatePlScrollbarThumb === 'function') {
-      updatePlScrollbarThumb();
-    }
+    updateResponsiveLayout();
     saveWindowPositions();
   }
 
@@ -470,89 +467,46 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   async function restoreWindowPositions() {
-    const isTouch = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
-    const isMobile = window.innerWidth <= 650 || (window.innerWidth > window.innerHeight && (window.innerHeight <= 550 || isTouch));
     const layout = await window.winampDB.getSetting('layout', null);
-
-    if (isMobile) {
-      if (layout) {
-        if (layout.main && layout.main.shaded) mainWindow.classList.add('shaded');
-        if (layout.eq) {
-          if (!layout.eq.visible) {
-            eqWindow.classList.add('hidden');
-            btnToggleEQ.classList.remove('active');
-          }
-          if (layout.eq.shaded) eqWindow.classList.add('shaded');
-        }
-        if (layout.pl) {
-          if (!layout.pl.visible) {
-            plWindow.classList.add('hidden');
-            btnTogglePL.classList.remove('active');
-          }
-          if (layout.pl.shaded) plWindow.classList.add('shaded');
-        }
-      }
-      updateResponsiveLayout();
-      return;
-    }
-
-    const maxLeft = Math.max(0, window.innerWidth - 275);
-    const defaultX = Math.max(0, Math.floor((window.innerWidth - 275) / 2));
-
     if (layout) {
-      if (layout.main) {
-        let leftVal = parseInt(layout.main.left, 10);
-        if (isNaN(leftVal) || leftVal > maxLeft) leftVal = defaultX;
-        mainWindow.style.left = `${leftVal}px`;
-        mainWindow.style.top = layout.main.top || '25px';
-        if (layout.main.shaded) mainWindow.classList.add('shaded');
-      }
+      if (layout.main && layout.main.shaded) mainWindow.classList.add('shaded');
       if (layout.eq) {
-        let leftVal = parseInt(layout.eq.left, 10);
-        if (isNaN(leftVal) || leftVal > maxLeft) leftVal = defaultX;
-        eqWindow.style.left = `${leftVal}px`;
-        eqWindow.style.top = layout.eq.top || '141px';
-        if (!layout.eq.visible) {
+        if (layout.eq.visible === false) {
           eqWindow.classList.add('hidden');
           btnToggleEQ.classList.remove('active');
+        } else {
+          eqWindow.classList.remove('hidden');
+          btnToggleEQ.classList.add('active');
         }
         if (layout.eq.shaded) eqWindow.classList.add('shaded');
       }
       if (layout.pl) {
-        let leftVal = parseInt(layout.pl.left, 10);
-        if (isNaN(leftVal) || leftVal > maxLeft) leftVal = defaultX;
-        plWindow.style.left = `${leftVal}px`;
-        plWindow.style.top = layout.pl.top || '257px';
-        if (layout.pl.height) {
-          plWindow.style.height = layout.pl.height;
-        }
-        if (!layout.pl.visible) {
+        if (layout.pl.visible === false) {
           plWindow.classList.add('hidden');
           btnTogglePL.classList.remove('active');
+        } else {
+          plWindow.classList.remove('hidden');
+          btnTogglePL.classList.add('active');
         }
         if (layout.pl.shaded) plWindow.classList.add('shaded');
       }
-    } else {
-      resetWindowLayout();
     }
-    if (typeof updatePlScrollbarThumb === 'function') {
-      updatePlScrollbarThumb();
-    }
+    updateResponsiveLayout();
   }
 
   mainShadeBtn.addEventListener('click', () => {
     mainWindow.classList.toggle('shaded');
-    if (window.innerWidth <= 650) updateResponsiveLayout();
+    updateResponsiveLayout();
     saveWindowPositions();
   });
   eqShadeBtn.addEventListener('click', () => {
     eqWindow.classList.toggle('shaded');
-    if (window.innerWidth <= 650) updateResponsiveLayout();
+    updateResponsiveLayout();
     saveWindowPositions();
   });
   plShadeBtn.addEventListener('click', () => {
     plWindow.classList.toggle('shaded');
-    if (window.innerWidth <= 650) updateResponsiveLayout();
+    updateResponsiveLayout();
     saveWindowPositions();
   });
 
@@ -560,7 +514,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     eqWindow.classList.toggle('hidden');
     btnToggleEQ.classList.toggle('active', !eqWindow.classList.contains('hidden'));
     if (!eqWindow.classList.contains('hidden')) bringToFront(eqWindow);
-    if (window.innerWidth <= 650) updateResponsiveLayout();
+    updateResponsiveLayout();
     saveWindowPositions();
   });
 
@@ -568,21 +522,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     plWindow.classList.toggle('hidden');
     btnTogglePL.classList.toggle('active', !plWindow.classList.contains('hidden'));
     if (!plWindow.classList.contains('hidden')) bringToFront(plWindow);
-    if (window.innerWidth <= 650) updateResponsiveLayout();
+    updateResponsiveLayout();
     saveWindowPositions();
   });
 
   eqCloseBtn.addEventListener('click', () => {
     eqWindow.classList.add('hidden');
     btnToggleEQ.classList.remove('active');
-    if (window.innerWidth <= 650) updateResponsiveLayout();
+    updateResponsiveLayout();
     saveWindowPositions();
   });
 
   plCloseBtn.addEventListener('click', () => {
     plWindow.classList.add('hidden');
     btnTogglePL.classList.remove('active');
-    if (window.innerWidth <= 650) updateResponsiveLayout();
+    updateResponsiveLayout();
     saveWindowPositions();
   });
 
@@ -675,11 +629,16 @@ document.addEventListener('DOMContentLoaded', async () => {
       updatePlScrollbarThumb();
     });
     window.addEventListener('orientationchange', () => {
-      setTimeout(() => {
-        updateResponsiveLayout();
-        updatePlScrollbarThumb();
-      }, 100);
+      updateResponsiveLayout();
+      setTimeout(updateResponsiveLayout, 100);
+      setTimeout(updateResponsiveLayout, 300);
     });
+    if (window.ResizeObserver) {
+      const resizeObserver = new ResizeObserver(() => {
+        updateResponsiveLayout();
+      });
+      resizeObserver.observe(document.documentElement);
+    }
   }
 
   function setupPlaylistResize() {
@@ -688,30 +647,40 @@ document.addEventListener('DOMContentLoaded', async () => {
     let startHeight = 232;
 
     function startResize(e) {
-      if (e.button !== 0) return;
+      if (e.button !== 0 && e.type !== 'touchstart') return;
       if (plWindow.classList.contains('shaded')) return;
 
       isResizing = true;
       bringToFront(plWindow);
-      startY = e.clientY;
+      const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      startY = clientY;
       startHeight = plWindow.offsetHeight;
       document.body.style.cursor = 'ns-resize';
       document.body.style.userSelect = 'none';
 
       document.addEventListener('mousemove', onResizeMove);
       document.addEventListener('mouseup', onResizeUp);
+      document.addEventListener('touchmove', onResizeMove, { passive: false });
+      document.addEventListener('touchend', onResizeUp);
       e.preventDefault();
       e.stopPropagation();
     }
 
     function onResizeMove(e) {
       if (!isResizing) return;
-      const dy = e.clientY - startY;
+      const clientY = e.clientY ?? (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+      const scale = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--mobile-scale')) || 1;
+      const dy = (clientY - startY) / scale;
       const minH = 116;
-      const maxH = Math.max(500, window.innerHeight - 50);
+      const maxH = Math.max(500, (window.innerHeight - 50) / scale);
       const newH = Math.max(minH, Math.min(maxH, startHeight + dy));
       plWindow.style.height = `${newH}px`;
+      if (document.body.classList.contains('layout-portrait')) {
+        const plTop = parseInt(plWindow.style.top, 10) || 232;
+        document.documentElement.style.setProperty('--ws-height', `${plTop + newH}px`);
+      }
       updatePlScrollbarThumb();
+      if (e.cancelable) e.preventDefault();
     }
 
     function onResizeUp() {
@@ -721,6 +690,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         document.body.style.userSelect = '';
         document.removeEventListener('mousemove', onResizeMove);
         document.removeEventListener('mouseup', onResizeUp);
+        document.removeEventListener('touchmove', onResizeMove);
+        document.removeEventListener('touchend', onResizeUp);
         saveWindowPositions();
         window.winampDB.setSetting('pl_height', plWindow.style.height);
       }
@@ -728,11 +699,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (plResizeHandle) {
       plResizeHandle.addEventListener('mousedown', startResize);
+      plResizeHandle.addEventListener('touchstart', startResize, { passive: false });
       plResizeHandle.addEventListener('dblclick', (e) => {
         e.stopPropagation();
         const currentH = plWindow.offsetHeight;
         const targetH = currentH > 260 ? 232 : 380;
         plWindow.style.height = `${targetH}px`;
+        if (document.body.classList.contains('layout-portrait')) {
+          const plTop = parseInt(plWindow.style.top, 10) || 232;
+          document.documentElement.style.setProperty('--ws-height', `${plTop + targetH}px`);
+        }
         updatePlScrollbarThumb();
         saveWindowPositions();
       });
@@ -740,6 +716,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (plResizeBottom) {
       plResizeBottom.addEventListener('mousedown', startResize);
+      plResizeBottom.addEventListener('touchstart', startResize, { passive: false });
     }
   }
 
@@ -1585,7 +1562,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   if (mainMinBtn) {
     mainMinBtn.addEventListener('click', () => {
       mainWindow.classList.toggle('shaded');
-      if (window.innerWidth <= 650) updateResponsiveLayout();
+      updateResponsiveLayout();
       saveWindowPositions();
     });
   }
