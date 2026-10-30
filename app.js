@@ -29,6 +29,70 @@ document.addEventListener('DOMContentLoaded', async () => {
   const plShadeBtn = document.getElementById('plShadeBtn');
   const plCloseBtn = document.getElementById('plCloseBtn');
 
+  // DOM Elements - Cassette Deck Window & Walkman Modal
+  const cassetteWindow = document.getElementById('cassetteWindow');
+  const cassetteTitlebar = document.getElementById('cassetteTitlebar');
+  const cassetteMenuBtn = document.getElementById('cassetteMenuBtn');
+  const cassetteContextMenu = document.getElementById('cassetteContextMenu');
+  const cassetteShadeBtn = document.getElementById('cassetteShadeBtn');
+  const cassetteCloseBtn = document.getElementById('cassetteCloseBtn');
+  const btnToggleTape = document.getElementById('btnToggleTape');
+  const btnTitlebarWalkman = document.getElementById('btnTitlebarWalkman');
+
+  const deckCounter = document.getElementById('deckCounter');
+  const deckCounterReset = document.getElementById('deckCounterReset');
+  const deckLed = document.getElementById('deckLed');
+  const cassetteCard = document.getElementById('cassetteCard');
+  const cassetteImg = document.getElementById('cassetteImg');
+  const tapePackLeft = document.getElementById('tapePackLeft');
+  const tapePackRight = document.getElementById('tapePackRight');
+  const hubLeft = document.getElementById('hubLeft');
+  const hubRight = document.getElementById('hubRight');
+  const tapeTitle = document.getElementById('tapeTitle');
+  const tapeArtist = document.getElementById('tapeArtist');
+  const tapeSideStamp = document.getElementById('tapeSideStamp');
+  const btnTapeClear = document.getElementById('btnTapeClear');
+  const btnTapeOrange = document.getElementById('btnTapeOrange');
+  const mechPlay = document.getElementById('mechPlay');
+  const mechPause = document.getElementById('mechPause');
+  const mechStop = document.getElementById('mechStop');
+  const mechRew = document.getElementById('mechRew');
+  const mechFF = document.getElementById('mechFF');
+  const mechEject = document.getElementById('mechEject');
+  const btnOpenWalkmanModal = document.getElementById('btnOpenWalkmanModal');
+
+  const walkmanModal = document.getElementById('walkmanModal');
+  const wmCloseBtn = document.getElementById('wmCloseBtn');
+  const wmSideBtn = document.getElementById('wmSideBtn');
+  const wmSoundFxBtn = document.getElementById('wmSoundFxBtn');
+  const wmCassetteCard = document.getElementById('wmCassetteCard');
+  const wmCassetteImg = document.getElementById('wmCassetteImg');
+  const wmSpoolLeft = document.getElementById('wmSpoolLeft');
+  const wmSpoolRight = document.getElementById('wmSpoolRight');
+  const wmHubLeft = document.getElementById('wmHubLeft');
+  const wmHubRight = document.getElementById('wmHubRight');
+  const wmTrackTitle = document.getElementById('wmTrackTitle');
+  const wmTrackArtist = document.getElementById('wmTrackArtist');
+  const wmSideBadge = document.getElementById('wmSideBadge');
+  const wmBtnClear = document.getElementById('wmBtnClear');
+  const wmBtnOrange = document.getElementById('wmBtnOrange');
+  const wmCounter = document.getElementById('wmCounter');
+  const wmCounterReset = document.getElementById('wmCounterReset');
+  const wmLed = document.getElementById('wmLed');
+  const wmKeyPlay = document.getElementById('wmKeyPlay');
+  const wmKeyPause = document.getElementById('wmKeyPause');
+  const wmKeyStop = document.getElementById('wmKeyStop');
+  const wmKeyRew = document.getElementById('wmKeyRew');
+  const wmKeyFF = document.getElementById('wmKeyFF');
+  const wmKeyEject = document.getElementById('wmKeyEject');
+  const wmVolSlider = document.getElementById('wmVolSlider');
+
+  const cassetteState = {
+    tape: 'clear', // 'clear' or 'orange'
+    side: 'A',
+    counterOffset: 0
+  };
+
   // Display Screen
   const timeDisplay = document.getElementById('timeDisplay');
   const timeMinus = document.getElementById('timeMinus');
@@ -233,7 +297,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // WINDOW DOCKING, SNAPPING & DRAGGING
   // =========================================================================
   const SNAP_DISTANCE = 14;
-  const allWindows = [mainWindow, eqWindow, plWindow];
+  const allWindows = [mainWindow, eqWindow, plWindow, cassetteWindow];
 
   function bringToFront(win) {
     allWindows.forEach(w => w.classList.remove('active-window'));
@@ -316,15 +380,15 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupWindowDragging(mainWindow, mainTitlebar);
   setupWindowDragging(eqWindow, eqTitlebar);
   setupWindowDragging(plWindow, plTitlebar);
+  setupWindowDragging(cassetteWindow, cassetteTitlebar);
 
   function updateResponsiveLayout() {
     // Universal responsive auto-resizing across all screen sizes:
-    // Landscape (width >= height * 1.05): Dual-column layout (Left: Main + EQ, Right: Playlist)
-    // Portrait (width < height * 1.05): Single-column stack (Top: Main, Middle: EQ, Bottom: Playlist)
     const isLandscape = window.innerWidth >= window.innerHeight * 1.05;
     const winContainer = document.getElementById('windows-container');
     const isEqVisible = !eqWindow.classList.contains('hidden');
     const isPlVisible = !plWindow.classList.contains('hidden');
+    const isCsVisible = !cassetteWindow.classList.contains('hidden');
 
     if (isLandscape) {
       document.body.classList.remove('layout-portrait', 'layout-desktop');
@@ -337,24 +401,29 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const mainH = mainWindow.classList.contains('shaded') ? 14 : 116;
       const eqH = isEqVisible ? (eqWindow.classList.contains('shaded') ? 14 : 116) : 0;
-      const leftColH = mainH + eqH;
+      const csH = isCsVisible ? (cassetteWindow.classList.contains('shaded') ? 14 : 232) : 0;
+
+      const availW = Math.max(280, window.innerWidth - padL - padR);
+      const availH = Math.max(160, window.innerHeight - padT - padB);
+
+      const canUse3Col = isCsVisible && isPlVisible && availW >= 760;
 
       let baseW = 550;
       let baseH = 232;
 
-      if (!isPlVisible && !isEqVisible) {
+      if (canUse3Col) {
+        baseW = 825;
+        baseH = 232;
+      } else if (!isPlVisible && !isCsVisible && !isEqVisible) {
         baseW = 275;
         baseH = mainH;
-      } else if (!isPlVisible) {
+      } else if (!isPlVisible && !isCsVisible) {
         baseW = 275;
-        baseH = leftColH;
-      } else if (!isEqVisible) {
+        baseH = mainH + eqH;
+      } else {
         baseW = 550;
         baseH = 232;
       }
-
-      const availW = Math.max(280, window.innerWidth - padL - padR);
-      const availH = Math.max(160, window.innerHeight - padT - padB);
 
       let scale = Math.min(availW / baseW, availH / baseH);
       scale = Math.max(0.5, Math.min(scale, 3.2));
@@ -363,19 +432,35 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.documentElement.style.setProperty('--ws-width', `${baseW}px`);
       document.documentElement.style.setProperty('--ws-height', `${baseH}px`);
 
-      // Left column: Main window
+      // Col 1: Main window
       mainWindow.style.left = '0px';
       mainWindow.style.top = '0px';
 
-      // Left column: EQ window below Main
+      // Col 1: EQ window below Main
       if (isEqVisible) {
         eqWindow.style.left = '0px';
         eqWindow.style.top = `${mainH}px`;
       }
 
-      // Right column: Playlist window docked to the right
-      if (isPlVisible) {
-        plWindow.style.left = baseW > 275 ? '275px' : '0px';
+      if (canUse3Col) {
+        // Col 2: Cassette Player
+        cassetteWindow.style.left = '275px';
+        cassetteWindow.style.top = '0px';
+        // Col 3: Playlist
+        plWindow.style.left = '550px';
+        plWindow.style.top = '0px';
+        plWindow.style.height = '232px';
+      } else if (isCsVisible && isPlVisible) {
+        cassetteWindow.style.left = '275px';
+        cassetteWindow.style.top = '0px';
+        plWindow.style.left = '550px';
+        plWindow.style.top = '0px';
+        plWindow.style.height = '232px';
+      } else if (isCsVisible) {
+        cassetteWindow.style.left = '275px';
+        cassetteWindow.style.top = '0px';
+      } else if (isPlVisible) {
+        plWindow.style.left = '275px';
         plWindow.style.top = '0px';
         plWindow.style.height = '232px';
       }
@@ -384,7 +469,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updatePlScrollbarThumb();
       }
     } else {
-      // Portrait layout: vertical stack Main -> EQ -> Playlist
+      // Portrait layout: vertical stack Main -> EQ -> Cassette -> Playlist
       document.body.classList.remove('layout-landscape', 'layout-desktop');
       document.body.classList.add('layout-portrait');
 
@@ -398,13 +483,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const mainH = mainWindow.classList.contains('shaded') ? 14 : 116;
       const eqH = isEqVisible ? (eqWindow.classList.contains('shaded') ? 14 : 116) : 0;
-      const minReqH = mainH + eqH + (isPlVisible ? 160 : 0);
+      const csH = isCsVisible ? (cassetteWindow.classList.contains('shaded') ? 14 : 232) : 0;
+      const minReqH = mainH + eqH + csH + (isPlVisible ? 160 : 0);
 
       // Width-based scale
       let scale = availW / 275;
       scale = Math.min(scale, 2.2);
 
-      // Check if vertical height is too tight for minimum elements
       if (minReqH * scale > availH && availH > 200) {
         const heightScale = availH / minReqH;
         if (heightScale < scale) {
@@ -420,16 +505,24 @@ document.addEventListener('DOMContentLoaded', async () => {
       mainWindow.style.left = '0px';
       mainWindow.style.top = '0px';
 
-      // Middle: EQ window
+      // Middle 1: EQ window
       if (isEqVisible) {
         eqWindow.style.left = '0px';
         eqWindow.style.top = `${mainH}px`;
       }
 
+      // Middle 2: Cassette Player window
+      let currentTop = mainH + eqH;
+      if (isCsVisible) {
+        cassetteWindow.style.left = '0px';
+        cassetteWindow.style.top = `${currentTop}px`;
+        currentTop += csH;
+      }
+
       // Bottom: Playlist window dynamically filling available height
-      let totalH = mainH + eqH;
+      let totalH = currentTop;
       if (isPlVisible) {
-        const plTop = totalH;
+        const plTop = currentTop;
         plWindow.style.left = '0px';
         plWindow.style.top = `${plTop}px`;
 
@@ -451,8 +544,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     mainWindow.classList.remove('hidden', 'shaded');
     eqWindow.classList.remove('hidden', 'shaded');
     plWindow.classList.remove('hidden', 'shaded');
+    cassetteWindow.classList.remove('hidden', 'shaded');
     btnToggleEQ.classList.add('active');
     btnTogglePL.classList.add('active');
+    btnToggleTape.classList.add('active');
     updateResponsiveLayout();
     saveWindowPositions();
   }
@@ -462,6 +557,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       main: { left: mainWindow.style.left, top: mainWindow.style.top, shaded: mainWindow.classList.contains('shaded') },
       eq: { left: eqWindow.style.left, top: eqWindow.style.top, visible: !eqWindow.classList.contains('hidden'), shaded: eqWindow.classList.contains('shaded') },
       pl: { left: plWindow.style.left, top: plWindow.style.top, height: plWindow.style.height || '232px', visible: !plWindow.classList.contains('hidden'), shaded: plWindow.classList.contains('shaded') },
+      cs: { left: cassetteWindow.style.left, top: cassetteWindow.style.top, visible: !cassetteWindow.classList.contains('hidden'), shaded: cassetteWindow.classList.contains('shaded') },
     };
     await window.winampDB.setSetting('layout', layout);
   }
@@ -490,6 +586,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         if (layout.pl.shaded) plWindow.classList.add('shaded');
       }
+      if (layout.cs) {
+        if (layout.cs.visible === false) {
+          cassetteWindow.classList.add('hidden');
+          btnToggleTape.classList.remove('active');
+        } else {
+          cassetteWindow.classList.remove('hidden');
+          btnToggleTape.classList.add('active');
+        }
+        if (layout.cs.shaded) cassetteWindow.classList.add('shaded');
+      }
     }
     updateResponsiveLayout();
   }
@@ -506,6 +612,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   plShadeBtn.addEventListener('click', () => {
     plWindow.classList.toggle('shaded');
+    updateResponsiveLayout();
+    saveWindowPositions();
+  });
+  cassetteShadeBtn.addEventListener('click', () => {
+    cassetteWindow.classList.toggle('shaded');
     updateResponsiveLayout();
     saveWindowPositions();
   });
@@ -526,6 +637,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveWindowPositions();
   });
 
+  btnToggleTape.addEventListener('click', () => {
+    cassetteWindow.classList.toggle('hidden');
+    btnToggleTape.classList.toggle('active', !cassetteWindow.classList.contains('hidden'));
+    if (!cassetteWindow.classList.contains('hidden')) bringToFront(cassetteWindow);
+    updateResponsiveLayout();
+    saveWindowPositions();
+  });
+
   eqCloseBtn.addEventListener('click', () => {
     eqWindow.classList.add('hidden');
     btnToggleEQ.classList.remove('active');
@@ -536,6 +655,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   plCloseBtn.addEventListener('click', () => {
     plWindow.classList.add('hidden');
     btnTogglePL.classList.remove('active');
+    updateResponsiveLayout();
+    saveWindowPositions();
+  });
+
+  cassetteCloseBtn.addEventListener('click', () => {
+    cassetteWindow.classList.add('hidden');
+    btnToggleTape.classList.remove('active');
     updateResponsiveLayout();
     saveWindowPositions();
   });
@@ -748,6 +874,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     const menuNextTrack = document.getElementById('menuNextTrack');
     const menuToggleEqWin = document.getElementById('menuToggleEqWin');
     const menuTogglePlWin = document.getElementById('menuTogglePlWin');
+    const menuToggleCassette = document.getElementById('menuToggleCassette');
+    const menuOpenWalkman = document.getElementById('menuOpenWalkman');
+    const menuTapeClear = document.getElementById('menuTapeClear');
+    const menuTapeOrange = document.getElementById('menuTapeOrange');
     const menuOpenFiles = document.getElementById('menuOpenFiles');
     const menuOpenDemo = document.getElementById('menuOpenDemo');
     const menuResetWin = document.getElementById('menuResetWin');
@@ -762,10 +892,258 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (menuNextTrack) menuNextTrack.addEventListener('click', () => { btnNext.click(); mainContextMenu.classList.add('hidden'); });
     if (menuToggleEqWin) menuToggleEqWin.addEventListener('click', () => { btnToggleEQ.click(); mainContextMenu.classList.add('hidden'); });
     if (menuTogglePlWin) menuTogglePlWin.addEventListener('click', () => { btnTogglePL.click(); mainContextMenu.classList.add('hidden'); });
+    if (menuToggleCassette) menuToggleCassette.addEventListener('click', () => { btnToggleTape.click(); mainContextMenu.classList.add('hidden'); });
+    if (menuOpenWalkman) menuOpenWalkman.addEventListener('click', () => { openWalkmanModal(); mainContextMenu.classList.add('hidden'); });
+    if (menuTapeClear) menuTapeClear.addEventListener('click', () => { switchCassetteTape('clear'); mainContextMenu.classList.add('hidden'); });
+    if (menuTapeOrange) menuTapeOrange.addEventListener('click', () => { switchCassetteTape('orange'); mainContextMenu.classList.add('hidden'); });
     if (menuOpenFiles) menuOpenFiles.addEventListener('click', () => { fileInput.click(); mainContextMenu.classList.add('hidden'); });
     if (menuOpenDemo) menuOpenDemo.addEventListener('click', () => { loadDemoSongs(); mainContextMenu.classList.add('hidden'); });
     if (menuResetWin) menuResetWin.addEventListener('click', () => { resetWindowLayout(); mainContextMenu.classList.add('hidden'); });
     if (menuShowHelp) menuShowHelp.addEventListener('click', () => { helpModal.classList.remove('hidden'); mainContextMenu.classList.add('hidden'); });
+  }
+
+  // =========================================================================
+  // CASSETTE DECK & PORTABLE WALKMAN CONTROLS
+  // =========================================================================
+  function switchCassetteTape(tapeName, playSound = true) {
+    const valid = (tapeName === 'orange') ? 'orange' : 'clear';
+    cassetteState.tape = valid;
+
+    if (cassetteCard) {
+      cassetteCard.classList.remove('tape-orange', 'tape-clear');
+      cassetteCard.classList.add(valid === 'orange' ? 'tape-orange' : 'tape-clear');
+    }
+    if (wmCassetteCard) {
+      wmCassetteCard.classList.remove('tape-orange', 'tape-clear');
+      wmCassetteCard.classList.add(valid === 'orange' ? 'tape-orange' : 'tape-clear');
+    }
+
+    const imgSrc = valid === 'orange' ? 'assets/cassette/tape-orange-clean.png' : 'assets/cassette/tape-clear-clean.png';
+    if (cassetteImg) cassetteImg.src = imgSrc;
+    if (wmCassetteImg) wmCassetteImg.src = imgSrc;
+
+    if (btnTapeClear) btnTapeClear.classList.toggle('active', valid === 'clear');
+    if (btnTapeOrange) btnTapeOrange.classList.toggle('active', valid === 'orange');
+    if (wmBtnClear) wmBtnClear.classList.toggle('active', valid === 'clear');
+    if (wmBtnOrange) wmBtnOrange.classList.toggle('active', valid === 'orange');
+
+    window.winampDB.setSetting('cassette_tape', valid);
+    if (playSound) {
+      engine.playMechanicalSound('click');
+      showToast(valid === 'orange' ? '📼 ม้วนเทป: Neon Orange (ม้วนส้มใส)' : '📼 ม้วนเทป: Clear Crystal (ม้วนใสคริสตัล)');
+    }
+  }
+
+  function toggleTapeSide() {
+    cassetteState.side = (cassetteState.side === 'A') ? 'B' : 'A';
+    if (tapeSideStamp) tapeSideStamp.textContent = cassetteState.side;
+    if (wmSideBadge) wmSideBadge.textContent = `SIDE ${cassetteState.side}`;
+    engine.playMechanicalSound('eject');
+    updateCassetteUI();
+    showToast(`📼 พลิกหน้าเทป: Side ${cassetteState.side}`);
+  }
+
+  function toggleCassetteSoundFx() {
+    engine.soundFxEnabled = !engine.soundFxEnabled;
+    window.winampDB.setSetting('cassette_soundfx', engine.soundFxEnabled);
+    const cmenuSoundFx = document.getElementById('cmenuSoundFx');
+    if (cmenuSoundFx) cmenuSoundFx.textContent = `🔊 เสียงกลไกเทป (Sound FX: ${engine.soundFxEnabled ? 'เปิด' : 'ปิด'})`;
+    if (wmSoundFxBtn) wmSoundFxBtn.textContent = `🔊 SFX: ${engine.soundFxEnabled ? 'ON' : 'OFF'}`;
+    showToast(`🔊 เสียงกลไกเทป: ${engine.soundFxEnabled ? 'เปิด (ON)' : 'ปิด (OFF)'}`);
+  }
+
+  function openWalkmanModal() {
+    if (!walkmanModal) return;
+    walkmanModal.classList.remove('hidden');
+    updateCassetteUI();
+    engine.playMechanicalSound('click');
+  }
+
+  function closeWalkmanModal() {
+    if (!walkmanModal) return;
+    walkmanModal.classList.add('hidden');
+    engine.playMechanicalSound('click');
+  }
+
+  function updateCassetteLabel(track) {
+    const titleText = track ? track.title : 'NO TAPE LOADED';
+    const artistText = track ? (track.artist || 'UNKNOWN ARTIST') : 'INSERT CASSETTE';
+
+    if (tapeTitle) tapeTitle.textContent = titleText;
+    if (tapeArtist) tapeArtist.textContent = artistText;
+    if (wmTrackTitle) wmTrackTitle.textContent = titleText;
+    if (wmTrackArtist) wmTrackArtist.textContent = artistText;
+  }
+
+  function updateCassetteUI() {
+    const isPlaying = state.isPlaying;
+    const isPaused = state.isPaused;
+
+    // Reel spinning animation
+    if (hubLeft) hubLeft.classList.toggle('spinning', isPlaying);
+    if (hubRight) hubRight.classList.toggle('spinning', isPlaying);
+    if (wmHubLeft) wmHubLeft.classList.toggle('spinning', isPlaying);
+    if (wmHubRight) wmHubRight.classList.toggle('spinning', isPlaying);
+
+    // RUN LED indicator
+    if (deckLed) deckLed.classList.toggle('active', isPlaying);
+    if (wmLed) wmLed.classList.toggle('active', isPlaying);
+
+    // Tape pack / spool diameter calculation
+    const cur = audioElement.currentTime || 0;
+    const dur = audioElement.duration || 0;
+    let ratio = (dur > 0 && isFinite(dur)) ? Math.max(0, Math.min(1, cur / dur)) : 0;
+    if (cassetteState.side === 'B') {
+      ratio = 1 - ratio;
+    }
+
+    // Left pack shrinks from 1.0 down to 0.42; Right pack expands from 0.42 up to 1.0
+    const leftScale = 1.0 - (ratio * 0.58);
+    const rightScale = 0.42 + (ratio * 0.58);
+
+    if (tapePackLeft) tapePackLeft.style.transform = `translate(-50%, -50%) scale(${leftScale.toFixed(3)})`;
+    if (tapePackRight) tapePackRight.style.transform = `translate(-50%, -50%) scale(${rightScale.toFixed(3)})`;
+    if (wmSpoolLeft) wmSpoolLeft.style.transform = `translate(-50%, -50%) scale(${leftScale.toFixed(3)})`;
+    if (wmSpoolRight) wmSpoolRight.style.transform = `translate(-50%, -50%) scale(${rightScale.toFixed(3)})`;
+
+    // Tape mechanical counter digits (000-999)
+    const rawVal = Math.floor(cur * 0.6) + cassetteState.counterOffset;
+    const countVal = ((rawVal % 1000) + 1000) % 1000;
+    const countStr = String(countVal).padStart(3, '0');
+    if (deckCounter) deckCounter.textContent = countStr;
+    if (wmCounter) wmCounter.textContent = countStr;
+
+    // Physical button states
+    if (mechPlay) mechPlay.classList.toggle('active', isPlaying);
+    if (mechPause) mechPause.classList.toggle('active', isPaused);
+    if (mechStop) mechStop.classList.toggle('active', !isPlaying && !isPaused);
+
+    if (wmKeyPlay) wmKeyPlay.classList.toggle('active', isPlaying);
+    if (wmKeyPause) wmKeyPause.classList.toggle('active', isPaused);
+    if (wmKeyStop) wmKeyStop.classList.toggle('active', !isPlaying && !isPaused);
+  }
+
+  function setupCassetteControls() {
+    // Deck context menu toggle
+    if (cassetteMenuBtn && cassetteContextMenu) {
+      cassetteMenuBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isHidden = cassetteContextMenu.classList.contains('hidden');
+        document.querySelectorAll('.popup-menu').forEach(m => m.classList.add('hidden'));
+        if (isHidden) cassetteContextMenu.classList.remove('hidden');
+      });
+    }
+
+    if (cassetteWindow && cassetteContextMenu) {
+      cassetteWindow.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        document.querySelectorAll('.popup-menu').forEach(m => m.classList.add('hidden'));
+        cassetteContextMenu.classList.remove('hidden');
+      });
+    }
+
+    // Titlebar button for portable walkman mode
+    if (btnTitlebarWalkman) {
+      btnTitlebarWalkman.addEventListener('click', () => openWalkmanModal());
+    }
+
+    // Cassette context menu items
+    const cmenuTapeClear = document.getElementById('cmenuTapeClear');
+    const cmenuTapeOrange = document.getElementById('cmenuTapeOrange');
+    const cmenuTapeFlip = document.getElementById('cmenuTapeFlip');
+    const cmenuSoundFx = document.getElementById('cmenuSoundFx');
+    const cmenuOpenWalkman = document.getElementById('cmenuOpenWalkman');
+    const cmenuClose = document.getElementById('cmenuClose');
+
+    if (cmenuTapeClear) cmenuTapeClear.addEventListener('click', () => { switchCassetteTape('clear'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuTapeOrange) cmenuTapeOrange.addEventListener('click', () => { switchCassetteTape('orange'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuTapeFlip) cmenuTapeFlip.addEventListener('click', () => { toggleTapeSide(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuSoundFx) cmenuSoundFx.addEventListener('click', () => { toggleCassetteSoundFx(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuOpenWalkman) cmenuOpenWalkman.addEventListener('click', () => { openWalkmanModal(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuClose) cmenuClose.addEventListener('click', () => { cassetteCloseBtn.click(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+
+    // Counter resets
+    if (deckCounterReset) {
+      deckCounterReset.addEventListener('click', () => {
+        cassetteState.counterOffset = -Math.floor((audioElement.currentTime || 0) * 0.6);
+        updateCassetteUI();
+        engine.playMechanicalSound('click');
+        showToast('⟲ รีเซ็ตเทปเคาน์เตอร์: 000');
+      });
+    }
+    if (wmCounterReset) {
+      wmCounterReset.addEventListener('click', () => {
+        cassetteState.counterOffset = -Math.floor((audioElement.currentTime || 0) * 0.6);
+        updateCassetteUI();
+        engine.playMechanicalSound('click');
+        showToast('⟲ รีเซ็ตเทปเคาน์เตอร์: 000');
+      });
+    }
+
+    // Tape switch buttons on deck window
+    if (btnTapeClear) btnTapeClear.addEventListener('click', () => switchCassetteTape('clear'));
+    if (btnTapeOrange) btnTapeOrange.addEventListener('click', () => switchCassetteTape('orange'));
+    if (btnOpenWalkmanModal) btnOpenWalkmanModal.addEventListener('click', openWalkmanModal);
+
+    // Deck mechanical buttons
+    if (mechPlay) mechPlay.addEventListener('click', () => { engine.playMechanicalSound('play'); btnPlay.click(); });
+    if (mechPause) mechPause.addEventListener('click', () => { engine.playMechanicalSound('pause'); btnPause.click(); });
+    if (mechStop) mechStop.addEventListener('click', () => { engine.playMechanicalSound('stop'); btnStop.click(); });
+    if (mechRew) {
+      mechRew.addEventListener('click', () => {
+        engine.playMechanicalSound('click');
+        if (audioElement.duration) engine.seek(Math.max(0, audioElement.currentTime - 10));
+      });
+    }
+    if (mechFF) {
+      mechFF.addEventListener('click', () => {
+        engine.playMechanicalSound('click');
+        if (audioElement.duration) engine.seek(Math.min(audioElement.duration, audioElement.currentTime + 10));
+      });
+    }
+    if (mechEject) {
+      mechEject.addEventListener('click', () => toggleTapeSide());
+    }
+
+    // Walkman modal controls
+    if (wmCloseBtn) wmCloseBtn.addEventListener('click', closeWalkmanModal);
+    if (walkmanModal) {
+      walkmanModal.addEventListener('click', (e) => {
+        if (e.target === walkmanModal) closeWalkmanModal();
+      });
+    }
+    if (wmSideBtn) wmSideBtn.addEventListener('click', toggleTapeSide);
+    if (wmSoundFxBtn) wmSoundFxBtn.addEventListener('click', toggleCassetteSoundFx);
+    if (wmBtnClear) wmBtnClear.addEventListener('click', () => switchCassetteTape('clear'));
+    if (wmBtnOrange) wmBtnOrange.addEventListener('click', () => switchCassetteTape('orange'));
+
+    // Walkman piano push keys
+    if (wmKeyPlay) wmKeyPlay.addEventListener('click', () => { engine.playMechanicalSound('play'); btnPlay.click(); });
+    if (wmKeyPause) wmKeyPause.addEventListener('click', () => { engine.playMechanicalSound('pause'); btnPause.click(); });
+    if (wmKeyStop) wmKeyStop.addEventListener('click', () => { engine.playMechanicalSound('stop'); btnStop.click(); });
+    if (wmKeyRew) {
+      wmKeyRew.addEventListener('click', () => {
+        engine.playMechanicalSound('click');
+        if (audioElement.duration) engine.seek(Math.max(0, audioElement.currentTime - 10));
+      });
+    }
+    if (wmKeyFF) {
+      wmKeyFF.addEventListener('click', () => {
+        engine.playMechanicalSound('click');
+        if (audioElement.duration) engine.seek(Math.min(audioElement.duration, audioElement.currentTime + 10));
+      });
+    }
+    if (wmKeyEject) {
+      wmKeyEject.addEventListener('click', () => toggleTapeSide());
+    }
+
+    // Walkman volume thumbwheel slider
+    if (wmVolSlider) {
+      wmVolSlider.addEventListener('input', (e) => {
+        updateVolumeUI(parseFloat(e.target.value));
+      });
+    }
   }
 
   setupPlaylistScrollbar();
@@ -786,6 +1164,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       volTrackBg.style.backgroundPositionY = `-${frame * 15}px`;
       volThumb.style.left = `${Math.round(val * 54) + 7}px`;
     }
+    if (wmVolSlider) wmVolSlider.value = val;
     window.winampDB.setSetting('volume', val);
   }
 
@@ -940,6 +1319,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
       }
     }
+    updateCassetteUI();
   });
 
   audioElement.addEventListener('play', () => {
@@ -950,6 +1330,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       navigator.mediaSession.playbackState = 'playing';
       updateMediaSessionPosition();
     }
+    updateCassetteUI();
   });
 
   audioElement.addEventListener('pause', () => {
@@ -961,6 +1342,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         navigator.mediaSession.playbackState = 'paused';
         updateMediaSessionPosition();
       }
+      updateCassetteUI();
     }
   });
 
@@ -970,6 +1352,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.isPaused = false;
     playStatusIcon.className = 'play-status-icon stop';
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
+    updateCassetteUI();
   });
 
   audioElement.addEventListener('ended', () => {
@@ -997,6 +1380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     playStatusIcon.className = 'play-status-icon stop';
     updateTimerDisplay(0, 0);
     seekThumb.style.left = '0%';
+    updateCassetteUI();
   }
 
   // =========================================================================
@@ -1453,6 +1837,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
+      updateCassetteLabel(track);
+      updateCassetteUI();
       await engine.loadTrack(track.blob);
       await engine.play();
       renderPlaylist();
@@ -1997,6 +2383,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         void titleMarquee.offsetWidth;
         titleMarquee.style.animation = '';
         updateMediaSession(track);
+        updateCassetteLabel(track);
+        updateCassetteUI();
         kbpsDisplay.textContent = `${track.bitrate || 128} KBPS`;
         khzDisplay.textContent = `${Math.round((track.sampleRate || 44100) / 1000)} KHZ`;
       }
@@ -2044,6 +2432,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     const remMode = await window.winampDB.getSetting('timeRemainingMode', false);
     state.timeRemainingMode = remMode;
     timeMinus.classList.toggle('active', remMode);
+
+    const savedTape = await window.winampDB.getSetting('cassette_tape', 'clear');
+    switchCassetteTape(savedTape, false);
+
+    const savedSoundFx = await window.winampDB.getSetting('cassette_soundfx', true);
+    engine.soundFxEnabled = savedSoundFx;
+    const cmenuSoundFx = document.getElementById('cmenuSoundFx');
+    if (cmenuSoundFx) cmenuSoundFx.textContent = `🔊 เสียงกลไกเทป (Sound FX: ${savedSoundFx ? 'เปิด' : 'ปิด'})`;
+    if (wmSoundFxBtn) wmSoundFxBtn.textContent = `🔊 SFX: ${savedSoundFx ? 'ON' : 'OFF'}`;
   }
 
   if (btnKeyboardHelp) btnKeyboardHelp.addEventListener('click', () => helpModal.classList.remove('hidden'));
@@ -2081,6 +2478,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       case 'R':
         btnRepeat.click();
         break;
+      case 'T':
+        if (e.altKey) {
+          e.preventDefault();
+          btnToggleTape.click();
+        }
+        break;
+      case 'W':
+        if (e.altKey) {
+          e.preventDefault();
+          openWalkmanModal();
+        }
+        break;
       case ' ':
         e.preventDefault();
         btnPause.click();
@@ -2112,6 +2521,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Init
+  setupCassetteControls();
   await window.winampDB.init();
   await restoreSettings();
   await restoreWindowPositions();

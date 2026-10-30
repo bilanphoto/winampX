@@ -47,6 +47,11 @@
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuToggleEqWin">🎚 Equalizer (Alt+G)</div>
               <div class="menu-item" id="menuTogglePlWin">📜 Playlist Editor (Alt+E)</div>
+              <div class="menu-item" id="menuToggleCassette">📼 Cassette Player (Alt+T)</div>
+              <div class="menu-item" id="menuOpenWalkman">📻 Portable Walkman Mode</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuTapeClear">📼 Tape: Clear Crystal (ม้วนใส)</div>
+              <div class="menu-item" id="menuTapeOrange">📼 Tape: Neon Orange (ม้วนส้มใส)</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuOpenFiles">📂 Add Audio Files... (L)</div>
               <div class="menu-item" id="menuOpenDemo">🎵 Load Demo Songs</div>
@@ -56,6 +61,7 @@
             </div>
           </div>
           <div class="wa-titlebar-title-drag">WINAMP</div>
+          <button class="titlebar-walkman-btn" id="btnTitlebarWalkman" title="Portable Walkman Mode">📼 WALKMAN</button>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
             <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
@@ -107,9 +113,10 @@
             <div class="bal-thumb" id="balThumb"></div>
           </div>
 
-          <!-- EQ and PL Toggle Buttons -->
-          <button class="toggle-btn btn-eq active" id="btnToggleEQ" title="Toggle Equalizer Window"></button>
-          <button class="toggle-btn btn-pl active" id="btnTogglePL" title="Toggle Playlist Window"></button>
+          <!-- EQ, PL and TAPE Toggle Buttons -->
+          <button class="toggle-btn btn-eq active" id="btnToggleEQ" title="Toggle Equalizer Window (Alt+G)"></button>
+          <button class="toggle-btn btn-pl active" id="btnTogglePL" title="Toggle Playlist Window (Alt+E)"></button>
+          <button class="toggle-btn btn-tape active" id="btnToggleTape" title="Toggle Cassette Deck (Alt+T)"></button>
 
           <!-- Song Position Scrubber (POSBAR) -->
           <div class="posbar-wrap" id="seekTrack" title="Seek Position">
@@ -328,6 +335,123 @@
         </div>
       </div>
 
+      <!-- ============================================== -->
+      <!-- 4. CASSETTE PLAYER DECK WINDOW (275 x 232) -->
+      <!-- ============================================== -->
+      <div id="cassetteWindow" class="wa-window winamp-cassette" data-window="cassette">
+        <div class="wa-titlebar" id="cassetteTitlebar">
+          <div class="menu-btn-wrap">
+            <div class="wa-titlebar-menu" id="cassetteMenuBtn" title="Cassette Menu"></div>
+            <div class="popup-menu top-menu hidden" id="cassetteContextMenu">
+              <div class="menu-header">📼 CASSETTE TAPE MENU</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuTapeClear">📼 ม้วนใสคริสตัล (Clear Crystal)</div>
+              <div class="menu-item" id="cmenuTapeOrange">📼 ม้วนส้มใส (Neon Orange)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuTapeFlip">🔄 พลิกหน้าเทป (Side A / Side B)</div>
+              <div class="menu-item" id="cmenuSoundFx">🔊 เสียงกลไกเทป (Sound FX: เปิด)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuOpenWalkman">📻 ขยายเป็น Walkman เต็มจอ</div>
+              <div class="menu-item" id="cmenuClose">✖ ปิดหน้าต่างเทป</div>
+            </div>
+          </div>
+          <div class="wa-titlebar-title-drag">CASSETTE DECK</div>
+          <div class="wa-titlebar-controls">
+            <button class="win-btn win-btn-shade" id="cassetteShadeBtn" title="Window Shade"></button>
+            <button class="win-btn win-btn-close" id="cassetteCloseBtn" title="Close"></button>
+          </div>
+        </div>
+
+        <!-- Cassette Deck Window Body -->
+        <div class="cassette-deck-body">
+          <!-- Header bar with Counter and LED -->
+          <div class="deck-top-bar">
+            <div class="deck-model-tag">PORTABLE STEREO PLAYER</div>
+            <div class="deck-counter-wrap">
+              <span class="deck-counter-label">TAPE</span>
+              <span class="deck-counter-num" id="deckCounter">000</span>
+              <button class="deck-counter-rst" id="deckCounterReset" title="Reset Counter">R</button>
+            </div>
+            <div class="deck-status-led" id="deckLed" title="Tape Running Indicator"></div>
+          </div>
+
+          <!-- Cassette Compartment Window -->
+          <div class="cassette-well">
+            <div class="cassette-housing" id="cassetteHousing">
+              <!-- Cassette Card -->
+              <div class="cassette-tape-card tape-clear" id="cassetteCard">
+                <!-- The Image -->
+                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png" alt="Cassette Tape" />
+                
+                <!-- Dynamic Tape Ribbon Spools -->
+                <div class="tape-pack tape-pack-left" id="tapePackLeft"></div>
+                <div class="tape-pack tape-pack-right" id="tapePackRight"></div>
+
+                <!-- 6-Tooth Spinning Hubs -->
+                <div class="tape-hub hub-left" id="hubLeft">
+                  <svg class="hub-svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="28" fill="#1e293b"/>
+                    <circle cx="50" cy="50" r="22" fill="#f8fafc"/>
+                    <polygon points="50,22 53,30 47,30" fill="#94a3b8"/>
+                    <polygon points="50,78 53,70 47,70" fill="#94a3b8"/>
+                    <polygon points="26,36 34,38 31,32" fill="#94a3b8"/>
+                    <polygon points="74,64 66,62 69,68" fill="#94a3b8"/>
+                    <polygon points="26,64 34,62 31,68" fill="#94a3b8"/>
+                    <polygon points="74,36 66,38 69,32" fill="#94a3b8"/>
+                  </svg>
+                </div>
+                <div class="tape-hub hub-right" id="hubRight">
+                  <svg class="hub-svg" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+                    <circle cx="50" cy="50" r="28" fill="#1e293b"/>
+                    <circle cx="50" cy="50" r="22" fill="#f8fafc"/>
+                    <polygon points="50,22 53,30 47,30" fill="#94a3b8"/>
+                    <polygon points="50,78 53,70 47,70" fill="#94a3b8"/>
+                    <polygon points="26,36 34,38 31,32" fill="#94a3b8"/>
+                    <polygon points="74,64 66,62 69,68" fill="#94a3b8"/>
+                    <polygon points="26,64 34,62 31,68" fill="#94a3b8"/>
+                    <polygon points="74,36 66,38 69,32" fill="#94a3b8"/>
+                  </svg>
+                </div>
+
+                <!-- Cassette Tape Paper Label -->
+                <div class="cassette-label-strip" id="cassetteLabelStrip">
+                  <div class="tape-side-stamp" id="tapeSideStamp">A</div>
+                  <div class="tape-info-text">
+                    <div class="tape-title" id="tapeTitle">WINAMP DEMO TRACK</div>
+                    <div class="tape-artist" id="tapeArtist">MIXTAPE 1998</div>
+                  </div>
+                  <div class="tape-c60-badge">C-60</div>
+                </div>
+
+                <!-- Acrylic Window Glare Overlay -->
+                <div class="cassette-glare"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Deck Bar: Tape Switcher & Mechanical Controls -->
+          <div class="deck-bottom-bar">
+            <div class="tape-select-group">
+              <button class="tape-sel-btn active" id="btnTapeClear" title="Clear Crystal Tape">CLEAR</button>
+              <button class="tape-sel-btn" id="btnTapeOrange" title="Neon Orange Tape">ORANGE</button>
+            </div>
+
+            <div class="deck-transport">
+              <button class="mech-btn btn-mech-eject" id="mechEject" title="Eject / Open Song"></button>
+              <button class="mech-btn btn-mech-rew" id="mechRew" title="Rewind (10s)"></button>
+              <button class="mech-btn btn-mech-play" id="mechPlay" title="Play"></button>
+              <button class="mech-btn btn-mech-pause" id="mechPause" title="Pause"></button>
+              <button class="mech-btn btn-mech-stop" id="mechStop" title="Stop"></button>
+              <button class="mech-btn btn-mech-ff" id="mechFF" title="Fast Forward (10s)"></button>
+            </div>
+
+            <button class="walkman-open-btn" id="btnOpenWalkmanModal" title="Full Portable Walkman Mode">⛶</button>
+          </div>
+        </div>
+      </div>
+
       </div> <!-- End #winamp-workspace -->
     </div> <!-- End windows-container -->
 
@@ -366,6 +490,151 @@
             <li><strong>Equalizer:</strong> Genuine 10-band BiquadFilter equalizer (-12dB to +12dB) with Preamp and 16 presets.</li>
             <li><strong>Visualizer:</strong> Real-time 60FPS frequency spectrum analyzer with falling peak dots and oscilloscope!</li>
           </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 5. FULL PORTABLE CASSETTE WALKMAN PLAYER MODAL -->
+    <!-- ============================================== -->
+    <div id="walkmanModal" class="walkman-modal-backdrop hidden">
+      <div class="walkman-player-body">
+        <!-- Walkman Top Shell Header -->
+        <div class="walkman-top-header">
+          <div class="walkman-brand-title">
+            <span class="walkman-brand-stereo">PORTABLE STEREO CASSETTE PLAYER</span>
+            <span class="walkman-brand-logo">WINAMP <em>Walkman</em></span>
+          </div>
+          <div class="walkman-top-actions">
+            <button class="walkman-action-btn" id="wmSoundFxBtn" title="Toggle Mechanical Sound FX">🔊 SFX: ON</button>
+            <button class="walkman-action-btn" id="wmSideBtn" title="Flip Tape Side (Side A / B)">SIDE A</button>
+            <button class="walkman-close-btn" id="wmCloseBtn" title="Back to Winamp Windows">✕</button>
+          </div>
+        </div>
+
+        <!-- Walkman Main Cassette Door & Well -->
+        <div class="walkman-door-chassis">
+          <!-- Metallic Hinges & Corner Screws -->
+          <div class="wm-screw wm-screw-tl"></div>
+          <div class="wm-screw wm-screw-tr"></div>
+          <div class="wm-screw wm-screw-bl"></div>
+          <div class="wm-screw wm-screw-br"></div>
+
+          <!-- Walkman Door Viewing Window -->
+          <div class="walkman-window-frame">
+            <div class="walkman-glass-glare"></div>
+            
+            <!-- Large Cassette Tape in Walkman -->
+            <div class="wm-cassette-card tape-clear" id="wmCassetteCard">
+              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png" alt="Cassette Tape" />
+              
+              <!-- Dynamic Tape Ribbon Spools -->
+              <div class="wm-spool-pack wm-spool-left" id="wmSpoolLeft"></div>
+              <div class="wm-spool-pack wm-spool-right" id="wmSpoolRight"></div>
+
+              <!-- Large 6-Tooth Hubs -->
+              <div class="wm-hub wm-hub-left" id="wmHubLeft">
+                <svg class="wm-hub-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+                  <circle cx="50" cy="50" r="28" fill="#1e293b"/>
+                  <circle cx="50" cy="50" r="22" fill="#f8fafc"/>
+                  <polygon points="50,22 53,30 47,30" fill="#94a3b8"/>
+                  <polygon points="50,78 53,70 47,70" fill="#94a3b8"/>
+                  <polygon points="26,36 34,38 31,32" fill="#94a3b8"/>
+                  <polygon points="74,64 66,62 69,68" fill="#94a3b8"/>
+                  <polygon points="26,64 34,62 31,68" fill="#94a3b8"/>
+                  <polygon points="74,36 66,38 69,32" fill="#94a3b8"/>
+                </svg>
+              </div>
+              <div class="wm-hub wm-hub-right" id="wmHubRight">
+                <svg class="wm-hub-svg" viewBox="0 0 100 100">
+                  <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
+                  <circle cx="50" cy="50" r="28" fill="#1e293b"/>
+                  <circle cx="50" cy="50" r="22" fill="#f8fafc"/>
+                  <polygon points="50,22 53,30 47,30" fill="#94a3b8"/>
+                  <polygon points="50,78 53,70 47,70" fill="#94a3b8"/>
+                  <polygon points="26,36 34,38 31,32" fill="#94a3b8"/>
+                  <polygon points="74,64 66,62 69,68" fill="#94a3b8"/>
+                  <polygon points="26,64 34,62 31,68" fill="#94a3b8"/>
+                  <polygon points="74,36 66,38 69,32" fill="#94a3b8"/>
+                </svg>
+              </div>
+
+              <!-- Cassette Paper Label with Handwritten Mixtape Title -->
+              <div class="wm-label-strip">
+                <div class="wm-side-badge" id="wmSideBadge">A</div>
+                <div class="wm-label-text">
+                  <div class="wm-track-title" id="wmTrackTitle">WINAMP DEMO TRACK</div>
+                  <div class="wm-track-artist" id="wmTrackArtist">AUTHENTIC RETRO CASSETTE</div>
+                </div>
+                <div class="wm-format-badge">CrO2 • 70µs</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Walkman Tape Selector & Indicators Bar -->
+          <div class="walkman-tape-bar">
+            <div class="wm-tape-selector">
+              <span class="wm-tape-selector-label">CASSETTE:</span>
+              <button class="wm-tape-btn active" id="wmBtnClear" title="Clear Crystal Tape">CLEAR CRYSTAL</button>
+              <button class="wm-tape-btn" id="wmBtnOrange" title="Neon Orange Tape">NEON ORANGE</button>
+            </div>
+
+            <!-- Tape Counter & LED -->
+            <div class="wm-counter-block">
+              <div class="wm-counter-display">
+                <span class="wm-counter-label">INDEX</span>
+                <span class="wm-counter-val" id="wmCounter">000</span>
+                <button class="wm-counter-rst" id="wmCounterReset" title="Reset Counter">RST</button>
+              </div>
+              <div class="wm-indicator-block">
+                <div class="wm-led" id="wmLed"></div>
+                <span class="wm-led-label">BATT / RUN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Heavy Mechanical Piano Push Buttons (Bottom of Walkman) -->
+        <div class="walkman-mechanical-deck">
+          <div class="wm-piano-keys">
+            <button class="wm-key wm-key-eject" id="wmKeyEject" title="Eject / Open Song">
+              <span class="wm-key-top">⏏</span>
+              <span class="wm-key-label">EJECT</span>
+            </button>
+            <button class="wm-key wm-key-rew" id="wmKeyRew" title="Rewind 10s">
+              <span class="wm-key-top">⏪</span>
+              <span class="wm-key-label">REW</span>
+            </button>
+            <button class="wm-key wm-key-ff" id="wmKeyFF" title="Fast Forward 10s">
+              <span class="wm-key-top">⏩</span>
+              <span class="wm-key-label">FF</span>
+            </button>
+            <button class="wm-key wm-key-play" id="wmKeyPlay" title="Play">
+              <span class="wm-key-top">▶</span>
+              <span class="wm-key-label">PLAY</span>
+            </button>
+            <button class="wm-key wm-key-pause" id="wmKeyPause" title="Pause">
+              <span class="wm-key-top">⏸</span>
+              <span class="wm-key-label">PAUSE</span>
+            </button>
+            <button class="wm-key wm-key-stop" id="wmKeyStop" title="Stop">
+              <span class="wm-key-top">⏹</span>
+              <span class="wm-key-label">STOP</span>
+            </button>
+          </div>
+
+          <!-- Volume & Headphone Jack -->
+          <div class="wm-volume-section">
+            <div class="wm-phones-jack" title="Stereo Mini-Jack 3.5mm">
+              <div class="wm-jack-hole"></div>
+              <span>PHONES</span>
+            </div>
+            <div class="wm-vol-slider-wrap">
+              <span class="wm-vol-label">VOL</span>
+              <input type="range" class="wm-vol-slider" id="wmVolSlider" min="0" max="1" step="0.01" value="0.8" />
+            </div>
+          </div>
         </div>
       </div>
     </div>

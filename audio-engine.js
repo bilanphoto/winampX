@@ -18,6 +18,7 @@ class WinampAudioEngine {
     this.isInitialized = false;
     this.eqEnabled = true;
     this.preampValue = 0; // dB (-12 to +12)
+    this.soundFxEnabled = true; // Mechanical Cassette Sound FX
     
     // Winamp EQ Frequencies (Hz)
     this.eqFrequencies = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000];
@@ -308,6 +309,69 @@ class WinampAudioEngine {
     if (isFinite(seconds) && seconds >= 0) {
       this.audio.currentTime = seconds;
     }
+  }
+
+  // Mechanical Cassette Sound Synthesizer (Realistic Walkman physical button sounds)
+  playMechanicalSound(type = 'click') {
+    if (!this.soundFxEnabled) return;
+    try {
+      this.initAudioGraph();
+      if (!this.ctx || this.ctx.state !== 'running') return;
+      const now = this.ctx.currentTime;
+      if (type === 'play' || type === 'clunk') {
+        // Heavy spring-loaded Walkman play key latch sound
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(140, now);
+        osc.frequency.exponentialRampToValueAtTime(35, now + 0.08);
+        gain.gain.setValueAtTime(0.28, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.08);
+
+        // Click transient
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.03);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.25));
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.22, now);
+        noise.connect(noiseGain);
+        noiseGain.connect(this.ctx.destination);
+        noise.start(now);
+      } else if (type === 'stop' || type === 'pause' || type === 'click') {
+        // Crisp spring latch snap
+        const bufferSize = Math.floor(this.ctx.sampleRate * 0.025);
+        const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        for (let i = 0; i < bufferSize; i++) data[i] = (Math.random() * 2 - 1) * Math.exp(-i / (bufferSize * 0.2));
+        const noise = this.ctx.createBufferSource();
+        noise.buffer = buffer;
+        const noiseGain = this.ctx.createGain();
+        noiseGain.gain.setValueAtTime(0.2, now);
+        noise.connect(noiseGain);
+        noiseGain.connect(this.ctx.destination);
+        noise.start(now);
+      } else if (type === 'eject') {
+        // Dual latch pop
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = 'square';
+        osc.frequency.setValueAtTime(260, now);
+        osc.frequency.exponentialRampToValueAtTime(70, now + 0.1);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      }
+    } catch (e) {}
   }
 
   // Generate an authentic retro chiptune wav blob for demo music!

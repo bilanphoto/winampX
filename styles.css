@@ -2078,3 +2078,1016 @@ body.skin-midnight .pl-resize-handle {
 .hidden {
   display: none !important;
 }
+
+/* ==========================================================================
+   4. CASSETTE PLAYER DECK WINDOW (275 x 232)
+   ========================================================================== */
+.winamp-cassette {
+  width: 275px;
+  height: 232px;
+  position: absolute;
+  top: 240px;
+  left: 20px;
+  z-index: 25;
+  background: #1e222d;
+  border-radius: 2px;
+  box-shadow: 4px 4px 18px rgba(0, 0, 0, 0.85);
+  display: flex;
+  flex-direction: column;
+}
+
+.winamp-cassette.shaded {
+  height: 14px !important;
+  overflow: hidden !important;
+}
+
+.cassette-deck-body {
+  position: relative;
+  width: 275px;
+  height: 218px;
+  background: linear-gradient(180deg, #2b3240 0%, #1e232d 40%, #171b23 100%);
+  border-top: 1px solid #4a5568;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  padding: 4px 8px 6px 8px;
+  user-select: none;
+}
+
+/* Deck Top Bar */
+.deck-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 18px;
+  padding: 0 4px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.deck-model-tag {
+  font-family: Arial, sans-serif;
+  font-size: 7.5px;
+  font-weight: 900;
+  color: #94a3b8;
+  letter-spacing: 0.8px;
+  text-shadow: 0 1px 2px #000;
+}
+
+.deck-counter-wrap {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  background: #000;
+  border: 1px solid #475569;
+  border-radius: 2px;
+  padding: 1px 4px;
+}
+
+.deck-counter-label {
+  font-family: 'VT323', monospace;
+  font-size: 9px;
+  color: #64748b;
+}
+
+.deck-counter-num {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 10px;
+  font-weight: bold;
+  color: #ffffff;
+  letter-spacing: 1px;
+}
+
+.deck-counter-rst {
+  background: #334155;
+  border: 1px solid #64748b;
+  border-radius: 2px;
+  color: #94a3b8;
+  font-size: 7px;
+  font-weight: bold;
+  padding: 0 2px;
+  cursor: pointer;
+  line-height: 10px;
+}
+.deck-counter-rst:hover {
+  background: #475569;
+  color: #fff;
+}
+
+.deck-status-led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #450a0a;
+  border: 1px solid #1f2937;
+  transition: all 0.2s ease;
+}
+
+.deck-status-led.active {
+  background: #ef4444;
+  box-shadow: 0 0 8px #ef4444, 0 0 12px #f87171;
+}
+
+/* Cassette Well Compartment */
+.cassette-well {
+  position: relative;
+  width: 100%;
+  height: 146px;
+  background: #0a0d14;
+  border: 2px solid #334155;
+  border-radius: 4px;
+  box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.95), 0 1px 0 rgba(255, 255, 255, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.cassette-housing {
+  position: relative;
+  width: 242px;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cassette Tape Card */
+.cassette-tape-card {
+  position: relative;
+  width: 236px;
+  height: 136px;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.8);
+  transition: transform 0.4s ease;
+}
+
+.cassette-tape-card.flip-b {
+  transform: scaleY(-1);
+}
+
+.cassette-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Dynamic Tape Packs (Magnetic Ribbon) */
+.tape-pack {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #2d1e16 0%, #150d09 70%, #000 100%);
+  box-shadow: inset 0 0 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.8);
+  z-index: 5;
+  pointer-events: none;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.tape-pack-left {
+  left: 31.5%;
+  transform: translate(-50%, -50%);
+  width: 48px;
+  height: 48px;
+}
+
+.tape-pack-right {
+  left: 68.5%;
+  transform: translate(-50%, -50%);
+  width: 28px;
+  height: 28px;
+}
+
+/* Spinning Hubs with 6 teeth */
+.tape-hub {
+  position: absolute;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  pointer-events: none;
+}
+
+.hub-left {
+  left: 31.5%;
+}
+
+.hub-right {
+  left: 68.5%;
+}
+
+.hub-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.tape-hub.spinning {
+  animation: cassette-hub-spin 1.8s linear infinite;
+}
+
+.tape-hub.fast-forward {
+  animation: cassette-hub-spin 0.4s linear infinite;
+}
+
+.tape-hub.rewind {
+  animation: cassette-hub-spin-rev 0.4s linear infinite;
+}
+
+@keyframes cassette-hub-spin {
+  from { transform: translate(-50%, -50%) rotate(0deg); }
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+@keyframes cassette-hub-spin-rev {
+  from { transform: translate(-50%, -50%) rotate(360deg); }
+  to { transform: translate(-50%, -50%) rotate(0deg); }
+}
+
+/* Cassette Paper Label Overlay */
+.cassette-label-strip {
+  position: absolute;
+  top: 14%;
+  left: 12%;
+  width: 76%;
+  height: 22%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px;
+  box-sizing: border-box;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.tape-side-stamp {
+  font-family: Arial, sans-serif;
+  font-size: 11px;
+  font-weight: 900;
+  color: #b91c1c;
+  border: 1.5px solid #b91c1c;
+  padding: 0 3px;
+  border-radius: 2px;
+  line-height: 13px;
+  background: rgba(255, 255, 255, 0.4);
+}
+
+.tape-info-text {
+  flex: 1;
+  overflow: hidden;
+  margin: 0 6px;
+  text-align: center;
+}
+
+.tape-title {
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 9px;
+  font-weight: 900;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+}
+
+.tape-artist {
+  font-family: Arial, sans-serif;
+  font-size: 7.5px;
+  font-weight: bold;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tape-c60-badge {
+  font-family: 'VT323', monospace;
+  font-size: 11px;
+  font-weight: bold;
+  color: #1e293b;
+  border: 1px solid #475569;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+
+/* Acrylic Glare */
+.cassette-glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 30%, transparent 60%);
+  pointer-events: none;
+  z-index: 20;
+}
+
+/* Bottom Deck Bar */
+.deck-bottom-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  height: 32px;
+  padding: 0 2px;
+}
+
+.tape-select-group {
+  display: flex;
+  gap: 2px;
+}
+
+.tape-sel-btn {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 2px;
+  color: #94a3b8;
+  font-size: 7px;
+  font-weight: 900;
+  padding: 2px 4px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+  transition: all 0.15s ease;
+}
+
+.tape-sel-btn:hover {
+  background: #334155;
+  color: #fff;
+}
+
+.tape-sel-btn.active {
+  background: #0284c7;
+  color: #fff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
+}
+
+.deck-transport {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.mech-btn {
+  width: 20px;
+  height: 18px;
+  background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 50%, #94a3b8 100%);
+  border: 1px solid #475569;
+  border-radius: 2px;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.4), inset 0 1px 0 #fff;
+  cursor: pointer;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.mech-btn:active,
+.mech-btn.active {
+  transform: translateY(2px);
+  box-shadow: 0 0 1px rgba(0,0,0,0.5), inset 0 1px 3px rgba(0,0,0,0.6);
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+}
+
+.btn-mech-eject::after { content: '⏏'; font-size: 9px; color: #1e293b; }
+.btn-mech-rew::after   { content: '⏪'; font-size: 7px; color: #1e293b; }
+.btn-mech-play::after  { content: '▶'; font-size: 8px; color: #15803d; }
+.btn-mech-pause::after { content: '⏸'; font-size: 8px; color: #b45309; }
+.btn-mech-stop::after  { content: '⏹'; font-size: 7px; color: #b91c1c; }
+.btn-mech-ff::after    { content: '⏩'; font-size: 7px; color: #1e293b; }
+
+.walkman-open-btn {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 2px;
+  color: #94a3b8;
+  font-size: 11px;
+  width: 20px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.walkman-open-btn:hover {
+  background: #38bdf8;
+  color: #fff;
+  border-color: #38bdf8;
+}
+
+/* ==========================================================================
+   5. FULL PORTABLE CASSETTE WALKMAN PLAYER MODAL
+   ========================================================================== */
+.walkman-modal-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  box-sizing: border-box;
+}
+
+.walkman-player-body {
+  position: relative;
+  width: 440px;
+  max-width: 96vw;
+  background: linear-gradient(135deg, #334155 0%, #1e293b 40%, #0f172a 100%);
+  border: 3px solid #64748b;
+  border-radius: 12px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.9), inset 0 1px 1px rgba(255, 255, 255, 0.3);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 16px 16px 16px;
+  box-sizing: border-box;
+  user-select: none;
+}
+
+.walkman-top-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 2px solid #475569;
+}
+
+.walkman-brand-title {
+  display: flex;
+  flex-direction: column;
+}
+
+.walkman-brand-stereo {
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.walkman-brand-logo {
+  font-family: 'Share Tech Mono', sans-serif;
+  font-size: 15px;
+  font-weight: 900;
+  color: #f8fafc;
+  letter-spacing: 1px;
+}
+.walkman-brand-logo em {
+  font-style: italic;
+  color: #ff9900;
+  font-family: Georgia, serif;
+}
+
+.walkman-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.walkman-action-btn {
+  background: #1e293b;
+  border: 1px solid #64748b;
+  border-radius: 4px;
+  color: #cbd5e1;
+  font-size: 9px;
+  font-weight: bold;
+  padding: 3px 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+.walkman-action-btn:hover {
+  background: #334155;
+  color: #fff;
+}
+
+.walkman-close-btn {
+  background: #dc2626;
+  border: none;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: bold;
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.walkman-close-btn:hover {
+  background: #ef4444;
+}
+
+/* Door chassis */
+.walkman-door-chassis {
+  position: relative;
+  background: linear-gradient(180deg, #1e232d 0%, #11141a 100%);
+  border: 3px solid #475569;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: inset 0 2px 10px rgba(0,0,0,0.9);
+}
+
+.walkman-window-frame {
+  position: relative;
+  width: 100%;
+  height: 220px;
+  background: #000;
+  border: 2px solid #334155;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: inset 0 0 15px rgba(0,0,0,0.95);
+}
+
+.walkman-glass-glare {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 35%, transparent 60%);
+  z-index: 30;
+  pointer-events: none;
+}
+
+.wm-cassette-card {
+  position: relative;
+  width: 360px;
+  height: 208px;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.85);
+  transition: transform 0.4s ease;
+}
+
+.wm-cassette-card.flip-b {
+  transform: scaleY(-1);
+}
+
+.wm-cassette-img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.wm-spool-pack {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  border-radius: 50%;
+  background: radial-gradient(circle, #2d1e16 0%, #150d09 70%, #000 100%);
+  box-shadow: inset 0 0 6px rgba(0,0,0,0.9);
+  z-index: 5;
+  pointer-events: none;
+  transition: width 0.3s ease, height 0.3s ease;
+}
+
+.wm-spool-left {
+  left: 31.5%;
+  transform: translate(-50%, -50%);
+  width: 76px;
+  height: 76px;
+}
+
+.wm-spool-right {
+  left: 68.5%;
+  transform: translate(-50%, -50%);
+  width: 44px;
+  height: 44px;
+}
+
+.wm-hub {
+  position: absolute;
+  top: 50%;
+  width: 44px;
+  height: 44px;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  pointer-events: none;
+}
+
+.wm-hub-left { left: 31.5%; }
+.wm-hub-right { left: 68.5%; }
+
+.wm-hub-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.wm-hub.spinning {
+  animation: cassette-hub-spin 1.8s linear infinite;
+}
+.wm-hub.fast-forward {
+  animation: cassette-hub-spin 0.4s linear infinite;
+}
+.wm-hub.rewind {
+  animation: cassette-hub-spin-rev 0.4s linear infinite;
+}
+
+.wm-label-strip {
+  position: absolute;
+  top: 14%;
+  left: 12%;
+  width: 76%;
+  height: 22%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 10px;
+  box-sizing: border-box;
+  z-index: 12;
+  pointer-events: none;
+}
+
+.wm-side-badge {
+  font-family: Arial, sans-serif;
+  font-size: 14px;
+  font-weight: 900;
+  color: #b91c1c;
+  border: 2px solid #b91c1c;
+  padding: 1px 5px;
+  border-radius: 2px;
+  background: rgba(255,255,255,0.4);
+}
+
+.wm-label-text {
+  flex: 1;
+  overflow: hidden;
+  margin: 0 10px;
+  text-align: center;
+}
+
+.wm-track-title {
+  font-family: 'Share Tech Mono', 'Courier New', monospace;
+  font-size: 13px;
+  font-weight: 900;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.wm-track-artist {
+  font-family: Arial, sans-serif;
+  font-size: 10px;
+  font-weight: bold;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.wm-format-badge {
+  font-family: 'VT323', monospace;
+  font-size: 14px;
+  font-weight: bold;
+  color: #1e293b;
+  border: 1px solid #475569;
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+/* Walkman tape bar */
+.walkman-tape-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+  padding: 0 4px;
+}
+
+.wm-tape-selector {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.wm-tape-selector-label {
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  font-weight: 900;
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
+.wm-tape-btn {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 3px;
+  color: #cbd5e1;
+  font-size: 8.5px;
+  font-weight: 900;
+  padding: 4px 8px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  transition: all 0.15s ease;
+}
+.wm-tape-btn.active {
+  background: #0284c7;
+  color: #fff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
+}
+
+.wm-counter-block {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.wm-counter-display {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: #000;
+  border: 1px solid #475569;
+  border-radius: 3px;
+  padding: 2px 6px;
+}
+
+.wm-counter-label {
+  font-family: 'VT323', monospace;
+  font-size: 10px;
+  color: #64748b;
+}
+
+.wm-counter-val {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 12px;
+  font-weight: bold;
+  color: #fff;
+  letter-spacing: 1.5px;
+}
+
+.wm-counter-rst {
+  background: #334155;
+  border: 1px solid #64748b;
+  border-radius: 2px;
+  color: #94a3b8;
+  font-size: 8px;
+  font-weight: bold;
+  padding: 1px 4px;
+  cursor: pointer;
+}
+.wm-counter-rst:hover {
+  background: #475569;
+  color: #fff;
+}
+
+.wm-indicator-block {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wm-led {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #450a0a;
+  border: 1px solid #1f2937;
+  transition: all 0.2s ease;
+}
+.wm-led.active {
+  background: #ef4444;
+  box-shadow: 0 0 10px #ef4444, 0 0 16px #f87171;
+}
+
+.wm-led-label {
+  font-family: Arial, sans-serif;
+  font-size: 7.5px;
+  font-weight: 900;
+  color: #94a3b8;
+  letter-spacing: 0.5px;
+}
+
+/* Mechanical Piano Keys */
+.walkman-mechanical-deck {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.wm-piano-keys {
+  display: flex;
+  justify-content: space-between;
+  gap: 6px;
+}
+
+.wm-key {
+  flex: 1;
+  height: 48px;
+  background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 55%, #94a3b8 100%);
+  border: 2px solid #475569;
+  border-radius: 4px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.5), inset 0 1px 0 #fff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.wm-key:active,
+.wm-key.active {
+  transform: translateY(4px);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.6), inset 0 2px 5px rgba(0,0,0,0.7);
+  background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
+}
+
+.wm-key-top {
+  font-size: 13px;
+  line-height: 14px;
+}
+.wm-key-label {
+  font-family: Arial, sans-serif;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  color: #1e293b;
+  margin-top: 2px;
+}
+
+.wm-key-play .wm-key-top { color: #15803d; }
+.wm-key-pause .wm-key-top { color: #b45309; }
+.wm-key-stop .wm-key-top { color: #b91c1c; }
+
+/* Volume section */
+.wm-volume-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+  padding: 6px 10px;
+}
+
+.wm-phones-jack {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  font-weight: 900;
+  color: #94a3b8;
+  letter-spacing: 1px;
+}
+
+.wm-jack-hole {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #000;
+  border: 2px solid #64748b;
+  box-shadow: inset 0 1px 3px rgba(0,0,0,0.9);
+}
+
+.wm-vol-slider-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-vol-label {
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  font-weight: 900;
+  color: #94a3b8;
+}
+
+.wm-vol-slider {
+  width: 120px;
+  height: 6px;
+  accent-color: #38bdf8;
+  cursor: pointer;
+}
+
+/* Screws */
+.wm-screw {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #cbd5e1 30%, #475569 90%);
+  border: 1px solid #1e293b;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.8);
+}
+.wm-screw::after {
+  content: '';
+  position: absolute;
+  top: 3px;
+  left: 1px;
+  width: 4px;
+  height: 1px;
+  background: #1e293b;
+}
+.wm-screw-tl { top: 4px; left: 4px; }
+.wm-screw-tr { top: 4px; right: 4px; }
+.wm-screw-bl { bottom: 4px; left: 4px; }
+.wm-screw-br { bottom: 4px; right: 4px; }
+
+/* Titlebar Walkman Button */
+.titlebar-walkman-btn {
+  position: absolute;
+  left: 78px;
+  top: 1px;
+  height: 11px;
+  background: #334155;
+  border: 1px solid #64748b;
+  border-radius: 2px;
+  color: #f1f5f9;
+  font-family: Arial, sans-serif;
+  font-size: 7.5px;
+  font-weight: 900;
+  padding: 0 4px;
+  line-height: 9px;
+  cursor: pointer;
+  letter-spacing: 0.5px;
+  z-index: 50;
+  transition: all 0.15s ease;
+}
+.titlebar-walkman-btn:hover {
+  background: #0284c7;
+  border-color: #38bdf8;
+  box-shadow: 0 0 5px #38bdf8;
+}
+
+/* Button Tape on Main Window across Skins */
+.btn-tape {
+  left: 242px;
+  top: 30px;
+  width: 23px;
+  height: 12px;
+}
+
+body.skin-classic .btn-tape {
+  background: #2a313d;
+  color: #00ff00;
+  border: 1px solid #4a5568;
+  border-radius: 1px;
+}
+body.skin-classic .btn-tape::after { content: 'TAPE'; font-size: 6.5px; font-weight: bold; }
+body.skin-classic .btn-tape.active {
+  background: #11141a;
+  color: #00ff00;
+  box-shadow: inset 0 0 2px #00ff00;
+}
+
+body.skin-modern .btn-tape {
+  background: #334155;
+  border: 1px solid #1e293b;
+  border-radius: 3px;
+  color: #94a3b8;
+}
+body.skin-modern .btn-tape::after { content: 'TAPE'; font-size: 6.5px; }
+body.skin-modern .btn-tape.active {
+  background: #0284c7;
+  color: #fff;
+  border-color: #38bdf8;
+  box-shadow: 0 0 5px #38bdf8;
+}
+
+body.skin-midnight .btn-tape {
+  background: #38344e;
+  border: 1px solid #1e1b2b;
+  border-radius: 2px;
+  color: #64748b;
+}
+body.skin-midnight .btn-tape::after { content: 'TAPE'; font-size: 6.5px; }
+body.skin-midnight .btn-tape.active {
+  background: #1e1b2b;
+  color: #00ff00;
+  border-color: #00ff00;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
+}
