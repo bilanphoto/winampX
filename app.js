@@ -1010,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       wmCassetteCard.classList.add(valid === 'orange' ? 'tape-orange' : 'tape-clear');
     }
 
-    const imgSrc = (valid === 'orange' ? 'assets/cassette/tape-orange-clean.png' : 'assets/cassette/tape-clear-clean.png') + '?v=2.2';
+    const imgSrc = (valid === 'orange' ? 'assets/cassette/tape-orange-clean.png' : 'assets/cassette/tape-clear-clean.png') + '?v=2.3';
     if (cassetteImg) cassetteImg.src = imgSrc;
     if (wmCassetteImg) wmCassetteImg.src = imgSrc;
 

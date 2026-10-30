@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=2.2">
+  <link rel="stylesheet" href="styles.css?v=2.3">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -387,7 +387,7 @@
               <!-- Cassette Card -->
               <div class="cassette-tape-card tape-clear" id="cassetteCard">
                 <!-- The Razor-Sharp Image -->
-                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png" alt="Cassette Tape" />
+                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.3" alt="Cassette Tape" />
                 
                 <!-- Dynamic Tape Ribbon Spools -->
                 <div class="tape-pack tape-pack-left" id="tapePackLeft"></div>
@@ -453,6 +453,32 @@
 
                 <!-- Acrylic Window Glare Overlay -->
                 <div class="cassette-glare"></div>
+              </div>
+
+              <!-- Vintage Transparent Acrylic Lid / Door (Sony Walkman TCS-350 Style) -->
+              <div class="cassette-door-lid" id="cassetteDoorLid" aria-hidden="true">
+                <div class="lid-bezel-frame"></div>
+                <div class="lid-acrylic-pane">
+                  <div class="lid-glass-sheen"></div>
+                  <!-- Sony Walkman Scale Ruler & Arrow -->
+                  <div class="lid-scale-marks">
+                    <span class="scale-val scale-10">10</span>
+                    <div class="scale-ruler-col">
+                      <span class="scale-tick major"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick major"></span>
+                      <span class="scale-arrow-icon">⬇</span>
+                      <span class="scale-tick major"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick major"></span>
+                    </div>
+                    <span class="scale-val scale-0">0</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -602,7 +628,7 @@
             
             <!-- Large Cassette Tape in Walkman -->
             <div class="wm-cassette-card tape-clear" id="wmCassetteCard">
-              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png" alt="Cassette Tape" />
+              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.3" alt="Cassette Tape" />
               
               <!-- Dynamic Tape Ribbon Spools -->
               <div class="wm-spool-pack wm-spool-left" id="wmSpoolLeft"></div>
@@ -656,6 +682,32 @@
                 <div class="wm-format-badge">CrO2 • 70µs</div>
               </div>
             </div>
+
+            <!-- Vintage Acrylic Transparent Door / Lid for Walkman Modal -->
+            <div class="wm-door-lid" aria-hidden="true">
+              <div class="wm-lid-bezel-frame"></div>
+              <div class="wm-lid-acrylic-pane">
+                <div class="wm-lid-glass-sheen"></div>
+                <!-- Sony Walkman Scale Ruler & Arrow -->
+                <div class="wm-lid-scale-marks">
+                  <span class="wm-scale-val wm-scale-10">10</span>
+                  <div class="wm-scale-ruler-col">
+                    <span class="wm-scale-tick major"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick major"></span>
+                    <span class="wm-scale-arrow-icon">⬇</span>
+                    <span class="wm-scale-tick major"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick major"></span>
+                  </div>
+                  <span class="wm-scale-val wm-scale-0">0</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           <!-- Walkman Tape Selector & Indicators Bar -->
@@ -681,44 +733,50 @@
           </div>
         </div>
 
-        <!-- Heavy Mechanical Piano Push Buttons (Bottom of Walkman) -->
+        <!-- Heavy Mechanical Piano Push Buttons (Unified Sequence Matching Normal Deck) -->
         <div class="walkman-mechanical-deck">
           <div class="wm-piano-keys">
-            <button class="wm-key wm-key-eject" id="wmKeyEject" title="Flip Side A/B (Eject)">
-              <span class="wm-key-top">
-                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="12,4 4,13 20,13" fill="currentColor"/><rect x="4" y="16" width="16" height="3" rx="0.5" fill="currentColor"/></svg>
-              </span>
-              <span class="wm-key-label">EJECT</span>
-            </button>
+            <!-- REW -->
             <button class="wm-key wm-key-rew" id="wmKeyRew" title="Rewind 10s">
               <span class="wm-key-top">
                 <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="11,5 1,12 11,19" fill="currentColor"/><polygon points="21,5 11,12 21,19" fill="currentColor"/></svg>
               </span>
               <span class="wm-key-label">REW</span>
             </button>
-            <button class="wm-key wm-key-ff" id="wmKeyFF" title="Fast Forward 10s">
-              <span class="wm-key-top">
-                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="3,5 13,12 3,19" fill="currentColor"/><polygon points="13,5 23,12 13,19" fill="currentColor"/></svg>
-              </span>
-              <span class="wm-key-label">FF</span>
-            </button>
+            <!-- PLAY -->
             <button class="wm-key wm-key-play" id="wmKeyPlay" title="Play">
               <span class="wm-key-top">
                 <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="6,4 20,12 6,20" fill="currentColor"/></svg>
               </span>
               <span class="wm-key-label">PLAY</span>
             </button>
+            <!-- PAUSE -->
             <button class="wm-key wm-key-pause" id="wmKeyPause" title="Pause">
               <span class="wm-key-top">
                 <svg viewBox="0 0 24 24" class="wm-key-svg"><rect x="5" y="4" width="4.5" height="16" rx="1" fill="currentColor"/><rect x="14.5" y="4" width="4.5" height="16" rx="1" fill="currentColor"/></svg>
               </span>
               <span class="wm-key-label">PAUSE</span>
             </button>
+            <!-- STOP -->
             <button class="wm-key wm-key-stop" id="wmKeyStop" title="Stop">
               <span class="wm-key-top">
                 <svg viewBox="0 0 24 24" class="wm-key-svg"><rect x="4.5" y="4.5" width="15" height="15" rx="1.5" fill="currentColor"/></svg>
               </span>
               <span class="wm-key-label">STOP</span>
+            </button>
+            <!-- FF -->
+            <button class="wm-key wm-key-ff" id="wmKeyFF" title="Fast Forward 10s">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="3,5 13,12 3,19" fill="currentColor"/><polygon points="13,5 23,12 13,19" fill="currentColor"/></svg>
+              </span>
+              <span class="wm-key-label">FF</span>
+            </button>
+            <!-- EJECT -->
+            <button class="wm-key wm-key-eject" id="wmKeyEject" title="Flip Side A/B (Eject)">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="12,4 4,13 20,13" fill="currentColor"/><rect x="4" y="16" width="16" height="3" rx="0.5" fill="currentColor"/></svg>
+              </span>
+              <span class="wm-key-label">EJECT</span>
             </button>
           </div>
 
@@ -745,7 +803,7 @@
   <!-- Scripts -->
   <script src="db.js"></script>
   <script src="id3.js"></script>
-  <script src="audio-engine.js?v=2.2"></script>
-  <script src="app.js?v=2.2"></script>
+  <script src="audio-engine.js?v=2.3"></script>
+  <script src="app.js?v=2.3"></script>
 </body>
 </html>

@@ -2280,35 +2280,35 @@ body.skin-midnight .pl-resize-handle {
 }
 
 .hub-left {
-  left: 31.3%;
+  left: 31.8%;
 }
 
 .hub-right {
-  left: 68.7%;
+  left: 68.2%;
 }
 
-/* Specific hub & spool alignment for Orange Tape */
+/* Specific hub & spool alignment for Orange Tape (calibrated to exact spools) */
 .cassette-tape-card.tape-orange .hub-left,
 .cassette-tape-card.tape-orange .tape-pack-left {
-  left: 29.2%;
-  top: 51.4%;
+  left: 31.4%;
+  top: 52.1%;
 }
 .cassette-tape-card.tape-orange .hub-right,
 .cassette-tape-card.tape-orange .tape-pack-right {
-  left: 70.8%;
-  top: 51.4%;
+  left: 69.1%;
+  top: 52.1%;
 }
 
-/* Specific hub & spool alignment for Clear Tape */
+/* Specific hub & spool alignment for Clear Tape (calibrated to exact spools) */
 .cassette-tape-card.tape-clear .hub-left,
 .cassette-tape-card.tape-clear .tape-pack-left {
-  left: 31.3%;
-  top: 48.2%;
+  left: 31.8%;
+  top: 51.3%;
 }
 .cassette-tape-card.tape-clear .hub-right,
 .cassette-tape-card.tape-clear .tape-pack-right {
-  left: 68.7%;
-  top: 48.2%;
+  left: 68.2%;
+  top: 51.3%;
 }
 
 .hub-svg {
@@ -2343,10 +2343,10 @@ body.skin-midnight .pl-resize-handle {
 /* Cassette Paper Label Overlay - Positioned cleanly in white area */
 .cassette-label-strip {
   position: absolute;
-  top: 7%;
+  top: 9.5%;
   left: 11%;
   width: 78%;
-  height: 18%;
+  height: 15.5%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2421,6 +2421,215 @@ body.skin-midnight .pl-resize-handle {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.18) 0%, rgba(255, 255, 255, 0.05) 30%, transparent 60%);
   pointer-events: none;
   z-index: 20;
+}
+
+/* Vintage Transparent Acrylic Cassette Lid / Door (Sony Walkman TCS-350 Style) */
+.cassette-door-lid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 22;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lid-bezel-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1.5px solid rgba(148, 163, 184, 0.45);
+  border-radius: 5px;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  pointer-events: none;
+}
+
+.lid-acrylic-pane {
+  position: relative;
+  width: 236px;
+  height: 136px;
+  border-radius: 6px;
+  background: linear-gradient(130deg, 
+    rgba(255, 255, 255, 0.16) 0%, 
+    rgba(255, 255, 255, 0.04) 28%, 
+    transparent 42%, 
+    rgba(255, 255, 255, 0.06) 65%, 
+    transparent 100%
+  );
+  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.lid-glass-sheen {
+  position: absolute;
+  top: -20%;
+  left: -20%;
+  width: 140%;
+  height: 60%;
+  background: linear-gradient(175deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+  transform: rotate(-15deg);
+  pointer-events: none;
+}
+
+/* Sony Walkman Scale Ruler on Lid (Left of center window) */
+.lid-scale-marks {
+  position: absolute;
+  left: 5%;
+  top: 24%;
+  height: 52%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 25;
+  user-select: none;
+}
+
+.scale-val {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 7px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.85);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  line-height: 1;
+}
+
+.scale-ruler-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 75%;
+}
+
+.scale-tick {
+  width: 4px;
+  height: 1px;
+  background: rgba(226, 232, 240, 0.6);
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.6);
+}
+
+.scale-tick.major {
+  width: 7px;
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.scale-arrow-icon {
+  font-size: 9px;
+  color: #38bdf8;
+  text-shadow: 0 0 3px rgba(56, 189, 248, 0.6);
+  line-height: 1;
+  margin: 1px 0;
+}
+
+/* Walkman Fullscreen Modal Transparent Acrylic Lid */
+.wm-door-lid {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 28;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.wm-lid-bezel-frame {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba(148, 163, 184, 0.45);
+  border-radius: 8px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.12);
+}
+
+.wm-lid-acrylic-pane {
+  position: relative;
+  width: 360px;
+  height: 208px;
+  border-radius: 8px;
+  background: linear-gradient(130deg, 
+    rgba(255, 255, 255, 0.18) 0%, 
+    rgba(255, 255, 255, 0.05) 30%, 
+    transparent 45%, 
+    rgba(255, 255, 255, 0.08) 65%, 
+    transparent 100%
+  );
+  box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.08), inset 0 1.5px 2px rgba(255, 255, 255, 0.3);
+  overflow: hidden;
+}
+
+.wm-lid-glass-sheen {
+  position: absolute;
+  top: -25%;
+  left: -20%;
+  width: 140%;
+  height: 60%;
+  background: linear-gradient(175deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 50%, transparent 100%);
+  transform: rotate(-15deg);
+}
+
+.wm-lid-scale-marks {
+  position: absolute;
+  left: 5%;
+  top: 24%;
+  height: 52%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+  z-index: 29;
+  user-select: none;
+}
+
+.wm-scale-val {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: rgba(226, 232, 240, 0.9);
+  text-shadow: 0 1px 2px rgba(0,0,0,0.85);
+  line-height: 1;
+}
+
+.wm-scale-ruler-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  height: 75%;
+}
+
+.wm-scale-tick {
+  width: 6px;
+  height: 1px;
+  background: rgba(226, 232, 240, 0.65);
+  box-shadow: 0 0.5px 1px rgba(0, 0, 0, 0.6);
+}
+
+.wm-scale-tick.major {
+  width: 10px;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.wm-scale-arrow-icon {
+  font-size: 11px;
+  color: #38bdf8;
+  text-shadow: 0 0 4px rgba(56, 189, 248, 0.7);
+  line-height: 1;
+  margin: 1px 0;
 }
 
 /* Bottom Deck Bar */
@@ -2577,6 +2786,59 @@ body.skin-cassette #eqWindow {
 
 body.skin-cassette #cassetteWindow {
   display: block !important;
+}
+
+/* Playlist Styling for Cassette Skin (Fix blank white buttons) */
+body.skin-cassette .pl-bottom-bar {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border-top: 1px solid #334155;
+}
+
+body.skin-cassette .pledif-btn {
+  width: 25px;
+  height: 18px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #475569;
+  border-radius: 2px;
+  color: #38bdf8;
+  font-size: 7.5px;
+  font-weight: bold;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  box-sizing: border-box;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.6);
+  cursor: pointer;
+}
+
+body.skin-cassette .pledif-btn:hover {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  color: #7dd3fc;
+  border-color: #38bdf8;
+}
+
+body.skin-cassette .pledif-btn:active {
+  background: #0284c7;
+  color: #ffffff;
+}
+
+body.skin-cassette .btn-pl-opts {
+  width: 32px;
+}
+
+body.skin-cassette .btn-pl-add::after  { content: '+ADD'; }
+body.skin-cassette .btn-pl-rem::after  { content: '-REM'; }
+body.skin-cassette .btn-pl-sel::after  { content: 'SEL'; }
+body.skin-cassette .btn-pl-misc::after { content: 'MISC'; }
+body.skin-cassette .btn-pl-opts::after { content: 'OPTS'; }
+
+body.skin-cassette .pl-time-display-box,
+body.skin-cassette .pl-cur-time-box {
+  color: #00ff00;
+  text-shadow: 0 0 3px rgba(0, 255, 0, 0.6);
 }
 
 .titlebar-winamp-btn {
@@ -2809,30 +3071,30 @@ body.skin-cassette #cassetteWindow {
   pointer-events: none;
 }
 
-.wm-hub-left { left: 31.3%; }
-.wm-hub-right { left: 68.7%; }
+.wm-hub-left { left: 31.8%; }
+.wm-hub-right { left: 68.2%; }
 
 /* Specific hub & spool alignment for Walkman modal */
 .wm-cassette-card.tape-orange .wm-hub-left,
 .wm-cassette-card.tape-orange .wm-spool-left {
-  left: 29.2%;
-  top: 51.4%;
+  left: 31.4%;
+  top: 52.1%;
 }
 .wm-cassette-card.tape-orange .wm-hub-right,
 .wm-cassette-card.tape-orange .wm-spool-right {
-  left: 70.8%;
-  top: 51.4%;
+  left: 69.1%;
+  top: 52.1%;
 }
 
 .wm-cassette-card.tape-clear .wm-hub-left,
 .wm-cassette-card.tape-clear .wm-spool-left {
-  left: 31.3%;
-  top: 48.2%;
+  left: 31.8%;
+  top: 51.3%;
 }
 .wm-cassette-card.tape-clear .wm-hub-right,
 .wm-cassette-card.tape-clear .wm-spool-right {
-  left: 68.7%;
-  top: 48.2%;
+  left: 68.2%;
+  top: 51.3%;
 }
 
 .wm-hub-svg {
@@ -2854,10 +3116,10 @@ body.skin-cassette #cassetteWindow {
 
 .wm-label-strip {
   position: absolute;
-  top: 7%;
+  top: 9.5%;
   left: 11%;
   width: 78%;
-  height: 18%;
+  height: 15.5%;
   display: flex;
   align-items: center;
   justify-content: space-between;
