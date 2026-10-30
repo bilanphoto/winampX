@@ -49,8 +49,16 @@ class WinampAudioEngine {
     if (this.isInitialized) return;
 
     try {
+      const oldBg = document.getElementById('winampBackgroundStream');
+      if (oldBg) oldBg.remove();
+
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      this.ctx = new AudioCtx();
+      // Configure latencyHint: 'playback' for optimal CarPlay & Bluetooth streaming buffers
+      try {
+        this.ctx = new AudioCtx({ latencyHint: 'playback' });
+      } catch (e) {
+        this.ctx = new AudioCtx();
+      }
 
       // Create nodes
       this.source = this.ctx.createMediaElementSource(this.audio);
@@ -92,48 +100,44 @@ class WinampAudioEngine {
       this.masterGain.connect(this.analyser);
       this.analyser.connect(this.ctx.destination);
 
-      // Set audioSession type to 'playback' for iOS Safari
+      // Set audioSession type to 'playback' for iOS Safari & Apple CarPlay integration
       if ('audioSession' in navigator) {
         try {
           navigator.audioSession.type = 'playback';
         } catch (e) {}
       }
 
-      // Check if iOS / Safari environment and setup background stream destination
-      const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || 
-                    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
-
-      if (isIOS && this.ctx.createMediaStreamDestination) {
-        try {
-          this.streamDest = this.ctx.createMediaStreamDestination();
-          this.analyser.connect(this.streamDest);
-
-          this.streamAudio = document.createElement('audio');
-          this.streamAudio.id = 'winampBackgroundStream';
-          this.streamAudio.playsInline = true;
-          this.streamAudio.setAttribute('playsinline', '');
-          this.streamAudio.setAttribute('webkit-playsinline', '');
-          this.streamAudio.srcObject = this.streamDest.stream;
-          document.body.appendChild(this.streamAudio);
-        } catch (err) {
-          console.warn('iOS MediaStream destination setup:', err);
-        }
-      }
-
+      // Handle AudioContext state changes (interruption from CarPlay, Bluetooth route changes, calls)
       if (this.ctx) {
         this.ctx.addEventListener('statechange', () => {
-          if ((this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') && !this.audio.paused) {
-            this.ctx.resume().catch(() => {});
+          if (!this.audio.paused && this.ctx) {
+            if (this.ctx.state === 'suspended') {
+              this.ctx.resume().catch(() => {});
+            } else if (this.ctx.state === 'interrupted') {
+              // Interruption in progress (e.g. CarPlay connecting or route change);
+              // attempt delayed resume once interruption settles
+              setTimeout(() => {
+                if (this.ctx && !this.audio.paused && this.ctx.state !== 'running') {
+                  this.ctx.resume().catch(() => {});
+                }
+              }, 250);
+              setTimeout(() => {
+                if (this.ctx && !this.audio.paused && this.ctx.state !== 'running') {
+                  this.ctx.resume().catch(() => {});
+                }
+              }, 800);
+            }
           }
         });
       }
 
+      // Keep Web Audio graph active when audio element plays or resumes
+      this.audio.addEventListener('play', () => this.ensureRunning());
+      this.audio.addEventListener('playing', () => this.ensureRunning());
+
       const resumeFn = () => {
-        if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted') && !this.audio.paused) {
-          this.ctx.resume().catch(() => {});
-        }
-        if (this.streamAudio && this.streamAudio.paused && !this.audio.paused) {
-          this.streamAudio.play().catch(() => {});
+        if (!this.audio.paused) {
+          this.ensureRunning();
         }
       };
 
@@ -146,11 +150,15 @@ class WinampAudioEngine {
     }
   }
 
-  // Resume context if suspended
+  // Resume context if suspended or interrupted
   async ensureRunning() {
     this.initAudioGraph();
-    if (this.ctx && this.ctx.state === 'suspended') {
-      await this.ctx.resume();
+    if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+      try {
+        await this.ctx.resume();
+      } catch (e) {
+        // Ignored; will retry on next user interaction or statechange
+      }
     }
   }
 
@@ -240,39 +248,60 @@ class WinampAudioEngine {
     return new Promise((resolve, reject) => {
       let srcUrl = '';
       if (source instanceof Blob || source instanceof File) {
-        srcUrl = URL.createObjectURL(source);
+        if (this._currentBlobUrl) {
+          try { URL.revokeObjectURL(this._currentBlobUrl); } catch (e) {}
+        }
+        this._currentBlobUrl = URL.createObjectURL(source);
+        srcUrl = this._currentBlobUrl;
       } else if (typeof source === 'string') {
         srcUrl = source;
       }
 
+      const onReady = () => {
+        cleanup();
+        resolve();
+      };
+      const onError = (e) => {
+        cleanup();
+        reject(e);
+      };
+      const cleanup = () => {
+        this.audio.removeEventListener('canplay', onReady);
+        this.audio.removeEventListener('loadeddata', onReady);
+        this.audio.removeEventListener('error', onError);
+      };
+
+      this.audio.addEventListener('canplay', onReady, { once: true });
+      this.audio.addEventListener('loadeddata', onReady, { once: true });
+      this.audio.addEventListener('error', onError, { once: true });
+
       this.audio.src = srcUrl;
-      this.audio.oncanplay = () => resolve();
-      this.audio.onerror = (e) => reject(e);
       this.audio.load();
+
+      if (this.audio.readyState >= 2) {
+        cleanup();
+        resolve();
+      }
     });
   }
 
-  play() {
-    this.ensureRunning();
-    if (this.streamAudio && this.streamAudio.paused) {
-      this.streamAudio.play().catch(() => {});
+  async play() {
+    await this.ensureRunning();
+    if ('audioSession' in navigator) {
+      try {
+        navigator.audioSession.type = 'playback';
+      } catch (e) {}
     }
     return this.audio.play();
   }
 
   pause() {
     this.audio.pause();
-    if (this.streamAudio) {
-      this.streamAudio.pause();
-    }
   }
 
   stop() {
     this.audio.pause();
     this.audio.currentTime = 0;
-    if (this.streamAudio) {
-      this.streamAudio.pause();
-    }
   }
 
   seek(seconds) {

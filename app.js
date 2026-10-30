@@ -932,6 +932,12 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (dur && isFinite(dur)) {
         const percent = (cur / dur) * 100;
         seekThumb.style.left = `${percent}%`;
+
+        const curSec = Math.floor(cur);
+        if (curSec !== state.lastReportedSec) {
+          state.lastReportedSec = curSec;
+          updateMediaSessionPosition();
+        }
       }
     }
   });
@@ -940,7 +946,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.isPlaying = true;
     state.isPaused = false;
     playStatusIcon.className = 'play-status-icon play';
-    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'playing';
+    if ('mediaSession' in navigator) {
+      navigator.mediaSession.playbackState = 'playing';
+      updateMediaSessionPosition();
+    }
   });
 
   audioElement.addEventListener('pause', () => {
@@ -948,8 +957,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       state.isPlaying = false;
       state.isPaused = true;
       playStatusIcon.className = 'play-status-icon pause';
-      if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'paused';
+      if ('mediaSession' in navigator) {
+        navigator.mediaSession.playbackState = 'paused';
+        updateMediaSessionPosition();
+      }
     }
+  });
+
+  audioElement.addEventListener('error', (e) => {
+    console.error('AudioElement error:', audioElement.error);
+    state.isPlaying = false;
+    state.isPaused = false;
+    playStatusIcon.className = 'play-status-icon stop';
+    if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
   });
 
   audioElement.addEventListener('ended', () => {
@@ -1385,13 +1405,29 @@ document.addEventListener('DOMContentLoaded', async () => {
         navigator.mediaSession.metadata = new MediaMetadata({
           title: track.title || 'Unknown Title',
           artist: track.artist || 'Winamp Web Player',
-          album: 'Winamp',
+          album: track.album || 'Winamp',
           artwork: [
             { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
             { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
           ],
         });
+        updateMediaSessionPosition();
       } catch (e) {}
+    }
+  }
+
+  function updateMediaSessionPosition() {
+    if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
+      const dur = audioElement.duration;
+      if (dur && isFinite(dur) && dur > 0) {
+        try {
+          navigator.mediaSession.setPositionState({
+            duration: dur,
+            playbackRate: audioElement.playbackRate || 1.0,
+            position: Math.min(Math.max(0, audioElement.currentTime || 0), dur)
+          });
+        } catch (e) {}
+      }
     }
   }
 
@@ -1570,8 +1606,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // Setup MediaSession API for lock-screen & background playback controls on iOS / Android / Desktop
   if ('mediaSession' in navigator) {
     try {
-      navigator.mediaSession.setActionHandler('play', () => {
-        engine.play();
+      navigator.mediaSession.setActionHandler('play', async () => {
+        await engine.play();
       });
       navigator.mediaSession.setActionHandler('pause', () => {
         engine.pause();
@@ -1585,15 +1621,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       navigator.mediaSession.setActionHandler('seekto', (details) => {
         if (details.seekTime !== undefined) {
           engine.seek(details.seekTime);
+          updateMediaSessionPosition();
         }
       });
       navigator.mediaSession.setActionHandler('seekbackward', (details) => {
         const skip = details.seekOffset || 10;
         engine.seek(Math.max(0, audioElement.currentTime - skip));
+        updateMediaSessionPosition();
       });
       navigator.mediaSession.setActionHandler('seekforward', (details) => {
         const skip = details.seekOffset || 10;
         engine.seek(Math.min(audioElement.duration || 0, audioElement.currentTime + skip));
+        updateMediaSessionPosition();
       });
     } catch (e) {
       console.warn('MediaSession handler registration failed:', e);
