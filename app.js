@@ -640,9 +640,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     eqWindow.classList.remove('hidden', 'shaded');
     plWindow.classList.remove('hidden', 'shaded');
     cassetteWindow.classList.remove('hidden', 'shaded');
-    btnToggleEQ.classList.add('active');
-    btnTogglePL.classList.add('active');
-    btnToggleTape.classList.add('active');
+    if (btnToggleEQ) btnToggleEQ.classList.add('active');
+    if (btnTogglePL) btnTogglePL.classList.add('active');
+    if (btnToggleTape) btnToggleTape.classList.add('active');
     updateResponsiveLayout();
     saveWindowPositions();
   }
@@ -684,10 +684,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (layout.cs) {
         if (layout.cs.visible === false) {
           cassetteWindow.classList.add('hidden');
-          btnToggleTape.classList.remove('active');
+          if (btnToggleTape) btnToggleTape.classList.remove('active');
         } else {
           cassetteWindow.classList.remove('hidden');
-          btnToggleTape.classList.add('active');
+          if (btnToggleTape) btnToggleTape.classList.add('active');
         }
         if (layout.cs.shaded) cassetteWindow.classList.add('shaded');
       }
@@ -732,13 +732,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     saveWindowPositions();
   });
 
-  btnToggleTape.addEventListener('click', () => {
-    if (document.body.classList.contains('skin-cassette')) {
-      switchSkin('skin-midnight');
-    } else {
-      switchSkin('skin-cassette');
-    }
-  });
+  if (btnToggleTape) {
+    btnToggleTape.addEventListener('click', () => {
+      if (document.body.classList.contains('skin-cassette')) {
+        switchSkin('skin-midnight');
+      } else {
+        switchSkin('skin-cassette');
+      }
+    });
+  }
 
   eqCloseBtn.addEventListener('click', () => {
     eqWindow.classList.add('hidden');
@@ -1008,7 +1010,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       wmCassetteCard.classList.add(valid === 'orange' ? 'tape-orange' : 'tape-clear');
     }
 
-    const imgSrc = valid === 'orange' ? 'assets/cassette/tape-orange-clean.png' : 'assets/cassette/tape-clear-clean.png';
+    const imgSrc = (valid === 'orange' ? 'assets/cassette/tape-orange-clean.png' : 'assets/cassette/tape-clear-clean.png') + '?v=2.2';
     if (cassetteImg) cassetteImg.src = imgSrc;
     if (wmCassetteImg) wmCassetteImg.src = imgSrc;
 
@@ -2608,7 +2610,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       case 'T':
         if (e.altKey) {
           e.preventDefault();
-          btnToggleTape.click();
+          switchSkin(document.body.classList.contains('skin-cassette') ? 'skin-midnight' : 'skin-cassette');
         }
         break;
       case 'W':

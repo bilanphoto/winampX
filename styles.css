@@ -2253,14 +2253,16 @@ body.skin-midnight .pl-resize-handle {
 }
 
 .tape-pack-left {
-  left: 31.5%;
+  left: 31.3%;
+  top: 48.2%;
   transform: translate(-50%, -50%);
   width: 48px;
   height: 48px;
 }
 
 .tape-pack-right {
-  left: 68.5%;
+  left: 68.7%;
+  top: 48.2%;
   transform: translate(-50%, -50%);
   width: 28px;
   height: 28px;
@@ -2283,6 +2285,30 @@ body.skin-midnight .pl-resize-handle {
 
 .hub-right {
   left: 68.7%;
+}
+
+/* Specific hub & spool alignment for Orange Tape */
+.cassette-tape-card.tape-orange .hub-left,
+.cassette-tape-card.tape-orange .tape-pack-left {
+  left: 29.2%;
+  top: 51.4%;
+}
+.cassette-tape-card.tape-orange .hub-right,
+.cassette-tape-card.tape-orange .tape-pack-right {
+  left: 70.8%;
+  top: 51.4%;
+}
+
+/* Specific hub & spool alignment for Clear Tape */
+.cassette-tape-card.tape-clear .hub-left,
+.cassette-tape-card.tape-clear .tape-pack-left {
+  left: 31.3%;
+  top: 48.2%;
+}
+.cassette-tape-card.tape-clear .hub-right,
+.cassette-tape-card.tape-clear .tape-pack-right {
+  left: 68.7%;
+  top: 48.2%;
 }
 
 .hub-svg {
@@ -2314,61 +2340,65 @@ body.skin-midnight .pl-resize-handle {
   to { transform: rotate(0deg); }
 }
 
-/* Cassette Paper Label Overlay */
+/* Cassette Paper Label Overlay - Positioned cleanly in white area */
 .cassette-label-strip {
   position: absolute;
-  top: 14%;
-  left: 12%;
-  width: 76%;
-  height: 22%;
+  top: 7%;
+  left: 11%;
+  width: 78%;
+  height: 18%;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 6px;
+  padding: 0 4px;
   box-sizing: border-box;
-  z-index: 12;
+  z-index: 14;
   pointer-events: none;
 }
 
 .tape-side-stamp {
   font-family: Arial, sans-serif;
-  font-size: 11px;
+  font-size: 10px;
   font-weight: 900;
   color: #b91c1c;
   border: 1.5px solid #b91c1c;
   padding: 0 3px;
   border-radius: 2px;
-  line-height: 13px;
-  background: rgba(255, 255, 255, 0.4);
+  line-height: 11px;
+  background: rgba(255, 255, 255, 0.6);
 }
 
 .tape-info-text {
   flex: 1;
   overflow: hidden;
-  margin: 0 6px;
+  margin: 0 4px;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
 }
 
 .tape-title {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
-  font-size: 8.5px;
+  font-size: 8px;
   font-weight: 700;
   color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .tape-artist {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
-  font-size: 7.5px;
+  font-size: 6.8px;
   font-weight: 600;
-  color: #475569;
+  color: #334155;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  line-height: 1.2;
+  line-height: 1.1;
 }
 
 .tape-c60-badge {
@@ -2782,6 +2812,29 @@ body.skin-cassette #cassetteWindow {
 .wm-hub-left { left: 31.3%; }
 .wm-hub-right { left: 68.7%; }
 
+/* Specific hub & spool alignment for Walkman modal */
+.wm-cassette-card.tape-orange .wm-hub-left,
+.wm-cassette-card.tape-orange .wm-spool-left {
+  left: 29.2%;
+  top: 51.4%;
+}
+.wm-cassette-card.tape-orange .wm-hub-right,
+.wm-cassette-card.tape-orange .wm-spool-right {
+  left: 70.8%;
+  top: 51.4%;
+}
+
+.wm-cassette-card.tape-clear .wm-hub-left,
+.wm-cassette-card.tape-clear .wm-spool-left {
+  left: 31.3%;
+  top: 48.2%;
+}
+.wm-cassette-card.tape-clear .wm-hub-right,
+.wm-cassette-card.tape-clear .wm-spool-right {
+  left: 68.7%;
+  top: 48.2%;
+}
+
 .wm-hub-svg {
   width: 100%;
   height: 100%;
@@ -2801,16 +2854,16 @@ body.skin-cassette #cassetteWindow {
 
 .wm-label-strip {
   position: absolute;
-  top: 14%;
-  left: 12%;
-  width: 76%;
-  height: 22%;
+  top: 7%;
+  left: 11%;
+  width: 78%;
+  height: 18%;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 10px;
   box-sizing: border-box;
-  z-index: 12;
+  z-index: 14;
   pointer-events: none;
 }
 

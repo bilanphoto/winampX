@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css">
+  <link rel="stylesheet" href="styles.css?v=2.2">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -60,7 +60,6 @@
             </div>
           </div>
           <div class="wa-titlebar-title-drag">WINAMP</div>
-          <button class="titlebar-walkman-btn" id="btnTitlebarWalkman" title="Switch to Walkman Cassette Player">📼 CASSETTE</button>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
             <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
@@ -112,10 +111,9 @@
             <div class="bal-thumb" id="balThumb"></div>
           </div>
 
-          <!-- EQ, PL and TAPE Toggle Buttons -->
+          <!-- EQ and PL Toggle Buttons -->
           <button class="toggle-btn btn-eq active" id="btnToggleEQ" title="Toggle Equalizer Window (Alt+G)"></button>
           <button class="toggle-btn btn-pl active" id="btnTogglePL" title="Toggle Playlist Window (Alt+E)"></button>
-          <button class="toggle-btn btn-tape active" id="btnToggleTape" title="Toggle Cassette Deck (Alt+T)"></button>
 
           <!-- Song Position Scrubber (POSBAR) -->
           <div class="posbar-wrap" id="seekTrack" title="Seek Position">
@@ -747,7 +745,7 @@
   <!-- Scripts -->
   <script src="db.js"></script>
   <script src="id3.js"></script>
-  <script src="audio-engine.js"></script>
-  <script src="app.js"></script>
+  <script src="audio-engine.js?v=2.2"></script>
+  <script src="app.js?v=2.2"></script>
 </body>
 </html>
