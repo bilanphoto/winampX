@@ -2236,6 +2236,7 @@ body.skin-midnight .pl-resize-handle {
   object-fit: contain;
   pointer-events: none;
   z-index: 10;
+  image-rendering: -webkit-optimize-contrast;
 }
 
 /* Dynamic Tape Packs (Magnetic Ribbon) */
@@ -2268,48 +2269,49 @@ body.skin-midnight .pl-resize-handle {
 /* Spinning Hubs with 6 teeth */
 .tape-hub {
   position: absolute;
-  top: 50%;
-  width: 28px;
-  height: 28px;
+  top: 48.2%;
+  width: 32px;
+  height: 32px;
   transform: translate(-50%, -50%);
   z-index: 15;
   pointer-events: none;
 }
 
 .hub-left {
-  left: 31.5%;
+  left: 31.3%;
 }
 
 .hub-right {
-  left: 68.5%;
+  left: 68.7%;
 }
 
 .hub-svg {
   width: 100%;
   height: 100%;
   display: block;
+  transform-origin: 50% 50%;
 }
 
-.tape-hub.spinning {
+.tape-hub.spinning .hub-svg {
   animation: cassette-hub-spin 1.8s linear infinite;
 }
 
-.tape-hub.fast-forward {
+.tape-hub.fast-forward .hub-svg {
   animation: cassette-hub-spin 0.4s linear infinite;
 }
 
-.tape-hub.rewind {
+.tape-hub.rewind .hub-svg {
   animation: cassette-hub-spin-rev 0.4s linear infinite;
 }
 
 @keyframes cassette-hub-spin {
-  from { transform: translate(-50%, -50%) rotate(0deg); }
-  to { transform: translate(-50%, -50%) rotate(360deg); }
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 
 @keyframes cassette-hub-spin-rev {
-  from { transform: translate(-50%, -50%) rotate(360deg); }
-  to { transform: translate(-50%, -50%) rotate(0deg); }
+  from { transform: rotate(360deg); }
+  to { transform: rotate(0deg); }
 }
 
 /* Cassette Paper Label Overlay */
@@ -2348,25 +2350,25 @@ body.skin-midnight .pl-resize-handle {
 }
 
 .tape-title {
-  font-family: 'Share Tech Mono', 'Courier New', monospace;
-  font-size: 9px;
-  font-weight: 900;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
+  font-size: 8.5px;
+  font-weight: 700;
   color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  letter-spacing: 0.3px;
-  text-transform: uppercase;
+  line-height: 1.2;
 }
 
 .tape-artist {
-  font-family: Arial, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
   font-size: 7.5px;
-  font-weight: bold;
-  color: #334155;
+  font-weight: 600;
+  color: #475569;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.2;
 }
 
 .tape-c60-badge {
@@ -2437,52 +2439,138 @@ body.skin-midnight .pl-resize-handle {
 }
 
 .mech-btn {
-  width: 20px;
-  height: 18px;
-  background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 50%, #94a3b8 100%);
+  width: 23px;
+  height: 19px;
+  background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 55%, #94a3b8 100%);
   border: 1px solid #475569;
-  border-radius: 2px;
-  box-shadow: 0 2px 3px rgba(0,0,0,0.4), inset 0 1px 0 #fff;
+  border-bottom: 2px solid #1e293b;
+  border-radius: 2.5px;
+  box-shadow: 0 2px 3px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.9);
   cursor: pointer;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 8px;
+  padding: 0;
   transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.mech-btn:hover {
+  background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 55%, #cbd5e1 100%);
 }
 
 .mech-btn:active,
 .mech-btn.active {
   transform: translateY(2px);
-  box-shadow: 0 0 1px rgba(0,0,0,0.5), inset 0 1px 3px rgba(0,0,0,0.6);
+  border-bottom-width: 1px;
+  box-shadow: inset 0 2px 4px rgba(0,0,0,0.6);
   background: linear-gradient(180deg, #94a3b8 0%, #64748b 100%);
 }
 
-.btn-mech-eject::after { content: '⏏'; font-size: 9px; color: #1e293b; }
-.btn-mech-rew::after   { content: '⏪'; font-size: 7px; color: #1e293b; }
-.btn-mech-play::after  { content: '▶'; font-size: 8px; color: #15803d; }
-.btn-mech-pause::after { content: '⏸'; font-size: 8px; color: #b45309; }
-.btn-mech-stop::after  { content: '⏹'; font-size: 7px; color: #b91c1c; }
-.btn-mech-ff::after    { content: '⏩'; font-size: 7px; color: #1e293b; }
+.mech-btn .btn-icon-svg {
+  width: 11px;
+  height: 11px;
+  fill: #1e293b;
+  pointer-events: none;
+  transition: fill 0.12s ease, filter 0.12s ease;
+}
 
+.btn-mech-play .btn-icon-svg { fill: #15803d; }
+.btn-mech-pause .btn-icon-svg { fill: #b45309; }
+.btn-mech-stop .btn-icon-svg { fill: #b91c1c; }
+
+.btn-mech-play.active .btn-icon-svg {
+  fill: #00ff00;
+  filter: drop-shadow(0 0 3px #00ff00);
+}
+.btn-mech-pause.active .btn-icon-svg {
+  fill: #fbbf24;
+  filter: drop-shadow(0 0 3px #fbbf24);
+}
+.btn-mech-stop.active .btn-icon-svg {
+  fill: #ef4444;
+  filter: drop-shadow(0 0 3px #ef4444);
+}
+
+.deck-extra-actions {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  margin-left: auto;
+}
+
+.deck-action-icon-btn,
 .walkman-open-btn {
   background: #1e293b;
   border: 1px solid #475569;
   border-radius: 2px;
   color: #94a3b8;
-  font-size: 11px;
   width: 20px;
-  height: 18px;
+  height: 19px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  padding: 0;
+  transition: all 0.15s ease;
 }
+
+.deck-action-icon-btn .btn-icon-svg,
+.walkman-open-btn .btn-icon-svg {
+  width: 11px;
+  height: 11px;
+  pointer-events: none;
+}
+
+.deck-action-icon-btn:hover,
 .walkman-open-btn:hover {
-  background: #38bdf8;
+  background: #0284c7;
   color: #fff;
   border-color: #38bdf8;
+}
+
+.deck-action-icon-btn.active {
+  background: #0284c7;
+  color: #fff;
+  border-color: #38bdf8;
+}
+
+/* Skin: Walkman Cassette Player */
+body.skin-cassette {
+  background: #090d16;
+}
+
+body.skin-cassette #mainWindow,
+body.skin-cassette #eqWindow {
+  display: none !important;
+}
+
+body.skin-cassette #cassetteWindow {
+  display: block !important;
+}
+
+.titlebar-winamp-btn {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  border: 1px solid #38bdf8;
+  border-radius: 2px;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  font-weight: bold;
+  height: 11px;
+  padding: 0 4px;
+  line-height: 9px;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  display: inline-flex;
+  align-items: center;
+}
+.titlebar-winamp-btn:hover {
+  background: #0ea5e9;
+  border-color: #7dd3fc;
+  box-shadow: 0 0 4px #38bdf8;
 }
 
 /* ==========================================================================
@@ -2683,30 +2771,31 @@ body.skin-midnight .pl-resize-handle {
 
 .wm-hub {
   position: absolute;
-  top: 50%;
-  width: 44px;
-  height: 44px;
+  top: 48.2%;
+  width: 52px;
+  height: 52px;
   transform: translate(-50%, -50%);
   z-index: 15;
   pointer-events: none;
 }
 
-.wm-hub-left { left: 31.5%; }
-.wm-hub-right { left: 68.5%; }
+.wm-hub-left { left: 31.3%; }
+.wm-hub-right { left: 68.7%; }
 
 .wm-hub-svg {
   width: 100%;
   height: 100%;
   display: block;
+  transform-origin: 50% 50%;
 }
 
-.wm-hub.spinning {
+.wm-hub.spinning .wm-hub-svg {
   animation: cassette-hub-spin 1.8s linear infinite;
 }
-.wm-hub.fast-forward {
+.wm-hub.fast-forward .wm-hub-svg {
   animation: cassette-hub-spin 0.4s linear infinite;
 }
-.wm-hub.rewind {
+.wm-hub.rewind .wm-hub-svg {
   animation: cassette-hub-spin-rev 0.4s linear infinite;
 }
 
@@ -2926,8 +3015,10 @@ body.skin-midnight .pl-resize-handle {
 }
 
 .wm-key-top {
-  font-size: 13px;
-  line-height: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 2px;
 }
 .wm-key-label {
   font-family: Arial, sans-serif;
@@ -2938,9 +3029,19 @@ body.skin-midnight .pl-resize-handle {
   margin-top: 2px;
 }
 
-.wm-key-play .wm-key-top { color: #15803d; }
-.wm-key-pause .wm-key-top { color: #b45309; }
-.wm-key-stop .wm-key-top { color: #b91c1c; }
+.wm-key-svg {
+  width: 14px;
+  height: 14px;
+  fill: #1e293b;
+  display: block;
+}
+.wm-key-play .wm-key-svg { fill: #15803d; }
+.wm-key-pause .wm-key-svg { fill: #b45309; }
+.wm-key-stop .wm-key-svg { fill: #b91c1c; }
+
+.wm-key-play.active .wm-key-svg { fill: #00ff00; filter: drop-shadow(0 0 3px #00ff00); }
+.wm-key-pause.active .wm-key-svg { fill: #fbbf24; filter: drop-shadow(0 0 3px #fbbf24); }
+.wm-key-stop.active .wm-key-svg { fill: #ef4444; filter: drop-shadow(0 0 3px #ef4444); }
 
 /* Volume section */
 .wm-volume-section {

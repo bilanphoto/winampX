@@ -255,7 +255,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   // =========================================================================
   function switchSkin(skinName) {
     state.currentSkin = skinName;
-    document.body.className = skinName;
+    document.body.classList.remove('skin-classic', 'skin-modern', 'skin-midnight', 'skin-cassette');
+    document.body.classList.add(skinName);
 
     if (btnSkinModern) btnSkinModern.classList.toggle('active', skinName === 'skin-modern');
     if (btnSkinClassic) btnSkinClassic.classList.toggle('active', skinName === 'skin-classic');
@@ -265,9 +266,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     const skinLabels = {
       'skin-classic': 'Classic 2.91 Original',
       'skin-modern': 'Modern Silver Blue',
-      'skin-midnight': 'Midnight Gold (Violet / Gold)'
+      'skin-midnight': 'Midnight Gold (Violet / Gold)',
+      'skin-cassette': '📼 Walkman Cassette Player'
     };
-    showToast(`Switched to ${skinLabels[skinName] || skinName} Skin`);
+    showToast(`Switched to ${skinLabels[skinName] || skinName}`);
+
+    if (skinName === 'skin-cassette') {
+      mainWindow.classList.add('hidden');
+      eqWindow.classList.add('hidden');
+      cassetteWindow.classList.remove('hidden');
+      if (state.currentIndex >= 0 && state.currentIndex < state.playlist.length) {
+        updateCassetteLabel(state.playlist[state.currentIndex]);
+      }
+      updateCassetteUI();
+    } else {
+      mainWindow.classList.remove('hidden');
+      cassetteWindow.classList.add('hidden');
+      const isEqEnabled = btnToggleEQ && btnToggleEQ.classList.contains('active');
+      if (isEqEnabled) eqWindow.classList.remove('hidden');
+    }
+
+    updateResponsiveLayout();
 
     // Update timer display format
     updateTimerDisplay(audioElement.currentTime, audioElement.duration);
@@ -386,6 +405,82 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Universal responsive auto-resizing across all screen sizes:
     const isLandscape = window.innerWidth >= window.innerHeight * 1.05;
     const winContainer = document.getElementById('windows-container');
+    const isCassetteSkin = document.body.classList.contains('skin-cassette');
+
+    if (isCassetteSkin) {
+      // In Walkman Cassette mode: Winamp main and EQ are hidden
+      const padL = winContainer ? parseInt(getComputedStyle(winContainer).paddingLeft, 10) || 12 : 12;
+      const padR = winContainer ? parseInt(getComputedStyle(winContainer).paddingRight, 10) || 12 : 12;
+      const padT = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 12 : 12;
+      const padB = winContainer ? parseInt(getComputedStyle(winContainer).paddingBottom, 10) || 12 : 12;
+
+      const availW = Math.max(260, window.innerWidth - padL - padR);
+      const availH = Math.max(200, window.innerHeight - padT - padB);
+
+      const isPlVisible = !plWindow.classList.contains('hidden');
+      const csH = cassetteWindow.classList.contains('shaded') ? 14 : 232;
+
+      if (isLandscape) {
+        document.body.classList.remove('layout-portrait', 'layout-desktop');
+        document.body.classList.add('layout-landscape');
+
+        const baseW = isPlVisible ? 550 : 275;
+        const baseH = 232;
+
+        let scale = Math.min(availW / baseW, availH / baseH);
+        scale = Math.max(0.6, Math.min(scale, 3.2));
+
+        document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
+        document.documentElement.style.setProperty('--ws-width', `${baseW}px`);
+        document.documentElement.style.setProperty('--ws-height', `${baseH}px`);
+
+        cassetteWindow.style.left = '0px';
+        cassetteWindow.style.top = '0px';
+
+        if (isPlVisible) {
+          plWindow.style.left = '275px';
+          plWindow.style.top = '0px';
+          plWindow.style.height = '232px';
+        }
+      } else {
+        document.body.classList.remove('layout-landscape', 'layout-desktop');
+        document.body.classList.add('layout-portrait');
+
+        let scale = availW / 275;
+        scale = Math.min(scale, 2.2);
+
+        const minReqH = csH + (isPlVisible ? 160 : 0);
+        if (minReqH * scale > availH && availH > 200) {
+          const heightScale = availH / minReqH;
+          if (heightScale < scale) scale = Math.max(0.65, heightScale);
+        }
+        scale = Math.max(0.65, scale);
+
+        document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
+        document.documentElement.style.setProperty('--ws-width', '275px');
+
+        cassetteWindow.style.left = '0px';
+        cassetteWindow.style.top = '0px';
+
+        let totalH = csH;
+        if (isPlVisible) {
+          plWindow.style.left = '0px';
+          plWindow.style.top = `${csH}px`;
+          const availPlH = (availH / scale) - csH;
+          const targetPlH = Math.max(160, Math.floor(availPlH));
+          plWindow.style.height = `${targetPlH}px`;
+          totalH = csH + targetPlH;
+        }
+
+        document.documentElement.style.setProperty('--ws-height', `${totalH}px`);
+      }
+
+      if (typeof updatePlScrollbarThumb === 'function') {
+        updatePlScrollbarThumb();
+      }
+      return;
+    }
+
     const isEqVisible = !eqWindow.classList.contains('hidden');
     const isPlVisible = !plWindow.classList.contains('hidden');
     const isCsVisible = !cassetteWindow.classList.contains('hidden');
@@ -638,11 +733,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   btnToggleTape.addEventListener('click', () => {
-    cassetteWindow.classList.toggle('hidden');
-    btnToggleTape.classList.toggle('active', !cassetteWindow.classList.contains('hidden'));
-    if (!cassetteWindow.classList.contains('hidden')) bringToFront(cassetteWindow);
-    updateResponsiveLayout();
-    saveWindowPositions();
+    if (document.body.classList.contains('skin-cassette')) {
+      switchSkin('skin-midnight');
+    } else {
+      switchSkin('skin-cassette');
+    }
   });
 
   eqCloseBtn.addEventListener('click', () => {
@@ -660,10 +755,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   cassetteCloseBtn.addEventListener('click', () => {
-    cassetteWindow.classList.add('hidden');
-    btnToggleTape.classList.remove('active');
-    updateResponsiveLayout();
-    saveWindowPositions();
+    switchSkin('skin-midnight');
   });
 
   if (btnResetLayout) btnResetLayout.addEventListener('click', resetWindowLayout);
@@ -868,14 +960,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const menuSkinClassic = document.getElementById('menuSkinClassic');
     const menuSkinModern = document.getElementById('menuSkinModern');
     const menuSkinMidnight = document.getElementById('menuSkinMidnight');
+    const menuSkinCassette = document.getElementById('menuSkinCassette');
     const menuTogglePlay = document.getElementById('menuTogglePlay');
     const menuStopTrack = document.getElementById('menuStopTrack');
     const menuPrevTrack = document.getElementById('menuPrevTrack');
     const menuNextTrack = document.getElementById('menuNextTrack');
     const menuToggleEqWin = document.getElementById('menuToggleEqWin');
     const menuTogglePlWin = document.getElementById('menuTogglePlWin');
-    const menuToggleCassette = document.getElementById('menuToggleCassette');
-    const menuOpenWalkman = document.getElementById('menuOpenWalkman');
     const menuTapeClear = document.getElementById('menuTapeClear');
     const menuTapeOrange = document.getElementById('menuTapeOrange');
     const menuOpenFiles = document.getElementById('menuOpenFiles');
@@ -886,14 +977,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (menuSkinClassic) menuSkinClassic.addEventListener('click', () => { switchSkin('skin-classic'); mainContextMenu.classList.add('hidden'); });
     if (menuSkinModern) menuSkinModern.addEventListener('click', () => { switchSkin('skin-modern'); mainContextMenu.classList.add('hidden'); });
     if (menuSkinMidnight) menuSkinMidnight.addEventListener('click', () => { switchSkin('skin-midnight'); mainContextMenu.classList.add('hidden'); });
+    if (menuSkinCassette) menuSkinCassette.addEventListener('click', () => { switchSkin('skin-cassette'); mainContextMenu.classList.add('hidden'); });
     if (menuTogglePlay) menuTogglePlay.addEventListener('click', () => { btnPlay.click(); mainContextMenu.classList.add('hidden'); });
     if (menuStopTrack) menuStopTrack.addEventListener('click', () => { btnStop.click(); mainContextMenu.classList.add('hidden'); });
     if (menuPrevTrack) menuPrevTrack.addEventListener('click', () => { btnPrev.click(); mainContextMenu.classList.add('hidden'); });
     if (menuNextTrack) menuNextTrack.addEventListener('click', () => { btnNext.click(); mainContextMenu.classList.add('hidden'); });
     if (menuToggleEqWin) menuToggleEqWin.addEventListener('click', () => { btnToggleEQ.click(); mainContextMenu.classList.add('hidden'); });
     if (menuTogglePlWin) menuTogglePlWin.addEventListener('click', () => { btnTogglePL.click(); mainContextMenu.classList.add('hidden'); });
-    if (menuToggleCassette) menuToggleCassette.addEventListener('click', () => { btnToggleTape.click(); mainContextMenu.classList.add('hidden'); });
-    if (menuOpenWalkman) menuOpenWalkman.addEventListener('click', () => { openWalkmanModal(); mainContextMenu.classList.add('hidden'); });
     if (menuTapeClear) menuTapeClear.addEventListener('click', () => { switchCassetteTape('clear'); mainContextMenu.classList.add('hidden'); });
     if (menuTapeOrange) menuTapeOrange.addEventListener('click', () => { switchCassetteTape('orange'); mainContextMenu.classList.add('hidden'); });
     if (menuOpenFiles) menuOpenFiles.addEventListener('click', () => { fileInput.click(); mainContextMenu.classList.add('hidden'); });
@@ -1045,14 +1135,33 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // Titlebar button for portable walkman mode
     if (btnTitlebarWalkman) {
-      btnTitlebarWalkman.addEventListener('click', () => openWalkmanModal());
+      btnTitlebarWalkman.addEventListener('click', () => switchSkin('skin-cassette'));
+    }
+
+    const btnCassetteToWinamp = document.getElementById('btnCassetteToWinamp');
+    if (btnCassetteToWinamp) {
+      btnCassetteToWinamp.addEventListener('click', () => switchSkin('skin-midnight'));
+    }
+    if (cassetteCloseBtn) {
+      cassetteCloseBtn.addEventListener('click', () => switchSkin('skin-midnight'));
     }
 
     // Cassette context menu items
+    const cmenuSkinClassic = document.getElementById('cmenuSkinClassic');
+    const cmenuSkinModern = document.getElementById('cmenuSkinModern');
+    const cmenuSkinMidnight = document.getElementById('cmenuSkinMidnight');
+    const cmenuSkinCassette = document.getElementById('cmenuSkinCassette');
+
+    if (cmenuSkinClassic) cmenuSkinClassic.addEventListener('click', () => { switchSkin('skin-classic'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuSkinModern) cmenuSkinModern.addEventListener('click', () => { switchSkin('skin-modern'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuSkinMidnight) cmenuSkinMidnight.addEventListener('click', () => { switchSkin('skin-midnight'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuSkinCassette) cmenuSkinCassette.addEventListener('click', () => { switchSkin('skin-cassette'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+
     const cmenuTapeClear = document.getElementById('cmenuTapeClear');
     const cmenuTapeOrange = document.getElementById('cmenuTapeOrange');
     const cmenuTapeFlip = document.getElementById('cmenuTapeFlip');
     const cmenuSoundFx = document.getElementById('cmenuSoundFx');
+    const cmenuTogglePL = document.getElementById('cmenuTogglePL');
     const cmenuOpenWalkman = document.getElementById('cmenuOpenWalkman');
     const cmenuClose = document.getElementById('cmenuClose');
 
@@ -1060,8 +1169,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (cmenuTapeOrange) cmenuTapeOrange.addEventListener('click', () => { switchCassetteTape('orange'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuTapeFlip) cmenuTapeFlip.addEventListener('click', () => { toggleTapeSide(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuSoundFx) cmenuSoundFx.addEventListener('click', () => { toggleCassetteSoundFx(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuTogglePL) {
+      cmenuTogglePL.addEventListener('click', () => {
+        plWindow.classList.toggle('hidden');
+        const btnCassetteTogglePL = document.getElementById('btnCassetteTogglePL');
+        if (btnCassetteTogglePL) btnCassetteTogglePL.classList.toggle('active', !plWindow.classList.contains('hidden'));
+        updateResponsiveLayout();
+        if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden');
+      });
+    }
     if (cmenuOpenWalkman) cmenuOpenWalkman.addEventListener('click', () => { openWalkmanModal(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
-    if (cmenuClose) cmenuClose.addEventListener('click', () => { cassetteCloseBtn.click(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuClose) cmenuClose.addEventListener('click', () => { switchSkin('skin-midnight'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+
+    const btnCassetteTogglePL = document.getElementById('btnCassetteTogglePL');
+    if (btnCassetteTogglePL) {
+      btnCassetteTogglePL.addEventListener('click', () => {
+        plWindow.classList.toggle('hidden');
+        btnCassetteTogglePL.classList.toggle('active', !plWindow.classList.contains('hidden'));
+        updateResponsiveLayout();
+      });
+    }
 
     // Counter resets
     if (deckCounterReset) {

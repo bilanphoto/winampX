@@ -34,11 +34,12 @@
           <div class="menu-btn-wrap main-menu-wrap">
             <div class="wa-titlebar-menu" id="mainMenuBtn" title="Winamp Menu"></div>
             <div class="popup-menu top-menu hidden" id="mainContextMenu">
-              <div class="menu-header">⚡ WINAMP MENU</div>
+              <div class="menu-header">🎨 SELECT SKIN / PLAYER MODE</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuSkinClassic">🎨 Skin: Classic 2.91 Original</div>
               <div class="menu-item" id="menuSkinModern">🎨 Skin: Modern Silver Blue</div>
               <div class="menu-item" id="menuSkinMidnight">🎨 Skin: Midnight Gold</div>
+              <div class="menu-item" id="menuSkinCassette">📼 Skin: Walkman Cassette Player</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuTogglePlay">⏯ Play / Pause (Space)</div>
               <div class="menu-item" id="menuStopTrack">⏹ Stop (V)</div>
@@ -47,8 +48,6 @@
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuToggleEqWin">🎚 Equalizer (Alt+G)</div>
               <div class="menu-item" id="menuTogglePlWin">📜 Playlist Editor (Alt+E)</div>
-              <div class="menu-item" id="menuToggleCassette">📼 Cassette Player (Alt+T)</div>
-              <div class="menu-item" id="menuOpenWalkman">📻 Portable Walkman Mode</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuTapeClear">📼 Tape: Clear Crystal (ม้วนใส)</div>
               <div class="menu-item" id="menuTapeOrange">📼 Tape: Neon Orange (ม้วนส้มใส)</div>
@@ -61,7 +60,7 @@
             </div>
           </div>
           <div class="wa-titlebar-title-drag">WINAMP</div>
-          <button class="titlebar-walkman-btn" id="btnTitlebarWalkman" title="Portable Walkman Mode">📼 WALKMAN</button>
+          <button class="titlebar-walkman-btn" id="btnTitlebarWalkman" title="Switch to Walkman Cassette Player">📼 CASSETTE</button>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
             <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
@@ -341,9 +340,16 @@
       <div id="cassetteWindow" class="wa-window winamp-cassette" data-window="cassette">
         <div class="wa-titlebar" id="cassetteTitlebar">
           <div class="menu-btn-wrap">
-            <div class="wa-titlebar-menu" id="cassetteMenuBtn" title="Cassette Menu"></div>
+            <div class="wa-titlebar-menu" id="cassetteMenuBtn" title="Tape & Skin Menu"></div>
             <div class="popup-menu top-menu hidden" id="cassetteContextMenu">
-              <div class="menu-header">📼 CASSETTE TAPE MENU</div>
+              <div class="menu-header">🎨 SELECT SKIN / MODE</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuSkinClassic">🎨 Winamp: Classic 2.91 Original</div>
+              <div class="menu-item" id="cmenuSkinModern">🎨 Winamp: Modern Silver Blue</div>
+              <div class="menu-item" id="cmenuSkinMidnight">🎨 Winamp: Midnight Gold</div>
+              <div class="menu-item active" id="cmenuSkinCassette">📼 Walkman Cassette Player</div>
+              <div class="menu-separator"></div>
+              <div class="menu-header">📼 CASSETTE TAPE</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="cmenuTapeClear">📼 ม้วนใสคริสตัล (Clear Crystal)</div>
               <div class="menu-item" id="cmenuTapeOrange">📼 ม้วนส้มใส (Neon Orange)</div>
@@ -351,20 +357,22 @@
               <div class="menu-item" id="cmenuTapeFlip">🔄 พลิกหน้าเทป (Side A / Side B)</div>
               <div class="menu-item" id="cmenuSoundFx">🔊 เสียงกลไกเทป (Sound FX: เปิด)</div>
               <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuTogglePL">📜 เปิด/ปิด เพลย์ลิสต์ (Playlist)</div>
               <div class="menu-item" id="cmenuOpenWalkman">📻 ขยายเป็น Walkman เต็มจอ</div>
-              <div class="menu-item" id="cmenuClose">✖ ปิดหน้าต่างเทป</div>
+              <div class="menu-item" id="cmenuClose">⚡ สลับกลับเป็น Winamp</div>
             </div>
           </div>
-          <div class="wa-titlebar-title-drag">CASSETTE DECK</div>
+          <div class="wa-titlebar-title-drag">PORTABLE CASSETTE PLAYER</div>
+          <button class="titlebar-winamp-btn" id="btnCassetteToWinamp" title="Switch back to Winamp Skins">⚡ WINAMP</button>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-shade" id="cassetteShadeBtn" title="Window Shade"></button>
-            <button class="win-btn win-btn-close" id="cassetteCloseBtn" title="Close"></button>
+            <button class="win-btn win-btn-close" id="cassetteCloseBtn" title="Back to Winamp"></button>
           </div>
         </div>
 
         <!-- Cassette Deck Window Body -->
         <div class="cassette-deck-body">
-          <!-- Header bar with Counter and LED -->
+          <!-- Header bar with Model, Counter and LED -->
           <div class="deck-top-bar">
             <div class="deck-model-tag">PORTABLE STEREO PLAYER</div>
             <div class="deck-counter-wrap">
@@ -372,7 +380,7 @@
               <span class="deck-counter-num" id="deckCounter">000</span>
               <button class="deck-counter-rst" id="deckCounterReset" title="Reset Counter">R</button>
             </div>
-            <div class="deck-status-led" id="deckLed" title="Tape Running Indicator"></div>
+            <div class="deck-status-led" id="deckLed" title="Tape Motor Running"></div>
           </div>
 
           <!-- Cassette Compartment Window -->
@@ -380,38 +388,58 @@
             <div class="cassette-housing" id="cassetteHousing">
               <!-- Cassette Card -->
               <div class="cassette-tape-card tape-clear" id="cassetteCard">
-                <!-- The Image -->
+                <!-- The Razor-Sharp Image -->
                 <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png" alt="Cassette Tape" />
                 
                 <!-- Dynamic Tape Ribbon Spools -->
                 <div class="tape-pack tape-pack-left" id="tapePackLeft"></div>
                 <div class="tape-pack tape-pack-right" id="tapePackRight"></div>
 
-                <!-- 6-Tooth Spinning Hubs -->
+                <!-- 6-Tooth High-Contrast Spinning Hubs -->
                 <div class="tape-hub hub-left" id="hubLeft">
                   <svg class="hub-svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
-                    <circle cx="50" cy="50" r="28" fill="#1e293b"/>
-                    <circle cx="50" cy="50" r="22" fill="#f8fafc"/>
-                    <polygon points="50,22 53,30 47,30" fill="#94a3b8"/>
-                    <polygon points="50,78 53,70 47,70" fill="#94a3b8"/>
-                    <polygon points="26,36 34,38 31,32" fill="#94a3b8"/>
-                    <polygon points="74,64 66,62 69,68" fill="#94a3b8"/>
-                    <polygon points="26,64 34,62 31,68" fill="#94a3b8"/>
-                    <polygon points="74,36 66,38 69,32" fill="#94a3b8"/>
+                    <!-- Outer Spool Rim -->
+                    <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
+                    <!-- Dark Spindle Well -->
+                    <circle cx="50" cy="50" r="27" fill="#020617"/>
+                    <!-- 6 High-Contrast White Drive Teeth -->
+                    <g fill="#ffffff" stroke="#334155" stroke-width="0.8">
+                      <rect x="47" y="23" width="6" height="9" rx="1"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(60 50 50)"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(120 50 50)"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(180 50 50)"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(240 50 50)"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(300 50 50)"/>
+                    </g>
+                    <!-- Center Spindle Pin Hole -->
+                    <circle cx="50" cy="50" r="14" fill="#000000"/>
+                    <!-- 3 Distinct Inspection Spoke Windows -->
+                    <circle cx="50" cy="11" r="5" fill="#1e293b"/>
+                    <circle cx="16" cy="70" r="5" fill="#1e293b"/>
+                    <circle cx="84" cy="70" r="5" fill="#1e293b"/>
                   </svg>
                 </div>
                 <div class="tape-hub hub-right" id="hubRight">
                   <svg class="hub-svg" viewBox="0 0 100 100">
-                    <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
-                    <circle cx="50" cy="50" r="28" fill="#1e293b"/>
-                    <circle cx="50" cy="50" r="22" fill="#f8fafc"/>
-                    <polygon points="50,22 53,30 47,30" fill="#94a3b8"/>
-                    <polygon points="50,78 53,70 47,70" fill="#94a3b8"/>
-                    <polygon points="26,36 34,38 31,32" fill="#94a3b8"/>
-                    <polygon points="74,64 66,62 69,68" fill="#94a3b8"/>
-                    <polygon points="26,64 34,62 31,68" fill="#94a3b8"/>
-                    <polygon points="74,36 66,38 69,32" fill="#94a3b8"/>
+                    <!-- Outer Spool Rim -->
+                    <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
+                    <!-- Dark Spindle Well -->
+                    <circle cx="50" cy="50" r="27" fill="#020617"/>
+                    <!-- 6 High-Contrast White Drive Teeth -->
+                    <g fill="#ffffff" stroke="#334155" stroke-width="0.8">
+                      <rect x="47" y="23" width="6" height="9" rx="1"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(60 50 50)"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(120 50 50)"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(180 50 50)"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(240 50 50)"/>
+                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(300 50 50)"/>
+                    </g>
+                    <!-- Center Spindle Pin Hole -->
+                    <circle cx="50" cy="50" r="14" fill="#000000"/>
+                    <!-- 3 Distinct Inspection Spoke Windows -->
+                    <circle cx="50" cy="11" r="5" fill="#1e293b"/>
+                    <circle cx="16" cy="70" r="5" fill="#1e293b"/>
+                    <circle cx="84" cy="70" r="5" fill="#1e293b"/>
                   </svg>
                 </div>
 
@@ -431,23 +459,73 @@
             </div>
           </div>
 
-          <!-- Bottom Deck Bar: Tape Switcher & Mechanical Controls -->
+          <!-- Bottom Deck Bar: Tape Switcher & Hardware Mechanical Controls -->
           <div class="deck-bottom-bar">
+            <!-- Vintage 2-way Tape Selector -->
             <div class="tape-select-group">
               <button class="tape-sel-btn active" id="btnTapeClear" title="Clear Crystal Tape">CLEAR</button>
               <button class="tape-sel-btn" id="btnTapeOrange" title="Neon Orange Tape">ORANGE</button>
             </div>
 
+            <!-- Hardware Vector Control Buttons (No Emoji) -->
             <div class="deck-transport">
-              <button class="mech-btn btn-mech-eject" id="mechEject" title="Eject / Open Song"></button>
-              <button class="mech-btn btn-mech-rew" id="mechRew" title="Rewind (10s)"></button>
-              <button class="mech-btn btn-mech-play" id="mechPlay" title="Play"></button>
-              <button class="mech-btn btn-mech-pause" id="mechPause" title="Pause"></button>
-              <button class="mech-btn btn-mech-stop" id="mechStop" title="Stop"></button>
-              <button class="mech-btn btn-mech-ff" id="mechFF" title="Fast Forward (10s)"></button>
+              <!-- Rewind -->
+              <button class="mech-btn btn-mech-rew" id="mechRew" title="Rewind 10s">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <polygon points="11,5 1,12 11,19"/>
+                  <polygon points="21,5 11,12 21,19"/>
+                </svg>
+              </button>
+              <!-- Play -->
+              <button class="mech-btn btn-mech-play" id="mechPlay" title="Play">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <polygon points="6,4 20,12 6,20"/>
+                </svg>
+              </button>
+              <!-- Pause -->
+              <button class="mech-btn btn-mech-pause" id="mechPause" title="Pause">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <rect x="5" y="4" width="4.5" height="16" rx="1"/>
+                  <rect x="14.5" y="4" width="4.5" height="16" rx="1"/>
+                </svg>
+              </button>
+              <!-- Stop -->
+              <button class="mech-btn btn-mech-stop" id="mechStop" title="Stop">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <rect x="4.5" y="4.5" width="15" height="15" rx="1.5"/>
+                </svg>
+              </button>
+              <!-- Fast Forward -->
+              <button class="mech-btn btn-mech-ff" id="mechFF" title="Fast Forward 10s">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <polygon points="3,5 13,12 3,19"/>
+                  <polygon points="13,5 23,12 13,19"/>
+                </svg>
+              </button>
+              <!-- Eject / Flip Side -->
+              <button class="mech-btn btn-mech-eject" id="mechEject" title="Flip Side A/B (Eject)">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <polygon points="12,4 4,13 20,13"/>
+                  <rect x="4" y="16" width="16" height="3" rx="0.5"/>
+                </svg>
+              </button>
             </div>
 
-            <button class="walkman-open-btn" id="btnOpenWalkmanModal" title="Full Portable Walkman Mode">⛶</button>
+            <!-- Playlist and Walkman expand buttons -->
+            <div class="deck-extra-actions">
+              <button class="deck-action-icon-btn active" id="btnCassetteTogglePL" title="Toggle Playlist Drawer">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="4" y1="18" x2="14" y2="18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="walkman-open-btn" id="btnOpenWalkmanModal" title="Full Portable Walkman Mode">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <path d="M4 8V4h4M16 4h4v4M4 16v4h4M20 16v4h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -532,31 +610,41 @@
               <div class="wm-spool-pack wm-spool-left" id="wmSpoolLeft"></div>
               <div class="wm-spool-pack wm-spool-right" id="wmSpoolRight"></div>
 
-              <!-- Large 6-Tooth Hubs -->
+              <!-- Large 6-Tooth High-Contrast Hubs -->
               <div class="wm-hub wm-hub-left" id="wmHubLeft">
                 <svg class="wm-hub-svg" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
-                  <circle cx="50" cy="50" r="28" fill="#1e293b"/>
-                  <circle cx="50" cy="50" r="22" fill="#f8fafc"/>
-                  <polygon points="50,22 53,30 47,30" fill="#94a3b8"/>
-                  <polygon points="50,78 53,70 47,70" fill="#94a3b8"/>
-                  <polygon points="26,36 34,38 31,32" fill="#94a3b8"/>
-                  <polygon points="74,64 66,62 69,68" fill="#94a3b8"/>
-                  <polygon points="26,64 34,62 31,68" fill="#94a3b8"/>
-                  <polygon points="74,36 66,38 69,32" fill="#94a3b8"/>
+                  <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
+                  <circle cx="50" cy="50" r="27" fill="#020617"/>
+                  <g fill="#ffffff" stroke="#334155" stroke-width="0.8">
+                    <rect x="47" y="23" width="6" height="9" rx="1"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(60 50 50)"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(120 50 50)"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(180 50 50)"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(240 50 50)"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(300 50 50)"/>
+                  </g>
+                  <circle cx="50" cy="50" r="14" fill="#000000"/>
+                  <circle cx="50" cy="11" r="5" fill="#1e293b"/>
+                  <circle cx="16" cy="70" r="5" fill="#1e293b"/>
+                  <circle cx="84" cy="70" r="5" fill="#1e293b"/>
                 </svg>
               </div>
               <div class="wm-hub wm-hub-right" id="wmHubRight">
                 <svg class="wm-hub-svg" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#94a3b8" stroke-width="2"/>
-                  <circle cx="50" cy="50" r="28" fill="#1e293b"/>
-                  <circle cx="50" cy="50" r="22" fill="#f8fafc"/>
-                  <polygon points="50,22 53,30 47,30" fill="#94a3b8"/>
-                  <polygon points="50,78 53,70 47,70" fill="#94a3b8"/>
-                  <polygon points="26,36 34,38 31,32" fill="#94a3b8"/>
-                  <polygon points="74,64 66,62 69,68" fill="#94a3b8"/>
-                  <polygon points="26,64 34,62 31,68" fill="#94a3b8"/>
-                  <polygon points="74,36 66,38 69,32" fill="#94a3b8"/>
+                  <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
+                  <circle cx="50" cy="50" r="27" fill="#020617"/>
+                  <g fill="#ffffff" stroke="#334155" stroke-width="0.8">
+                    <rect x="47" y="23" width="6" height="9" rx="1"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(60 50 50)"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(120 50 50)"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(180 50 50)"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(240 50 50)"/>
+                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(300 50 50)"/>
+                  </g>
+                  <circle cx="50" cy="50" r="14" fill="#000000"/>
+                  <circle cx="50" cy="11" r="5" fill="#1e293b"/>
+                  <circle cx="16" cy="70" r="5" fill="#1e293b"/>
+                  <circle cx="84" cy="70" r="5" fill="#1e293b"/>
                 </svg>
               </div>
 
@@ -598,28 +686,40 @@
         <!-- Heavy Mechanical Piano Push Buttons (Bottom of Walkman) -->
         <div class="walkman-mechanical-deck">
           <div class="wm-piano-keys">
-            <button class="wm-key wm-key-eject" id="wmKeyEject" title="Eject / Open Song">
-              <span class="wm-key-top">⏏</span>
+            <button class="wm-key wm-key-eject" id="wmKeyEject" title="Flip Side A/B (Eject)">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="12,4 4,13 20,13" fill="currentColor"/><rect x="4" y="16" width="16" height="3" rx="0.5" fill="currentColor"/></svg>
+              </span>
               <span class="wm-key-label">EJECT</span>
             </button>
             <button class="wm-key wm-key-rew" id="wmKeyRew" title="Rewind 10s">
-              <span class="wm-key-top">⏪</span>
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="11,5 1,12 11,19" fill="currentColor"/><polygon points="21,5 11,12 21,19" fill="currentColor"/></svg>
+              </span>
               <span class="wm-key-label">REW</span>
             </button>
             <button class="wm-key wm-key-ff" id="wmKeyFF" title="Fast Forward 10s">
-              <span class="wm-key-top">⏩</span>
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="3,5 13,12 3,19" fill="currentColor"/><polygon points="13,5 23,12 13,19" fill="currentColor"/></svg>
+              </span>
               <span class="wm-key-label">FF</span>
             </button>
             <button class="wm-key wm-key-play" id="wmKeyPlay" title="Play">
-              <span class="wm-key-top">▶</span>
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="6,4 20,12 6,20" fill="currentColor"/></svg>
+              </span>
               <span class="wm-key-label">PLAY</span>
             </button>
             <button class="wm-key wm-key-pause" id="wmKeyPause" title="Pause">
-              <span class="wm-key-top">⏸</span>
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><rect x="5" y="4" width="4.5" height="16" rx="1" fill="currentColor"/><rect x="14.5" y="4" width="4.5" height="16" rx="1" fill="currentColor"/></svg>
+              </span>
               <span class="wm-key-label">PAUSE</span>
             </button>
             <button class="wm-key wm-key-stop" id="wmKeyStop" title="Stop">
-              <span class="wm-key-top">⏹</span>
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><rect x="4.5" y="4.5" width="15" height="15" rx="1.5" fill="currentColor"/></svg>
+              </span>
               <span class="wm-key-label">STOP</span>
             </button>
           </div>
