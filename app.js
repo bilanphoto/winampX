@@ -1012,6 +1012,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // =========================================================================
   // CASSETTE DECK & PORTABLE WALKMAN CONTROLS
   // =========================================================================
+  const TAPE_COLORS = ['clear', 'orange', 'red', 'green', 'blue', 'yellow', 'pink'];
   const TAPE_PRESETS = {
     clear:  { label: 'ใสคริสตัล (Clear Crystal)', shortLabel: 'ใสคริสตัล', file: 'tape-clear-clean.png',  badge: '⚪', dot: 'dot-clear' },
     orange: { label: 'ส้มใส (Neon Orange)',       shortLabel: 'ส้มใส',     file: 'tape-orange-clean.png', badge: '🟠', dot: 'dot-orange' },
@@ -1021,6 +1022,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     yellow: { label: 'เหลืองใส (Amber Yellow)',   shortLabel: 'เหลืองใส',  file: 'tape-yellow-clean.png', badge: '🟡', dot: 'dot-yellow' },
     pink:   { label: 'ชมพูใส (Neon Pink)',        shortLabel: 'ชมพูใส',    file: 'tape-pink-clean.png',   badge: '🌸', dot: 'dot-pink' }
   };
+
+  function cycleNextCassetteTape(e) {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    const curIdx = Math.max(0, TAPE_COLORS.indexOf(cassetteState.tape));
+    const nextIdx = (curIdx + 1) % TAPE_COLORS.length;
+    const nextColor = TAPE_COLORS[nextIdx];
+
+    const cassetteDoorLid = document.getElementById('cassetteDoorLid');
+    const wmDoorLid = document.getElementById('wmDoorLid');
+    if (cassetteDoorLid) cassetteDoorLid.classList.add('door-open');
+    if (wmDoorLid) wmDoorLid.classList.add('door-open');
+
+    setTimeout(() => {
+      switchCassetteTape(nextColor, true);
+      setTimeout(() => {
+        if (cassetteDoorLid) cassetteDoorLid.classList.remove('door-open');
+        if (wmDoorLid) wmDoorLid.classList.remove('door-open');
+      }, 180);
+    }, 120);
+  }
 
   function triggerDoorEjectAnimation() {
     const cassetteDoorLid = document.getElementById('cassetteDoorLid');
@@ -1050,7 +1074,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       wmCassetteCard.classList.add('tape-' + valid);
     }
 
-    const imgSrc = `assets/cassette/${preset.file}?v=2.5`;
+    const imgSrc = `assets/cassette/${preset.file}?v=2.8`;
     if (cassetteImg) cassetteImg.src = imgSrc;
     if (wmCassetteImg) wmCassetteImg.src = imgSrc;
 
@@ -1342,11 +1366,15 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     if (btnOpenWalkmanModal) btnOpenWalkmanModal.addEventListener('click', openWalkmanModal);
 
-    // Clicking the cassette front door triggers open/tilt mechanical animation
+    // Tap or click directly on cassette tape to cycle through the 7 tape colors
     const cassetteDoorLid = document.getElementById('cassetteDoorLid');
     const wmDoorLid = document.getElementById('wmDoorLid');
-    if (cassetteDoorLid) cassetteDoorLid.addEventListener('click', triggerDoorEjectAnimation);
-    if (wmDoorLid) wmDoorLid.addEventListener('click', triggerDoorEjectAnimation);
+    const cassetteHousing = document.getElementById('cassetteHousing');
+    if (cassetteCard) cassetteCard.addEventListener('click', cycleNextCassetteTape);
+    if (wmCassetteCard) wmCassetteCard.addEventListener('click', cycleNextCassetteTape);
+    if (cassetteHousing) cassetteHousing.addEventListener('click', cycleNextCassetteTape);
+    if (cassetteDoorLid) cassetteDoorLid.addEventListener('click', cycleNextCassetteTape);
+    if (wmDoorLid) wmDoorLid.addEventListener('click', cycleNextCassetteTape);
 
     // Deck mechanical buttons
     if (mechPlay) mechPlay.addEventListener('click', () => { engine.playMechanicalSound('play'); btnPlay.click(); });

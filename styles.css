@@ -935,8 +935,8 @@ body.skin-classic .pl-screen { background-color: #000000; }
 body.skin-classic .pl-scrollable {
   color: #00ff00;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  line-height: 13px;
+  font-size: 7px;
+  line-height: 8.5px;
 }
 
 body.skin-classic .pl-item:hover { background: rgba(0, 255, 0, 0.1); }
@@ -1307,8 +1307,8 @@ body.skin-modern .pl-screen {
 body.skin-modern .pl-scrollable {
   color: #bae6fd;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 11.5px;
-  line-height: 14px;
+  font-size: 7.2px;
+  line-height: 9px;
 }
 
 body.skin-modern .pl-item:hover { background: rgba(56, 189, 248, 0.15); }
@@ -1766,8 +1766,8 @@ body.skin-midnight .pl-screen {
 body.skin-midnight .pl-scrollable {
   color: #00ff00;
   font-family: 'Share Tech Mono', monospace;
-  font-size: 11px;
-  line-height: 13.5px;
+  font-size: 7px;
+  line-height: 8.5px;
 }
 
 body.skin-midnight .pl-item:hover { background: rgba(0, 255, 0, 0.08); }
@@ -1841,11 +1841,13 @@ body.skin-midnight .pl-resize-handle {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1px 4px;
+  padding: 0.5px 4px;
   cursor: pointer;
   white-space: nowrap;
   overflow: hidden;
   gap: 4px;
+  font-size: 7px;
+  line-height: 8.5px;
 }
 
 .pl-item-left {
@@ -2740,202 +2742,18 @@ body.skin-midnight .pl-resize-handle {
 .deck-bottom-bar {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   height: 32px;
-  padding: 0 2px;
+  padding: 0 4px;
 }
 
-/* Vintage Cassette Tape Dropdown Selector */
-.tape-dropdown-container {
-  position: relative;
-  display: inline-block;
-  z-index: 30;
-}
-
-.tape-dropdown-toggle {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  height: 20px;
-  padding: 0 6px;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid #475569;
-  border-radius: 3px;
-  color: #f1f5f9;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
-  font-size: 8.5px;
-  font-weight: 600;
+/* Interactive Clickable Tape Cards */
+.cassette-tape-card,
+.wm-cassette-card,
+.cassette-housing,
+.cassette-door-lid,
+.wm-door-lid {
   cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.4);
-  transition: all 0.15s ease;
-  user-select: none;
-}
-
-.tape-dropdown-toggle:hover {
-  border-color: #38bdf8;
-  background: linear-gradient(180deg, #273549 0%, #111a28 100%);
-  color: #38bdf8;
-}
-
-.tape-dropdown-toggle:active {
-  transform: translateY(1px);
-}
-
-.tape-chip-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 3px rgba(0,0,0,0.5);
-  border: 1px solid rgba(255,255,255,0.4);
-  flex-shrink: 0;
-}
-
-.tape-chip-text {
-  white-space: nowrap;
-}
-
-.tape-chip-arrow {
-  font-size: 7px;
-  color: #94a3b8;
-  margin-left: 1px;
-}
-
-/* Dropdown Menu List */
-.tape-dropdown-list {
-  position: absolute;
-  bottom: 24px;
-  left: 0;
-  min-width: 140px;
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 4px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.2);
-  padding: 3px 0;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-}
-
-.tape-opt {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 8px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
-  font-size: 9px;
-  color: #cbd5e1;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-  user-select: none;
-  white-space: nowrap;
-}
-
-.tape-opt:hover {
-  background: #1e293b;
-  color: #38bdf8;
-}
-
-.tape-opt.active {
-  background: #0369a1;
-  color: #ffffff;
-  font-weight: bold;
-}
-
-/* Color dots */
-.opt-dot {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  display: inline-block;
-  box-shadow: 0 0 2px rgba(0,0,0,0.6);
-  border: 1px solid rgba(255,255,255,0.5);
-  flex-shrink: 0;
-}
-
-.dot-clear  { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 0 3px rgba(255,255,255,0.8); }
-.dot-orange { background: #ff7700; box-shadow: 0 0 4px rgba(255,119,0,0.8); }
-.dot-red    { background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.8); }
-.dot-green  { background: #10b981; box-shadow: 0 0 4px rgba(16,185,129,0.8); }
-.dot-blue   { background: #0ea5e9; box-shadow: 0 0 4px rgba(14,165,233,0.8); }
-.dot-yellow { background: #eab308; box-shadow: 0 0 4px rgba(234,179,8,0.8); }
-.dot-pink   { background: #ec4899; box-shadow: 0 0 4px rgba(236,72,153,0.8); }
-
-/* Walkman Modal Tape Selector Dropdown */
-.wm-tape-dropdown-wrap {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.wm-tape-dropdown-container {
-  position: relative;
-  display: inline-block;
-  z-index: 50;
-}
-
-.wm-tape-dropdown-toggle {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 24px;
-  padding: 0 8px;
-  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
-  border: 1px solid #475569;
-  border-radius: 3px;
-  color: #f8fafc;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
-  font-size: 10px;
-  font-weight: 600;
-  cursor: pointer;
-  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 3px rgba(0,0,0,0.5);
-  transition: all 0.15s ease;
-}
-
-.wm-tape-dropdown-toggle:hover {
-  border-color: #38bdf8;
-  color: #38bdf8;
-  background: linear-gradient(180deg, #273549 0%, #111a28 100%);
-}
-
-.wm-tape-dropdown-list {
-  position: absolute;
-  bottom: 28px;
-  left: 0;
-  min-width: 175px;
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 4px;
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.2);
-  padding: 4px 0;
-  display: flex;
-  flex-direction: column;
-  z-index: 100;
-}
-
-.wm-tape-opt {
-  display: flex;
-  align-items: center;
-  gap: 7px;
-  padding: 5px 10px;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
-  font-size: 10px;
-  color: #cbd5e1;
-  cursor: pointer;
-  transition: background 0.12s, color 0.12s;
-  user-select: none;
-  white-space: nowrap;
-}
-
-.wm-tape-opt:hover {
-  background: #1e293b;
-  color: #38bdf8;
-}
-
-.wm-tape-opt.active {
-  background: #0369a1;
-  color: #ffffff;
-  font-weight: bold;
 }
 
 .deck-transport {

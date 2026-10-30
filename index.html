@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=2.7">
+  <link rel="stylesheet" href="styles.css?v=2.8">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -386,10 +386,10 @@
           <!-- Cassette Compartment Window -->
           <div class="cassette-well">
             <div class="cassette-housing" id="cassetteHousing">
-              <!-- Cassette Card -->
-              <div class="cassette-tape-card tape-clear" id="cassetteCard">
+              <!-- Cassette Card (Click to cycle tape color) -->
+              <div class="cassette-tape-card tape-clear" id="cassetteCard" title="คลิกเพื่อเปลี่ยนสีม้วนเทป (Click to switch tape color)">
                 <!-- The Razor-Sharp Image -->
-                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.4" alt="Cassette Tape" />
+                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.8" alt="Cassette Tape" />
                 
                 <!-- Dynamic Tape Ribbon Spools -->
                 <div class="tape-pack tape-pack-left" id="tapePackLeft"></div>
@@ -453,26 +453,8 @@
             </div>
           </div>
 
-          <!-- Bottom Deck Bar: Tape Color Dropdown & Transport Controls -->
+          <!-- Bottom Deck Bar: Hardware Transport Controls -->
           <div class="deck-bottom-bar">
-            <!-- Vintage Cassette Tape Dropdown Selector -->
-            <div class="tape-dropdown-container" id="tapeDropdownContainer">
-              <button class="tape-dropdown-toggle" id="tapeDropdownToggle" title="เลือกสีม้วนเทป (Select Cassette Tape)">
-                <span class="tape-chip-dot dot-clear" id="deckTapeChipDot"></span>
-                <span class="tape-chip-text" id="deckTapeChipText">ใสคริสตัล</span>
-                <span class="tape-chip-arrow">▾</span>
-              </button>
-              <div class="tape-dropdown-list hidden" id="tapeDropdownList">
-                <div class="tape-opt active" data-color="clear"><span class="opt-dot dot-clear"></span> ⚪ ใสคริสตัล (Clear)</div>
-                <div class="tape-opt" data-color="orange"><span class="opt-dot dot-orange"></span> 🟠 ส้มใส (Orange)</div>
-                <div class="tape-opt" data-color="red"><span class="opt-dot dot-red"></span> 🔴 แดงใส (Red)</div>
-                <div class="tape-opt" data-color="green"><span class="opt-dot dot-green"></span> 🟢 เขียวใส (Green)</div>
-                <div class="tape-opt" data-color="blue"><span class="opt-dot dot-blue"></span> 🔵 ฟ้าใส (Blue)</div>
-                <div class="tape-opt" data-color="yellow"><span class="opt-dot dot-yellow"></span> 🟡 เหลืองใส (Yellow)</div>
-                <div class="tape-opt" data-color="pink"><span class="opt-dot dot-pink"></span> 🌸 ชมพูใส (Pink)</div>
-              </div>
-            </div>
-
             <!-- Hardware Vector Control Buttons (No Emoji) -->
             <div class="deck-transport">
               <!-- Rewind -->
@@ -608,9 +590,9 @@
           <div class="walkman-window-frame">
             <div class="walkman-glass-glare"></div>
             
-            <!-- Large Cassette Tape in Walkman -->
-            <div class="wm-cassette-card tape-clear" id="wmCassetteCard">
-              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.4" alt="Cassette Tape" />
+            <!-- Large Cassette Tape in Walkman (Click to cycle tape color) -->
+            <div class="wm-cassette-card tape-clear" id="wmCassetteCard" title="คลิกเพื่อเปลี่ยนสีม้วนเทป (Click to switch tape color)">
+              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.8" alt="Cassette Tape" />
               
               <!-- Dynamic Tape Ribbon Spools -->
               <div class="wm-spool-pack wm-spool-left" id="wmSpoolLeft"></div>
@@ -670,28 +652,8 @@
             </div>
           </div>
 
-          <!-- Walkman Tape Selector & Indicators Bar -->
+          <!-- Walkman Indicators Bar -->
           <div class="walkman-tape-bar">
-            <div class="wm-tape-dropdown-wrap">
-              <span class="wm-tape-selector-label">CASSETTE:</span>
-              <div class="wm-tape-dropdown-container" id="wmTapeDropdownContainer">
-                <button class="wm-tape-dropdown-toggle" id="wmTapeDropdownToggle" title="เลือกสีม้วนเทป (Select Cassette Tape)">
-                  <span class="tape-chip-dot dot-clear" id="wmTapeChipDot"></span>
-                  <span class="wm-tape-chip-text" id="wmTapeChipText">ใสคริสตัล (Clear Crystal)</span>
-                  <span class="tape-chip-arrow">▾</span>
-                </button>
-                <div class="wm-tape-dropdown-list hidden" id="wmTapeDropdownList">
-                  <div class="wm-tape-opt active" data-color="clear"><span class="opt-dot dot-clear"></span> ⚪ ใสคริสตัล (Clear Crystal)</div>
-                  <div class="wm-tape-opt" data-color="orange"><span class="opt-dot dot-orange"></span> 🟠 ส้มใส (Neon Orange)</div>
-                  <div class="wm-tape-opt" data-color="red"><span class="opt-dot dot-red"></span> 🔴 แดงใส (Ruby Red)</div>
-                  <div class="wm-tape-opt" data-color="green"><span class="opt-dot dot-green"></span> 🟢 เขียวใส (Emerald Green)</div>
-                  <div class="wm-tape-opt" data-color="blue"><span class="opt-dot dot-blue"></span> 🔵 ฟ้าใส (Sky Blue)</div>
-                  <div class="wm-tape-opt" data-color="yellow"><span class="opt-dot dot-yellow"></span> 🟡 เหลืองใส (Amber Yellow)</div>
-                  <div class="wm-tape-opt" data-color="pink"><span class="opt-dot dot-pink"></span> 🌸 ชมพูใส (Neon Pink)</div>
-                </div>
-              </div>
-            </div>
-
             <!-- Tape Counter & LED -->
             <div class="wm-counter-block">
               <div class="wm-counter-display">
@@ -777,7 +739,7 @@
   <!-- Scripts -->
   <script src="db.js"></script>
   <script src="id3.js"></script>
-  <script src="audio-engine.js?v=2.7"></script>
-  <script src="app.js?v=2.7"></script>
+  <script src="audio-engine.js?v=2.8"></script>
+  <script src="app.js?v=2.8"></script>
 </body>
 </html>
