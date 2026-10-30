@@ -1086,29 +1086,114 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  // Custom Cassette Tape Skin Artwork Upload & Management
+  // Custom Cassette Tape Face Artwork (Frontmost layer with punched-out reel holes)
   const customTapeSkinInput = document.getElementById('customTapeSkinInput');
   const cassetteCustomSkin = document.getElementById('cassetteCustomSkin');
   const wmCustomSkin = document.getElementById('wmCustomSkin');
   const cmenuCustomTapeSkin = document.getElementById('cmenuCustomTapeSkin');
   const cmenuResetTapeSkin = document.getElementById('cmenuResetTapeSkin');
 
+  function processCustomCassetteSkin(sourceImgOrDataUrl, callback) {
+    if (!sourceImgOrDataUrl) {
+      callback('');
+      return;
+    }
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      try {
+        const W = 936;
+        const H = 564;
+        const canvas = document.createElement('canvas');
+        canvas.width = W;
+        canvas.height = H;
+        const ctx = canvas.getContext('2d');
+
+        // 1. Clip to rounded cassette card boundary
+        ctx.save();
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(14, 14, W - 28, H - 28, 22);
+        } else {
+          ctx.rect(14, 14, W - 28, H - 28);
+        }
+        ctx.clip();
+
+        // 2. Draw user's image (object-fit: cover, centered)
+        const scale = Math.max(W / img.width, H / img.height);
+        const dw = img.width * scale;
+        const dh = img.height * scale;
+        const dx = (W - dw) / 2;
+        const dy = (H - dh) / 2;
+        ctx.drawImage(img, dx, dy, dw, dh);
+        ctx.restore();
+
+        // 3. Punch out holes using 'destination-out' (makes them 100% transparent!)
+        ctx.save();
+        ctx.globalCompositeOperation = 'destination-out';
+
+        // Left Spool Hole (center 287.0, 259.4, radius 76px)
+        ctx.beginPath();
+        ctx.arc(287.0, 259.4, 76, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Right Spool Hole (center 689.0, 259.4, radius 76px)
+        ctx.beginPath();
+        ctx.arc(689.0, 259.4, 76, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Center viewing window with scale marks (x=396, y=214, w=144, h=90)
+        ctx.beginPath();
+        if (ctx.roundRect) {
+          ctx.roundRect(396, 214, 144, 90, 8);
+        } else {
+          ctx.rect(396, 214, 144, 90);
+        }
+        ctx.fill();
+
+        // Bottom tape head cavity trapezoid
+        ctx.beginPath();
+        ctx.moveTo(215, 564);
+        ctx.lineTo(248, 436);
+        ctx.lineTo(688, 436);
+        ctx.lineTo(721, 564);
+        ctx.closePath();
+        ctx.fill();
+
+        ctx.restore();
+
+        const processedDataUrl = canvas.toDataURL('image/png');
+        callback(processedDataUrl);
+      } catch (err) {
+        console.warn('Canvas export failed, using raw data url', err);
+        callback(sourceImgOrDataUrl);
+      }
+    };
+    img.onerror = () => {
+      console.warn('Failed to load image, using fallback');
+      callback(sourceImgOrDataUrl);
+    };
+    img.src = sourceImgOrDataUrl;
+  }
+
   function applyCustomTapeSkin(dataUrl, playSound = true) {
     if (dataUrl) {
-      if (cassetteCustomSkin) {
-        cassetteCustomSkin.style.backgroundImage = `url("${dataUrl}")`;
-        cassetteCustomSkin.classList.add('active');
-      }
-      if (wmCustomSkin) {
-        wmCustomSkin.style.backgroundImage = `url("${dataUrl}")`;
-        wmCustomSkin.classList.add('active');
-      }
-      if (cmenuResetTapeSkin) cmenuResetTapeSkin.classList.remove('hidden');
-      window.winampDB.setSetting('cassette_custom_skin', dataUrl);
-      if (playSound) {
-        engine.playMechanicalSound('click');
-        showToast('🎨 ใส่รูปลวดลายบนม้วนเทปเรียบร้อยแล้ว!');
-      }
+      processCustomCassetteSkin(dataUrl, (processedUrl) => {
+        if (cassetteCustomSkin) {
+          cassetteCustomSkin.style.backgroundImage = `url("${processedUrl}")`;
+          cassetteCustomSkin.classList.add('active');
+        }
+        if (wmCustomSkin) {
+          wmCustomSkin.style.backgroundImage = `url("${processedUrl}")`;
+          wmCustomSkin.classList.add('active');
+        }
+        if (cmenuResetTapeSkin) cmenuResetTapeSkin.classList.remove('hidden');
+        window.winampDB.setSetting('cassette_custom_skin', dataUrl);
+        if (playSound) {
+          engine.playMechanicalSound('click');
+          showToast('📷 ใส่รูปบนม้วนเทปเรียบร้อยแล้ว!');
+        }
+      });
     } else {
       if (cassetteCustomSkin) {
         cassetteCustomSkin.style.backgroundImage = 'none';
@@ -1142,7 +1227,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       wmCassetteCard.classList.add('tape-' + valid);
     }
 
-    const imgSrc = `assets/cassette/${preset.file}?v=2.9`;
+    const imgSrc = `assets/cassette/${preset.file}?v=3.1`;
     if (cassetteImg) cassetteImg.src = imgSrc;
     if (wmCassetteImg) wmCassetteImg.src = imgSrc;
 
@@ -1336,8 +1421,17 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (cmenuTapeClear) cmenuTapeClear.addEventListener('click', () => { switchCassetteTape('clear'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuTapeOrange) cmenuTapeOrange.addEventListener('click', () => { switchCassetteTape('orange'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    const btnUploadTapePhoto = document.getElementById('btnUploadTapePhoto');
+    if (btnUploadTapePhoto && customTapeSkinInput) {
+      btnUploadTapePhoto.addEventListener('click', (e) => {
+        e.stopPropagation();
+        customTapeSkinInput.value = '';
+        customTapeSkinInput.click();
+      });
+    }
     if (cmenuCustomTapeSkin && customTapeSkinInput) {
       cmenuCustomTapeSkin.addEventListener('click', () => {
+        customTapeSkinInput.value = '';
         customTapeSkinInput.click();
         if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden');
       });
@@ -1354,7 +1448,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (!file) return;
         const reader = new FileReader();
         reader.onload = (evt) => {
-          applyCustomTapeSkin(evt.target.result);
+          applyCustomTapeSkin(evt.target.result, true);
         };
         reader.readAsDataURL(file);
       });

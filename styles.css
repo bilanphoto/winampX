@@ -2296,7 +2296,34 @@ body.skin-midnight .pl-resize-handle {
   image-rendering: -webkit-optimize-contrast;
 }
 
-/* Custom Uploaded Cassette Skin / Pattern Artwork */
+.deck-photo-btn {
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #475569;
+  border-radius: 3px;
+  color: #38bdf8;
+  font-size: 10px;
+  height: 16px;
+  width: 22px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.5);
+  transition: all 0.15s ease;
+}
+
+.deck-photo-btn:hover {
+  border-color: #38bdf8;
+  background: linear-gradient(180deg, #273549 0%, #111a28 100%);
+  transform: translateY(-1px);
+}
+
+.deck-photo-btn:active {
+  transform: translateY(1px);
+}
+
+/* Custom Uploaded Cassette Face Artwork (Frontmost Layer with Reel Cutouts) */
 .cassette-custom-skin,
 .wm-custom-skin {
   position: absolute;
@@ -2305,19 +2332,20 @@ body.skin-midnight .pl-resize-handle {
   width: 100%;
   height: 100%;
   border-radius: 6px;
-  background-size: cover;
+  background-size: 100% 100%;
   background-position: center;
+  background-repeat: no-repeat;
   pointer-events: none;
-  z-index: 11;
-  opacity: 0.88;
-  mix-blend-mode: overlay;
+  z-index: 18; /* Frontmost layer! Sits over cassette body and spools, cutouts show spinning spools! */
+  opacity: 1;
+  mix-blend-mode: normal;
   display: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.25s ease;
 }
 
 .cassette-custom-skin.active,
 .wm-custom-skin.active {
-  display: block;
+  display: block !important;
 }
 
 /* Dynamic Tape Packs (Authentic Ferric Oxide Magnetic Ribbon) */
