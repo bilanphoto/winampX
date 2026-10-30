@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=2.5">
+  <link rel="stylesheet" href="styles.css?v=2.6">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -60,7 +60,6 @@
             </div>
           </div>
           <div class="wa-titlebar-title-drag">WINAMP</div>
-          <button class="titlebar-cassette-btn" id="btnWinampToCassette" title="Switch to Walkman Cassette Player">📼 TAPE</button>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
             <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
@@ -362,7 +361,6 @@
             </div>
           </div>
           <div class="wa-titlebar-title-drag">PORTABLE CASSETTE PLAYER</div>
-          <button class="titlebar-winamp-btn" id="btnCassetteToWinamp" title="Switch back to Winamp Skins">⚡ WINAMP</button>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-shade" id="cassetteShadeBtn" title="Window Shade"></button>
             <button class="win-btn win-btn-close" id="cassetteCloseBtn" title="Back to Winamp"></button>
@@ -379,7 +377,10 @@
               <span class="deck-counter-num" id="deckCounter">000</span>
               <button class="deck-counter-rst" id="deckCounterReset" title="Reset Counter">R</button>
             </div>
-            <div class="deck-status-led" id="deckLed" title="Tape Motor Running"></div>
+            <div class="deck-top-controls">
+              <div class="deck-status-led" id="deckLed" title="Tape Motor Running"></div>
+              <button class="deck-winamp-btn" id="btnCassetteToWinamp" title="สลับกลับไปสกิน Winamp (Switch to Winamp)">⚡</button>
+            </div>
           </div>
 
           <!-- Cassette Compartment Window -->
@@ -396,50 +397,232 @@
 
                 <!-- 6-Tooth High-Contrast Spinning Hubs -->
                 <div class="tape-hub hub-left" id="hubLeft">
-                  <svg class="hub-svg" viewBox="0 0 100 100">
-                    <!-- Outer Spool Rim -->
-                    <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
-                    <!-- Dark Spindle Well -->
-                    <circle cx="50" cy="50" r="27" fill="#020617"/>
-                    <!-- 6 High-Contrast White Drive Teeth -->
-                    <g fill="#ffffff" stroke="#334155" stroke-width="0.8">
-                      <rect x="47" y="23" width="6" height="9" rx="1"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(60 50 50)"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(120 50 50)"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(180 50 50)"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(240 50 50)"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(300 50 50)"/>
-                    </g>
-                    <!-- Center Spindle Pin Hole -->
-                    <circle cx="50" cy="50" r="14" fill="#000000"/>
-                    <!-- 3 Distinct Inspection Spoke Windows -->
-                    <circle cx="50" cy="11" r="5" fill="#1e293b"/>
-                    <circle cx="16" cy="70" r="5" fill="#1e293b"/>
-                    <circle cx="84" cy="70" r="5" fill="#1e293b"/>
-                  </svg>
+                  <svg class="hub-svg" viewBox="0 0 200 200">
+                  <defs>
+                    <radialGradient id="deckSpoolTapeDark" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#221711" />
+                      <stop offset="70%" stop-color="#140d09" />
+                      <stop offset="100%" stop-color="#0a0705" />
+                    </radialGradient>
+                    <radialGradient id="deckSpoolOuterRim" cx="40%" cy="35%" r="65%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="35%" stop-color="#f8fafc" />
+                      <stop offset="75%" stop-color="#e2e8f0" />
+                      <stop offset="100%" stop-color="#cbd5e1" />
+                    </radialGradient>
+                    <radialGradient id="deckSpoolMidRim" cx="45%" cy="40%" r="60%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="45%" stop-color="#f1f5f9" />
+                      <stop offset="80%" stop-color="#cbd5e1" />
+                      <stop offset="100%" stop-color="#94a3b8" />
+                    </radialGradient>
+                  </defs>
+
+                  <!-- 1. Dark wound tape backing ring (masks static background) -->
+                  <path d="M100,6 A94,94 0 1,0 100,194 A94,94 0 1,0 100,6 M100,74 A26,26 0 1,1 100,126 A26,26 0 1,1 100,74" fill="url(#deckSpoolTapeDark)" />
+
+                  <!-- 2. The 18 Molded Plastic Spokes (Ribs) -->
+                  <g>
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(340 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(340 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(340 100 100)" />
+                  </g>
+
+                  <!-- 3. Outer Translucent Plastic Rim -->
+                  <path d="M100,6 A94,94 0 1,0 100,194 A94,94 0 1,0 100,6 M100,18 A82,82 0 1,1 100,182 A82,82 0 1,1 100,18" fill="url(#deckSpoolOuterRim)" stroke="#94a3b8" stroke-width="0.8" />
+                  <circle cx="100" cy="100" r="91" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.2" />
+                  <circle cx="100" cy="100" r="83" fill="none" stroke="rgba(148,163,184,0.6)" stroke-width="0.8" />
+
+                  <!-- 4. Middle Stepped Plastic Ring -->
+                  <circle cx="100" cy="100" r="56" fill="url(#deckSpoolMidRim)" stroke="#94a3b8" stroke-width="0.8" />
+                  <circle cx="100" cy="100" r="52" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="1.4" />
+                  <circle cx="100" cy="100" r="47" fill="none" stroke="rgba(100,116,139,0.5)" stroke-width="0.9" />
+                  <circle cx="100" cy="100" r="42" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8" />
+
+                  <!-- 5. Six Inner Drive Teeth -->
+                  <g>
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(0 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(0 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(60 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(60 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(120 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(120 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(180 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(180 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(240 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(240 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(300 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(300 100 100)" />
+                  </g>
+
+                  <!-- 6. Center Spindle Opening Border -->
+                  <circle cx="100" cy="100" r="26" fill="none" stroke="#94a3b8" stroke-width="0.9" />
+                </svg>
                 </div>
                 <div class="tape-hub hub-right" id="hubRight">
-                  <svg class="hub-svg" viewBox="0 0 100 100">
-                    <!-- Outer Spool Rim -->
-                    <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
-                    <!-- Dark Spindle Well -->
-                    <circle cx="50" cy="50" r="27" fill="#020617"/>
-                    <!-- 6 High-Contrast White Drive Teeth -->
-                    <g fill="#ffffff" stroke="#334155" stroke-width="0.8">
-                      <rect x="47" y="23" width="6" height="9" rx="1"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(60 50 50)"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(120 50 50)"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(180 50 50)"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(240 50 50)"/>
-                      <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(300 50 50)"/>
-                    </g>
-                    <!-- Center Spindle Pin Hole -->
-                    <circle cx="50" cy="50" r="14" fill="#000000"/>
-                    <!-- 3 Distinct Inspection Spoke Windows -->
-                    <circle cx="50" cy="11" r="5" fill="#1e293b"/>
-                    <circle cx="16" cy="70" r="5" fill="#1e293b"/>
-                    <circle cx="84" cy="70" r="5" fill="#1e293b"/>
-                  </svg>
+                  <svg class="hub-svg" viewBox="0 0 200 200">
+                  <defs>
+                    <radialGradient id="deckSpoolTapeDark" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#221711" />
+                      <stop offset="70%" stop-color="#140d09" />
+                      <stop offset="100%" stop-color="#0a0705" />
+                    </radialGradient>
+                    <radialGradient id="deckSpoolOuterRim" cx="40%" cy="35%" r="65%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="35%" stop-color="#f8fafc" />
+                      <stop offset="75%" stop-color="#e2e8f0" />
+                      <stop offset="100%" stop-color="#cbd5e1" />
+                    </radialGradient>
+                    <radialGradient id="deckSpoolMidRim" cx="45%" cy="40%" r="60%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="45%" stop-color="#f1f5f9" />
+                      <stop offset="80%" stop-color="#cbd5e1" />
+                      <stop offset="100%" stop-color="#94a3b8" />
+                    </radialGradient>
+                  </defs>
+
+                  <!-- 1. Dark wound tape backing ring (masks static background) -->
+                  <path d="M100,6 A94,94 0 1,0 100,194 A94,94 0 1,0 100,6 M100,74 A26,26 0 1,1 100,126 A26,26 0 1,1 100,74" fill="url(#deckSpoolTapeDark)" />
+
+                  <!-- 2. The 18 Molded Plastic Spokes (Ribs) -->
+                  <g>
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(340 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(340 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(340 100 100)" />
+                  </g>
+
+                  <!-- 3. Outer Translucent Plastic Rim -->
+                  <path d="M100,6 A94,94 0 1,0 100,194 A94,94 0 1,0 100,6 M100,18 A82,82 0 1,1 100,182 A82,82 0 1,1 100,18" fill="url(#deckSpoolOuterRim)" stroke="#94a3b8" stroke-width="0.8" />
+                  <circle cx="100" cy="100" r="91" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.2" />
+                  <circle cx="100" cy="100" r="83" fill="none" stroke="rgba(148,163,184,0.6)" stroke-width="0.8" />
+
+                  <!-- 4. Middle Stepped Plastic Ring -->
+                  <circle cx="100" cy="100" r="56" fill="url(#deckSpoolMidRim)" stroke="#94a3b8" stroke-width="0.8" />
+                  <circle cx="100" cy="100" r="52" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="1.4" />
+                  <circle cx="100" cy="100" r="47" fill="none" stroke="rgba(100,116,139,0.5)" stroke-width="0.9" />
+                  <circle cx="100" cy="100" r="42" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8" />
+
+                  <!-- 5. Six Inner Drive Teeth -->
+                  <g>
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(0 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(0 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(60 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(60 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(120 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(120 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(180 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(180 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(240 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(240 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(300 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(300 100 100)" />
+                  </g>
+
+                  <!-- 6. Center Spindle Opening Border -->
+                  <circle cx="100" cy="100" r="26" fill="none" stroke="#94a3b8" stroke-width="0.9" />
+                </svg>
                 </div>
 
                 <!-- Cassette Tape Paper Label -->
@@ -657,41 +840,233 @@
 
               <!-- Large 6-Tooth High-Contrast Hubs -->
               <div class="wm-hub wm-hub-left" id="wmHubLeft">
-                <svg class="wm-hub-svg" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
-                  <circle cx="50" cy="50" r="27" fill="#020617"/>
-                  <g fill="#ffffff" stroke="#334155" stroke-width="0.8">
-                    <rect x="47" y="23" width="6" height="9" rx="1"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(60 50 50)"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(120 50 50)"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(180 50 50)"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(240 50 50)"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(300 50 50)"/>
+                  <svg class="wm-hub-svg" viewBox="0 0 200 200">
+                  <defs>
+                    <radialGradient id="wmSpoolTapeDark" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#221711" />
+                      <stop offset="70%" stop-color="#140d09" />
+                      <stop offset="100%" stop-color="#0a0705" />
+                    </radialGradient>
+                    <radialGradient id="wmSpoolOuterRim" cx="40%" cy="35%" r="65%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="35%" stop-color="#f8fafc" />
+                      <stop offset="75%" stop-color="#e2e8f0" />
+                      <stop offset="100%" stop-color="#cbd5e1" />
+                    </radialGradient>
+                    <radialGradient id="wmSpoolMidRim" cx="45%" cy="40%" r="60%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="45%" stop-color="#f1f5f9" />
+                      <stop offset="80%" stop-color="#cbd5e1" />
+                      <stop offset="100%" stop-color="#94a3b8" />
+                    </radialGradient>
+                  </defs>
+
+                  <!-- 1. Dark wound tape backing ring (masks static background) -->
+                  <path d="M100,6 A94,94 0 1,0 100,194 A94,94 0 1,0 100,6 M100,74 A26,26 0 1,1 100,126 A26,26 0 1,1 100,74" fill="url(#wmSpoolTapeDark)" />
+
+                  <!-- 2. The 18 Molded Plastic Spokes (Ribs) -->
+                  <g>
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(340 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(340 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(340 100 100)" />
                   </g>
-                  <circle cx="50" cy="50" r="14" fill="#000000"/>
-                  <circle cx="50" cy="11" r="5" fill="#1e293b"/>
-                  <circle cx="16" cy="70" r="5" fill="#1e293b"/>
-                  <circle cx="84" cy="70" r="5" fill="#1e293b"/>
-                </svg>
-              </div>
-              <div class="wm-hub wm-hub-right" id="wmHubRight">
-                <svg class="wm-hub-svg" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="48" fill="#f8fafc" stroke="#475569" stroke-width="2.5"/>
-                  <circle cx="50" cy="50" r="27" fill="#020617"/>
-                  <g fill="#ffffff" stroke="#334155" stroke-width="0.8">
-                    <rect x="47" y="23" width="6" height="9" rx="1"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(60 50 50)"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(120 50 50)"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(180 50 50)"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(240 50 50)"/>
-                    <rect x="47" y="23" width="6" height="9" rx="1" transform="rotate(300 50 50)"/>
+
+                  <!-- 3. Outer Translucent Plastic Rim -->
+                  <path d="M100,6 A94,94 0 1,0 100,194 A94,94 0 1,0 100,6 M100,18 A82,82 0 1,1 100,182 A82,82 0 1,1 100,18" fill="url(#wmSpoolOuterRim)" stroke="#94a3b8" stroke-width="0.8" />
+                  <circle cx="100" cy="100" r="91" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.2" />
+                  <circle cx="100" cy="100" r="83" fill="none" stroke="rgba(148,163,184,0.6)" stroke-width="0.8" />
+
+                  <!-- 4. Middle Stepped Plastic Ring -->
+                  <circle cx="100" cy="100" r="56" fill="url(#wmSpoolMidRim)" stroke="#94a3b8" stroke-width="0.8" />
+                  <circle cx="100" cy="100" r="52" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="1.4" />
+                  <circle cx="100" cy="100" r="47" fill="none" stroke="rgba(100,116,139,0.5)" stroke-width="0.9" />
+                  <circle cx="100" cy="100" r="42" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8" />
+
+                  <!-- 5. Six Inner Drive Teeth -->
+                  <g>
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(0 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(0 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(60 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(60 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(120 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(120 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(180 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(180 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(240 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(240 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(300 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(300 100 100)" />
                   </g>
-                  <circle cx="50" cy="50" r="14" fill="#000000"/>
-                  <circle cx="50" cy="11" r="5" fill="#1e293b"/>
-                  <circle cx="16" cy="70" r="5" fill="#1e293b"/>
-                  <circle cx="84" cy="70" r="5" fill="#1e293b"/>
+
+                  <!-- 6. Center Spindle Opening Border -->
+                  <circle cx="100" cy="100" r="26" fill="none" stroke="#94a3b8" stroke-width="0.9" />
                 </svg>
-              </div>
+                </div>
+                <div class="wm-hub wm-hub-right" id="wmHubRight">
+                  <svg class="wm-hub-svg" viewBox="0 0 200 200">
+                  <defs>
+                    <radialGradient id="wmSpoolTapeDark" cx="50%" cy="50%" r="50%">
+                      <stop offset="0%" stop-color="#221711" />
+                      <stop offset="70%" stop-color="#140d09" />
+                      <stop offset="100%" stop-color="#0a0705" />
+                    </radialGradient>
+                    <radialGradient id="wmSpoolOuterRim" cx="40%" cy="35%" r="65%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="35%" stop-color="#f8fafc" />
+                      <stop offset="75%" stop-color="#e2e8f0" />
+                      <stop offset="100%" stop-color="#cbd5e1" />
+                    </radialGradient>
+                    <radialGradient id="wmSpoolMidRim" cx="45%" cy="40%" r="60%">
+                      <stop offset="0%" stop-color="#ffffff" />
+                      <stop offset="45%" stop-color="#f1f5f9" />
+                      <stop offset="80%" stop-color="#cbd5e1" />
+                      <stop offset="100%" stop-color="#94a3b8" />
+                    </radialGradient>
+                  </defs>
+
+                  <!-- 1. Dark wound tape backing ring (masks static background) -->
+                  <path d="M100,6 A94,94 0 1,0 100,194 A94,94 0 1,0 100,6 M100,74 A26,26 0 1,1 100,126 A26,26 0 1,1 100,74" fill="url(#wmSpoolTapeDark)" />
+
+                  <!-- 2. The 18 Molded Plastic Spokes (Ribs) -->
+                  <g>
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(0 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(20 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(40 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(60 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(80 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(100 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(120 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(140 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(160 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(180 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(200 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(220 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(240 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(260 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(280 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(300 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(320 100 100)" />
+                    <line x1="100" y1="44" x2="100" y2="18" stroke="#f8fafc" stroke-width="2.6" stroke-linecap="round" transform="rotate(340 100 100)" />
+                    <line x1="100.8" y1="44" x2="100.8" y2="18" stroke="#ffffff" stroke-width="1.1" stroke-linecap="round" transform="rotate(340 100 100)" />
+                    <line x1="99.2" y1="44" x2="99.2" y2="18" stroke="#94a3b8" stroke-width="0.8" stroke-linecap="round" transform="rotate(340 100 100)" />
+                  </g>
+
+                  <!-- 3. Outer Translucent Plastic Rim -->
+                  <path d="M100,6 A94,94 0 1,0 100,194 A94,94 0 1,0 100,6 M100,18 A82,82 0 1,1 100,182 A82,82 0 1,1 100,18" fill="url(#wmSpoolOuterRim)" stroke="#94a3b8" stroke-width="0.8" />
+                  <circle cx="100" cy="100" r="91" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.2" />
+                  <circle cx="100" cy="100" r="83" fill="none" stroke="rgba(148,163,184,0.6)" stroke-width="0.8" />
+
+                  <!-- 4. Middle Stepped Plastic Ring -->
+                  <circle cx="100" cy="100" r="56" fill="url(#wmSpoolMidRim)" stroke="#94a3b8" stroke-width="0.8" />
+                  <circle cx="100" cy="100" r="52" fill="none" stroke="rgba(255,255,255,0.95)" stroke-width="1.4" />
+                  <circle cx="100" cy="100" r="47" fill="none" stroke="rgba(100,116,139,0.5)" stroke-width="0.9" />
+                  <circle cx="100" cy="100" r="42" fill="#f8fafc" stroke="#cbd5e1" stroke-width="0.8" />
+
+                  <!-- 5. Six Inner Drive Teeth -->
+                  <g>
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(0 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(0 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(60 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(60 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(120 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(120 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(180 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(180 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(240 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(240 100 100)" />
+                    <rect x="95.5" y="62.5" width="9" height="12.5" rx="1.2" fill="#ffffff" stroke="#cbd5e1" stroke-width="0.8" transform="rotate(300 100 100)" />
+                    <line x1="96.5" y1="63.5" x2="96.5" y2="74" stroke="rgba(255,255,255,0.95)" stroke-width="1.0" transform="rotate(300 100 100)" />
+                  </g>
+
+                  <!-- 6. Center Spindle Opening Border -->
+                  <circle cx="100" cy="100" r="26" fill="none" stroke="#94a3b8" stroke-width="0.9" />
+                </svg>
+                </div>
 
               <!-- Cassette Paper Label with Handwritten Mixtape Title -->
               <div class="wm-label-strip">
@@ -846,7 +1221,7 @@
   <!-- Scripts -->
   <script src="db.js"></script>
   <script src="id3.js"></script>
-  <script src="audio-engine.js?v=2.5"></script>
-  <script src="app.js?v=2.5"></script>
+  <script src="audio-engine.js?v=2.6"></script>
+  <script src="app.js?v=2.6"></script>
 </body>
 </html>

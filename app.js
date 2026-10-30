@@ -1331,14 +1331,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (wmTapeDropdownList) wmTapeDropdownList.classList.add('hidden');
     });
 
-    // Titlebar buttons to switch between Winamp and Cassette
-    const btnWinampToCassette = document.getElementById('btnWinampToCassette');
-    if (btnWinampToCassette) {
-      btnWinampToCassette.addEventListener('click', (e) => {
-        e.stopPropagation();
-        switchSkin('skin-cassette');
-      });
-    }
+
 
     // Tape switch buttons on deck window and Walkman modal (7 Colors - Legacy/Fallbacks)
     document.querySelectorAll('.tape-sel-btn, .wm-tape-btn').forEach(btn => {
