@@ -2316,22 +2316,28 @@ body.skin-midnight .pl-resize-handle {
   top: 46.0%;
 }
 
-.hub-svg {
+.hub-svg,
+.hub-img {
   width: 100%;
   height: 100%;
   display: block;
   transform-origin: 50% 50%;
+  pointer-events: none;
+  user-select: none;
 }
 
-.tape-hub.spinning .hub-svg {
+.tape-hub.spinning .hub-svg,
+.tape-hub.spinning .hub-img {
   animation: cassette-hub-spin 1.8s linear infinite;
 }
 
-.tape-hub.fast-forward .hub-svg {
+.tape-hub.fast-forward .hub-svg,
+.tape-hub.fast-forward .hub-img {
   animation: cassette-hub-spin 0.4s linear infinite;
 }
 
-.tape-hub.rewind .hub-svg {
+.tape-hub.rewind .hub-svg,
+.tape-hub.rewind .hub-img {
   animation: cassette-hub-spin-rev 0.4s linear infinite;
 }
 
@@ -3334,20 +3340,26 @@ body.skin-cassette .pl-cur-time-box {
   top: 46.0%;
 }
 
-.wm-hub-svg {
+.wm-hub-svg,
+.wm-hub-img {
   width: 100%;
   height: 100%;
   display: block;
   transform-origin: 50% 50%;
+  pointer-events: none;
+  user-select: none;
 }
 
-.wm-hub.spinning .wm-hub-svg {
+.wm-hub.spinning .wm-hub-svg,
+.wm-hub.spinning .wm-hub-img {
   animation: cassette-hub-spin 1.8s linear infinite;
 }
-.wm-hub.fast-forward .wm-hub-svg {
+.wm-hub.fast-forward .wm-hub-svg,
+.wm-hub.fast-forward .wm-hub-img {
   animation: cassette-hub-spin 0.4s linear infinite;
 }
-.wm-hub.rewind .wm-hub-svg {
+.wm-hub.rewind .wm-hub-svg,
+.wm-hub.rewind .wm-hub-img {
   animation: cassette-hub-spin-rev 0.4s linear infinite;
 }
 
