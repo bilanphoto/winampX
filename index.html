@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=2.3">
+  <link rel="stylesheet" href="styles.css?v=2.4">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -387,7 +387,7 @@
               <!-- Cassette Card -->
               <div class="cassette-tape-card tape-clear" id="cassetteCard">
                 <!-- The Razor-Sharp Image -->
-                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.3" alt="Cassette Tape" />
+                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.4" alt="Cassette Tape" />
                 
                 <!-- Dynamic Tape Ribbon Spools -->
                 <div class="tape-pack tape-pack-left" id="tapePackLeft"></div>
@@ -457,7 +457,11 @@
 
               <!-- Vintage Transparent Acrylic Lid / Door (Sony Walkman TCS-350 Style) -->
               <div class="cassette-door-lid" id="cassetteDoorLid" aria-hidden="true">
-                <div class="lid-bezel-frame"></div>
+                <div class="lid-bezel-frame">
+                  <div class="lid-hinge lid-hinge-top"></div>
+                  <div class="lid-hinge lid-hinge-btm"></div>
+                  <div class="lid-latch-grip"></div>
+                </div>
                 <div class="lid-acrylic-pane">
                   <div class="lid-glass-sheen"></div>
                   <!-- Sony Walkman Scale Ruler & Arrow -->
@@ -478,17 +482,26 @@
                     </div>
                     <span class="scale-val scale-0">0</span>
                   </div>
+                  <!-- Walkman Vintage Brand Stamp on Glass -->
+                  <div class="lid-brand-stamp">
+                    <span>STEREO CASSETTE-CORDER</span>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Bottom Deck Bar: Tape Switcher & Hardware Mechanical Controls -->
+          <!-- Bottom Deck Bar: 7-Color Tape Switcher & Hardware Controls -->
           <div class="deck-bottom-bar">
-            <!-- Vintage 2-way Tape Selector -->
-            <div class="tape-select-group">
-              <button class="tape-sel-btn active" id="btnTapeClear" title="Clear Crystal Tape">CLEAR</button>
-              <button class="tape-sel-btn" id="btnTapeOrange" title="Neon Orange Tape">ORANGE</button>
+            <!-- 7-Color Transparent Tape Selector -->
+            <div class="tape-select-group" id="deckTapeSelectGroup">
+              <button class="tape-sel-btn active" data-color="clear" id="btnTapeClear" title="Clear Crystal (ใส)">CLR</button>
+              <button class="tape-sel-btn" data-color="orange" id="btnTapeOrange" title="Neon Orange (ส้ม)">ORG</button>
+              <button class="tape-sel-btn" data-color="red" id="btnTapeRed" title="Ruby Red (แดง)">RED</button>
+              <button class="tape-sel-btn" data-color="green" id="btnTapeGreen" title="Emerald Green (เขียว)">GRN</button>
+              <button class="tape-sel-btn" data-color="blue" id="btnTapeBlue" title="Sky Blue (ฟ้า)">BLU</button>
+              <button class="tape-sel-btn" data-color="yellow" id="btnTapeYellow" title="Amber Yellow (เหลือง)">YEL</button>
+              <button class="tape-sel-btn" data-color="pink" id="btnTapePink" title="Neon Pink (ชมพู)">PNK</button>
             </div>
 
             <!-- Hardware Vector Control Buttons (No Emoji) -->
@@ -628,7 +641,7 @@
             
             <!-- Large Cassette Tape in Walkman -->
             <div class="wm-cassette-card tape-clear" id="wmCassetteCard">
-              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.3" alt="Cassette Tape" />
+              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.4" alt="Cassette Tape" />
               
               <!-- Dynamic Tape Ribbon Spools -->
               <div class="wm-spool-pack wm-spool-left" id="wmSpoolLeft"></div>
@@ -684,8 +697,12 @@
             </div>
 
             <!-- Vintage Acrylic Transparent Door / Lid for Walkman Modal -->
-            <div class="wm-door-lid" aria-hidden="true">
-              <div class="wm-lid-bezel-frame"></div>
+            <div class="wm-door-lid" id="wmDoorLid" aria-hidden="true">
+              <div class="wm-lid-bezel-frame">
+                <div class="wm-lid-hinge wm-lid-hinge-top"></div>
+                <div class="wm-lid-hinge wm-lid-hinge-btm"></div>
+                <div class="wm-lid-latch-grip"></div>
+              </div>
               <div class="wm-lid-acrylic-pane">
                 <div class="wm-lid-glass-sheen"></div>
                 <!-- Sony Walkman Scale Ruler & Arrow -->
@@ -706,16 +723,25 @@
                   </div>
                   <span class="wm-scale-val wm-scale-0">0</span>
                 </div>
+                <!-- Walkman Brand Stamp on Modal Glass -->
+                <div class="wm-lid-brand-stamp">
+                  <span>STEREO CASSETTE-CORDER • AUTO REVERSE</span>
+                </div>
               </div>
             </div>
           </div>
 
           <!-- Walkman Tape Selector & Indicators Bar -->
           <div class="walkman-tape-bar">
-            <div class="wm-tape-selector">
+            <div class="wm-tape-selector" id="wmTapeSelector">
               <span class="wm-tape-selector-label">CASSETTE:</span>
-              <button class="wm-tape-btn active" id="wmBtnClear" title="Clear Crystal Tape">CLEAR CRYSTAL</button>
-              <button class="wm-tape-btn" id="wmBtnOrange" title="Neon Orange Tape">NEON ORANGE</button>
+              <button class="wm-tape-btn active" data-color="clear" id="wmBtnClear" title="Clear Crystal (ใส)">CLEAR</button>
+              <button class="wm-tape-btn" data-color="orange" id="wmBtnOrange" title="Neon Orange (ส้ม)">ORANGE</button>
+              <button class="wm-tape-btn" data-color="red" id="wmBtnRed" title="Ruby Red (แดง)">RED</button>
+              <button class="wm-tape-btn" data-color="green" id="wmBtnGreen" title="Emerald Green (เขียว)">GREEN</button>
+              <button class="wm-tape-btn" data-color="blue" id="wmBtnBlue" title="Sky Blue (ฟ้า)">BLUE</button>
+              <button class="wm-tape-btn" data-color="yellow" id="wmBtnYellow" title="Amber Yellow (เหลือง)">YELLOW</button>
+              <button class="wm-tape-btn" data-color="pink" id="wmBtnPink" title="Neon Pink (ชมพู)">PINK</button>
             </div>
 
             <!-- Tape Counter & LED -->
@@ -803,7 +829,7 @@
   <!-- Scripts -->
   <script src="db.js"></script>
   <script src="id3.js"></script>
-  <script src="audio-engine.js?v=2.3"></script>
-  <script src="app.js?v=2.3"></script>
+  <script src="audio-engine.js?v=2.4"></script>
+  <script src="app.js?v=2.4"></script>
 </body>
 </html>

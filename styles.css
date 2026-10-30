@@ -2279,36 +2279,16 @@ body.skin-midnight .pl-resize-handle {
   pointer-events: none;
 }
 
-.hub-left {
-  left: 31.8%;
-}
-
-.hub-right {
-  left: 68.2%;
-}
-
-/* Specific hub & spool alignment for Orange Tape (calibrated to exact spools) */
-.cassette-tape-card.tape-orange .hub-left,
-.cassette-tape-card.tape-orange .tape-pack-left {
+.hub-left,
+.tape-pack-left {
   left: 31.4%;
   top: 52.1%;
 }
-.cassette-tape-card.tape-orange .hub-right,
-.cassette-tape-card.tape-orange .tape-pack-right {
+
+.hub-right,
+.tape-pack-right {
   left: 69.1%;
   top: 52.1%;
-}
-
-/* Specific hub & spool alignment for Clear Tape (calibrated to exact spools) */
-.cassette-tape-card.tape-clear .hub-left,
-.cassette-tape-card.tape-clear .tape-pack-left {
-  left: 31.8%;
-  top: 51.3%;
-}
-.cassette-tape-card.tape-clear .hub-right,
-.cassette-tape-card.tape-clear .tape-pack-right {
-  left: 68.2%;
-  top: 51.3%;
 }
 
 .hub-svg {
@@ -2436,6 +2416,12 @@ body.skin-midnight .pl-resize-handle {
   display: flex;
   align-items: center;
   justify-content: center;
+  transform-origin: 50% 100%;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.cassette-door-lid.door-open {
+  transform: perspective(600px) rotateX(-16deg);
 }
 
 .lid-bezel-frame {
@@ -2444,10 +2430,36 @@ body.skin-midnight .pl-resize-handle {
   left: 0;
   width: 100%;
   height: 100%;
-  border: 1.5px solid rgba(148, 163, 184, 0.45);
+  border: 2px solid rgba(148, 163, 184, 0.55);
   border-radius: 5px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.15);
   pointer-events: none;
+}
+
+/* Door Hinges on left edge */
+.lid-hinge {
+  position: absolute;
+  left: -2px;
+  width: 3px;
+  height: 14px;
+  background: linear-gradient(180deg, #94a3b8 0%, #475569 50%, #1e293b 100%);
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.6);
+}
+.lid-hinge-top { top: 20px; }
+.lid-hinge-btm { bottom: 20px; }
+
+/* Door Latch / Thumb Grip on right edge */
+.lid-latch-grip {
+  position: absolute;
+  right: -2px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 3px;
+  height: 22px;
+  background: repeating-linear-gradient(180deg, #94a3b8 0px, #94a3b8 2px, #1e293b 2px, #1e293b 4px);
+  border-radius: 1px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.7);
 }
 
 .lid-acrylic-pane {
@@ -2456,13 +2468,13 @@ body.skin-midnight .pl-resize-handle {
   height: 136px;
   border-radius: 6px;
   background: linear-gradient(130deg, 
-    rgba(255, 255, 255, 0.16) 0%, 
+    rgba(255, 255, 255, 0.18) 0%, 
     rgba(255, 255, 255, 0.04) 28%, 
     transparent 42%, 
-    rgba(255, 255, 255, 0.06) 65%, 
+    rgba(255, 255, 255, 0.08) 65%, 
     transparent 100%
   );
-  box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+  box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.08), inset 0 1.5px 1.5px rgba(255, 255, 255, 0.35);
   overflow: hidden;
   pointer-events: none;
 }
@@ -2473,9 +2485,26 @@ body.skin-midnight .pl-resize-handle {
   left: -20%;
   width: 140%;
   height: 60%;
-  background: linear-gradient(175deg, rgba(255, 255, 255, 0.22) 0%, rgba(255, 255, 255, 0.05) 50%, transparent 100%);
+  background: linear-gradient(175deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 50%, transparent 100%);
   transform: rotate(-15deg);
   pointer-events: none;
+}
+
+/* Walkman Brand Stamp on Door Glass */
+.lid-brand-stamp {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 6px;
+  font-weight: 800;
+  letter-spacing: 0.8px;
+  color: rgba(226, 232, 240, 0.75);
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.9);
+  pointer-events: none;
+  user-select: none;
 }
 
 /* Sony Walkman Scale Ruler on Lid (Left of center window) */
@@ -2542,6 +2571,12 @@ body.skin-midnight .pl-resize-handle {
   display: flex;
   align-items: center;
   justify-content: center;
+  transform-origin: 50% 100%;
+  transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.wm-door-lid.door-open {
+  transform: perspective(800px) rotateX(-16deg);
 }
 
 .wm-lid-bezel-frame {
@@ -2550,9 +2585,31 @@ body.skin-midnight .pl-resize-handle {
   left: 0;
   width: 100%;
   height: 100%;
-  border: 2px solid rgba(148, 163, 184, 0.45);
+  border: 2px solid rgba(148, 163, 184, 0.55);
   border-radius: 8px;
-  box-shadow: inset 0 2px 4px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.12);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.18);
+}
+
+.wm-lid-hinge {
+  position: absolute;
+  left: -3px;
+  width: 4px;
+  height: 20px;
+  background: linear-gradient(180deg, #94a3b8 0%, #475569 50%, #1e293b 100%);
+  border-radius: 1px;
+}
+.wm-lid-hinge-top { top: 30px; }
+.wm-lid-hinge-btm { bottom: 30px; }
+
+.wm-lid-latch-grip {
+  position: absolute;
+  right: -3px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 32px;
+  background: repeating-linear-gradient(180deg, #94a3b8 0px, #94a3b8 3px, #1e293b 3px, #1e293b 6px);
+  border-radius: 1px;
 }
 
 .wm-lid-acrylic-pane {
@@ -2561,13 +2618,13 @@ body.skin-midnight .pl-resize-handle {
   height: 208px;
   border-radius: 8px;
   background: linear-gradient(130deg, 
-    rgba(255, 255, 255, 0.18) 0%, 
+    rgba(255, 255, 255, 0.20) 0%, 
     rgba(255, 255, 255, 0.05) 30%, 
     transparent 45%, 
-    rgba(255, 255, 255, 0.08) 65%, 
+    rgba(255, 255, 255, 0.10) 65%, 
     transparent 100%
   );
-  box-shadow: inset 0 0 16px rgba(255, 255, 255, 0.08), inset 0 1.5px 2px rgba(255, 255, 255, 0.3);
+  box-shadow: inset 0 0 20px rgba(255, 255, 255, 0.10), inset 0 2px 2px rgba(255, 255, 255, 0.4);
   overflow: hidden;
 }
 
@@ -2577,8 +2634,24 @@ body.skin-midnight .pl-resize-handle {
   left: -20%;
   width: 140%;
   height: 60%;
-  background: linear-gradient(175deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.06) 50%, transparent 100%);
+  background: linear-gradient(175deg, rgba(255, 255, 255, 0.28) 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
   transform: rotate(-15deg);
+}
+
+.wm-lid-brand-stamp {
+  position: absolute;
+  bottom: 8px;
+  left: 0;
+  width: 100%;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  color: rgba(226, 232, 240, 0.85);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.95);
+  pointer-events: none;
+  user-select: none;
 }
 
 .wm-lid-scale-marks {
@@ -2643,33 +2716,80 @@ body.skin-midnight .pl-resize-handle {
 
 .tape-select-group {
   display: flex;
-  gap: 2px;
+  gap: 1.5px;
+  align-items: center;
 }
 
 .tape-sel-btn {
-  background: #1e293b;
-  border: 1px solid #475569;
+  background: #0f172a;
+  border: 1px solid #334155;
   border-radius: 2px;
   color: #94a3b8;
-  font-size: 7px;
-  font-weight: 900;
-  padding: 2px 4px;
+  font-size: 6.5px;
+  font-weight: 800;
+  padding: 2px 2.5px;
   cursor: pointer;
-  letter-spacing: 0.3px;
+  letter-spacing: 0.2px;
+  line-height: 1;
   transition: all 0.15s ease;
 }
 
 .tape-sel-btn:hover {
+  background: #1e293b;
+  color: #fff;
+  border-color: #64748b;
+}
+
+.tape-sel-btn.active {
+  color: #fff;
+  border-color: #f8fafc;
+  box-shadow: 0 0 6px currentColor;
+}
+
+.tape-sel-btn[data-color="clear"].active  { background: #334155; border-color: #f8fafc; color: #fff; box-shadow: 0 0 6px rgba(255,255,255,0.6); }
+.tape-sel-btn[data-color="orange"].active { background: #c2410c; border-color: #fb923c; color: #fff; box-shadow: 0 0 6px rgba(249,115,22,0.8); }
+.tape-sel-btn[data-color="red"].active    { background: #b91c1c; border-color: #f87171; color: #fff; box-shadow: 0 0 6px rgba(239,68,68,0.8); }
+.tape-sel-btn[data-color="green"].active  { background: #15803d; border-color: #4ade80; color: #fff; box-shadow: 0 0 6px rgba(34,197,94,0.8); }
+.tape-sel-btn[data-color="blue"].active   { background: #0369a1; border-color: #38bdf8; color: #fff; box-shadow: 0 0 6px rgba(14,165,233,0.8); }
+.tape-sel-btn[data-color="yellow"].active { background: #a16207; border-color: #fde047; color: #fff; box-shadow: 0 0 6px rgba(234,179,8,0.8); }
+.tape-sel-btn[data-color="pink"].active   { background: #be185d; border-color: #f472b6; color: #fff; box-shadow: 0 0 6px rgba(236,72,153,0.8); }
+
+/* Walkman Modal Tape Buttons */
+.wm-tape-selector {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.wm-tape-btn {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 3px;
+  color: #94a3b8;
+  font-size: 8px;
+  font-weight: 800;
+  padding: 3px 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.wm-tape-btn:hover {
   background: #334155;
   color: #fff;
 }
 
-.tape-sel-btn.active {
-  background: #0284c7;
+.wm-tape-btn.active {
   color: #fff;
-  border-color: #38bdf8;
-  box-shadow: 0 0 5px rgba(56, 189, 248, 0.5);
+  border-color: #f8fafc;
 }
+
+.wm-tape-btn[data-color="clear"].active  { background: #334155; border-color: #f8fafc; color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.6); }
+.wm-tape-btn[data-color="orange"].active { background: #c2410c; border-color: #fb923c; color: #fff; box-shadow: 0 0 8px rgba(249,115,22,0.8); }
+.wm-tape-btn[data-color="red"].active    { background: #b91c1c; border-color: #f87171; color: #fff; box-shadow: 0 0 8px rgba(239,68,68,0.8); }
+.wm-tape-btn[data-color="green"].active  { background: #15803d; border-color: #4ade80; color: #fff; box-shadow: 0 0 8px rgba(34,197,94,0.8); }
+.wm-tape-btn[data-color="blue"].active   { background: #0369a1; border-color: #38bdf8; color: #fff; box-shadow: 0 0 8px rgba(14,165,233,0.8); }
+.wm-tape-btn[data-color="yellow"].active { background: #a16207; border-color: #fde047; color: #fff; box-shadow: 0 0 8px rgba(234,179,8,0.8); }
+.wm-tape-btn[data-color="pink"].active   { background: #be185d; border-color: #f472b6; color: #fff; box-shadow: 0 0 8px rgba(236,72,153,0.8); }
 
 .deck-transport {
   display: flex;
@@ -3063,7 +3183,7 @@ body.skin-cassette .pl-cur-time-box {
 
 .wm-hub {
   position: absolute;
-  top: 48.2%;
+  top: 52.1%;
   width: 52px;
   height: 52px;
   transform: translate(-50%, -50%);
@@ -3071,30 +3191,16 @@ body.skin-cassette .pl-cur-time-box {
   pointer-events: none;
 }
 
-.wm-hub-left { left: 31.8%; }
-.wm-hub-right { left: 68.2%; }
-
-/* Specific hub & spool alignment for Walkman modal */
-.wm-cassette-card.tape-orange .wm-hub-left,
-.wm-cassette-card.tape-orange .wm-spool-left {
+.wm-hub-left,
+.wm-spool-left {
   left: 31.4%;
   top: 52.1%;
 }
-.wm-cassette-card.tape-orange .wm-hub-right,
-.wm-cassette-card.tape-orange .wm-spool-right {
+
+.wm-hub-right,
+.wm-spool-right {
   left: 69.1%;
   top: 52.1%;
-}
-
-.wm-cassette-card.tape-clear .wm-hub-left,
-.wm-cassette-card.tape-clear .wm-spool-left {
-  left: 31.8%;
-  top: 51.3%;
-}
-.wm-cassette-card.tape-clear .wm-hub-right,
-.wm-cassette-card.tape-clear .wm-spool-right {
-  left: 68.2%;
-  top: 51.3%;
 }
 
 .wm-hub-svg {

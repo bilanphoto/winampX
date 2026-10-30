@@ -997,32 +997,57 @@ document.addEventListener('DOMContentLoaded', async () => {
   // =========================================================================
   // CASSETTE DECK & PORTABLE WALKMAN CONTROLS
   // =========================================================================
+  const TAPE_PRESETS = {
+    clear:  { label: 'Clear Crystal (ม้วนใสคริสตัล)',   file: 'tape-clear-clean.png',  badge: '⚪' },
+    orange: { label: 'Neon Orange (ม้วนส้มใส)',         file: 'tape-orange-clean.png', badge: '🟠' },
+    red:    { label: 'Ruby Red (ม้วนแดงใส)',            file: 'tape-red-clean.png',    badge: '🔴' },
+    green:  { label: 'Emerald Green (ม้วนเขียวใส)',     file: 'tape-green-clean.png',  badge: '🟢' },
+    blue:   { label: 'Sky Blue (ม้วนฟ้าใส)',            file: 'tape-blue-clean.png',   badge: '🔵' },
+    yellow: { label: 'Amber Yellow (ม้วนเหลืองใส)',     file: 'tape-yellow-clean.png', badge: '🟡' },
+    pink:   { label: 'Neon Pink (ม้วนชมพูใส)',          file: 'tape-pink-clean.png',   badge: '🌸' }
+  };
+
+  function triggerDoorEjectAnimation() {
+    const cassetteDoorLid = document.getElementById('cassetteDoorLid');
+    const wmDoorLid = document.getElementById('wmDoorLid');
+    if (cassetteDoorLid) cassetteDoorLid.classList.add('door-open');
+    if (wmDoorLid) wmDoorLid.classList.add('door-open');
+    engine.playMechanicalSound('eject');
+    setTimeout(() => {
+      if (cassetteDoorLid) cassetteDoorLid.classList.remove('door-open');
+      if (wmDoorLid) wmDoorLid.classList.remove('door-open');
+      engine.playMechanicalSound('click');
+    }, 650);
+  }
+
   function switchCassetteTape(tapeName, playSound = true) {
-    const valid = (tapeName === 'orange') ? 'orange' : 'clear';
+    const valid = TAPE_PRESETS[tapeName] ? tapeName : 'clear';
     cassetteState.tape = valid;
 
+    const allColors = Object.keys(TAPE_PRESETS);
     if (cassetteCard) {
-      cassetteCard.classList.remove('tape-orange', 'tape-clear');
-      cassetteCard.classList.add(valid === 'orange' ? 'tape-orange' : 'tape-clear');
+      allColors.forEach(c => cassetteCard.classList.remove('tape-' + c));
+      cassetteCard.classList.add('tape-' + valid);
     }
     if (wmCassetteCard) {
-      wmCassetteCard.classList.remove('tape-orange', 'tape-clear');
-      wmCassetteCard.classList.add(valid === 'orange' ? 'tape-orange' : 'tape-clear');
+      allColors.forEach(c => wmCassetteCard.classList.remove('tape-' + c));
+      wmCassetteCard.classList.add('tape-' + valid);
     }
 
-    const imgSrc = (valid === 'orange' ? 'assets/cassette/tape-orange-clean.png' : 'assets/cassette/tape-clear-clean.png') + '?v=2.3';
+    const preset = TAPE_PRESETS[valid];
+    const imgSrc = `assets/cassette/${preset.file}?v=2.4`;
     if (cassetteImg) cassetteImg.src = imgSrc;
     if (wmCassetteImg) wmCassetteImg.src = imgSrc;
 
-    if (btnTapeClear) btnTapeClear.classList.toggle('active', valid === 'clear');
-    if (btnTapeOrange) btnTapeOrange.classList.toggle('active', valid === 'orange');
-    if (wmBtnClear) wmBtnClear.classList.toggle('active', valid === 'clear');
-    if (wmBtnOrange) wmBtnOrange.classList.toggle('active', valid === 'orange');
+    document.querySelectorAll('.tape-sel-btn, .wm-tape-btn').forEach(btn => {
+      const col = btn.getAttribute('data-color');
+      if (col) btn.classList.toggle('active', col === valid);
+    });
 
     window.winampDB.setSetting('cassette_tape', valid);
     if (playSound) {
       engine.playMechanicalSound('click');
-      showToast(valid === 'orange' ? '📼 ม้วนเทป: Neon Orange (ม้วนส้มใส)' : '📼 ม้วนเทป: Clear Crystal (ม้วนใสคริสตัล)');
+      showToast(`📼 เปลี่ยนม้วนเทป: ${preset.badge} ${preset.label}`);
     }
   }
 
@@ -1030,9 +1055,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     cassetteState.side = (cassetteState.side === 'A') ? 'B' : 'A';
     if (tapeSideStamp) tapeSideStamp.textContent = cassetteState.side;
     if (wmSideBadge) wmSideBadge.textContent = `SIDE ${cassetteState.side}`;
-    engine.playMechanicalSound('eject');
+    triggerDoorEjectAnimation();
     updateCassetteUI();
-    showToast(`📼 พลิกหน้าเทป: Side ${cassetteState.side}`);
+    showToast(`📼 เปิดฝาเครื่อง พลิกหน้าเทป: Side ${cassetteState.side}`);
   }
 
   function toggleCassetteSoundFx() {
@@ -1210,10 +1235,20 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    // Tape switch buttons on deck window
-    if (btnTapeClear) btnTapeClear.addEventListener('click', () => switchCassetteTape('clear'));
-    if (btnTapeOrange) btnTapeOrange.addEventListener('click', () => switchCassetteTape('orange'));
+    // Tape switch buttons on deck window and Walkman modal (7 Colors)
+    document.querySelectorAll('.tape-sel-btn, .wm-tape-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const color = btn.getAttribute('data-color');
+        if (color) switchCassetteTape(color);
+      });
+    });
     if (btnOpenWalkmanModal) btnOpenWalkmanModal.addEventListener('click', openWalkmanModal);
+
+    // Clicking the cassette front door triggers open/tilt mechanical animation
+    const cassetteDoorLid = document.getElementById('cassetteDoorLid');
+    const wmDoorLid = document.getElementById('wmDoorLid');
+    if (cassetteDoorLid) cassetteDoorLid.addEventListener('click', triggerDoorEjectAnimation);
+    if (wmDoorLid) wmDoorLid.addEventListener('click', triggerDoorEjectAnimation);
 
     // Deck mechanical buttons
     if (mechPlay) mechPlay.addEventListener('click', () => { engine.playMechanicalSound('play'); btnPlay.click(); });
@@ -1244,8 +1279,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (wmSideBtn) wmSideBtn.addEventListener('click', toggleTapeSide);
     if (wmSoundFxBtn) wmSoundFxBtn.addEventListener('click', toggleCassetteSoundFx);
-    if (wmBtnClear) wmBtnClear.addEventListener('click', () => switchCassetteTape('clear'));
-    if (wmBtnOrange) wmBtnOrange.addEventListener('click', () => switchCassetteTape('orange'));
 
     // Walkman piano push keys
     if (wmKeyPlay) wmKeyPlay.addEventListener('click', () => { engine.playMechanicalSound('play'); btnPlay.click(); });
