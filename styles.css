@@ -2272,32 +2272,58 @@ body.skin-midnight .pl-resize-handle {
   image-rendering: -webkit-optimize-contrast;
 }
 
-/* Dynamic Tape Packs (Magnetic Ribbon) */
+/* Custom Uploaded Cassette Skin / Pattern Artwork */
+.cassette-custom-skin,
+.wm-custom-skin {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 6px;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+  z-index: 11;
+  opacity: 0.88;
+  mix-blend-mode: overlay;
+  display: none;
+  transition: opacity 0.3s ease;
+}
+
+.cassette-custom-skin.active,
+.wm-custom-skin.active {
+  display: block;
+}
+
+/* Dynamic Tape Packs (Authentic Ferric Oxide Magnetic Ribbon) */
 .tape-pack {
   position: absolute;
   top: 46.0%;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%) scale(1);
   border-radius: 50%;
-  background: radial-gradient(circle, #2d1e16 0%, #150d09 70%, #000 100%);
-  box-shadow: inset 0 0 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.8);
-  z-index: 5;
+  width: 106px;
+  height: 106px;
+  background: 
+    repeating-radial-gradient(circle, rgba(28, 16, 10, 0.95) 0px, rgba(16, 9, 6, 0.98) 2px, rgba(38, 22, 14, 0.95) 3px, rgba(12, 7, 4, 0.98) 4px),
+    radial-gradient(circle, #3a2015 0%, #1c0e08 60%, #090402 100%);
+  box-shadow: 
+    inset 0 0 5px rgba(0, 0, 0, 0.95),
+    0 0 3px rgba(0, 0, 0, 0.7);
+  z-index: 12;
   pointer-events: none;
-  width: 72px;
-  height: 72px;
-  transition: width 0.3s ease, height 0.3s ease;
+  transform-origin: center center;
 }
 
 .tape-pack-left {
   left: 30.7%;
-  top: 46.0%;
 }
 
 .tape-pack-right {
   left: 73.6%;
-  top: 46.0%;
 }
 
-/* Spinning Hubs with 18 spokes & 6 teeth (Entire Large Wheel Draft) */
+/* Spinning Hubs with 18 spokes, 6 teeth & center drive spindle */
 .tape-hub {
   position: absolute;
   top: 46.0%;
@@ -2330,17 +2356,17 @@ body.skin-midnight .pl-resize-handle {
 
 .tape-hub.spinning .hub-svg,
 .tape-hub.spinning .hub-img {
-  animation: cassette-hub-spin 1.8s linear infinite;
+  animation: cassette-hub-spin 2.4s linear infinite;
 }
 
 .tape-hub.fast-forward .hub-svg,
 .tape-hub.fast-forward .hub-img {
-  animation: cassette-hub-spin 0.4s linear infinite;
+  animation: cassette-hub-spin 1.2s linear infinite !important;
 }
 
 .tape-hub.rewind .hub-svg,
 .tape-hub.rewind .hub-img {
-  animation: cassette-hub-spin-rev 0.4s linear infinite;
+  animation: cassette-hub-spin-rev 0.8s linear infinite !important;
 }
 
 @keyframes cassette-hub-spin {
@@ -3114,28 +3140,30 @@ body.skin-cassette .pl-cur-time-box {
   transition: width 0.3s ease, height 0.3s ease;
 }
 
-.wm-spool-left,
-.wm-spool-right {
+.wm-spool-pack {
   position: absolute;
   top: 46.0%;
+  transform: translate(-50%, -50%) scale(1);
   border-radius: 50%;
-  background: radial-gradient(circle, #2d1e16 0%, #150d09 70%, #000 100%);
-  box-shadow: inset 0 0 6px rgba(0,0,0,0.9), 0 0 3px rgba(0,0,0,0.8);
-  z-index: 5;
+  width: 160px;
+  height: 160px;
+  background: 
+    repeating-radial-gradient(circle, rgba(28, 16, 10, 0.95) 0px, rgba(16, 9, 6, 0.98) 2px, rgba(38, 22, 14, 0.95) 3px, rgba(12, 7, 4, 0.98) 4px),
+    radial-gradient(circle, #3a2015 0%, #1c0e08 60%, #090402 100%);
+  box-shadow: 
+    inset 0 0 10px rgba(0, 0, 0, 0.95),
+    0 0 6px rgba(0, 0, 0, 0.7);
+  z-index: 12;
   pointer-events: none;
-  width: 110px;
-  height: 110px;
-  transition: width 0.3s ease, height 0.3s ease;
+  transform-origin: center center;
 }
 
 .wm-spool-left {
   left: 30.7%;
-  transform: translate(-50%, -50%);
 }
 
 .wm-spool-right {
   left: 73.6%;
-  transform: translate(-50%, -50%);
 }
 
 .wm-hub {
@@ -3170,15 +3198,15 @@ body.skin-cassette .pl-cur-time-box {
 
 .wm-hub.spinning .wm-hub-svg,
 .wm-hub.spinning .wm-hub-img {
-  animation: cassette-hub-spin 1.8s linear infinite;
+  animation: cassette-hub-spin 2.4s linear infinite;
 }
 .wm-hub.fast-forward .wm-hub-svg,
 .wm-hub.fast-forward .wm-hub-img {
-  animation: cassette-hub-spin 0.4s linear infinite;
+  animation: cassette-hub-spin 1.2s linear infinite !important;
 }
 .wm-hub.rewind .wm-hub-svg,
 .wm-hub.rewind .wm-hub-img {
-  animation: cassette-hub-spin-rev 0.4s linear infinite;
+  animation: cassette-hub-spin-rev 0.8s linear infinite !important;
 }
 
 .wm-label-strip {

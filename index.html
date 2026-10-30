@@ -11,10 +11,12 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=2.8">
+  <link rel="stylesheet" href="styles.css?v=2.9">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
+  <!-- Hidden File Input for Custom Cassette Tape Skin Artwork -->
+  <input type="file" id="customTapeSkinInput" accept="image/*" style="display: none;" />
   <!-- Desktop / Background container -->
   <div id="desktop">
     <!-- Hidden file inputs -->
@@ -352,6 +354,9 @@
               <div class="menu-item" id="cmenuTapeClear">📼 ม้วนใสคริสตัล (Clear Crystal)</div>
               <div class="menu-item" id="cmenuTapeOrange">📼 ม้วนส้มใส (Neon Orange)</div>
               <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuCustomTapeSkin">🎨 ใส่รูปลวดลายบนม้วนเทป (Custom Tape Art...)</div>
+              <div class="menu-item hidden" id="cmenuResetTapeSkin">❌ ลบลวดลายม้วนเทป (Reset Default)</div>
+              <div class="menu-separator"></div>
               <div class="menu-item" id="cmenuTapeFlip">🔄 พลิกหน้าเทป (Side A / Side B)</div>
               <div class="menu-item" id="cmenuSoundFx">🔊 เสียงกลไกเทป (Sound FX: เปิด)</div>
               <div class="menu-separator"></div>
@@ -389,18 +394,21 @@
               <!-- Cassette Card (Click to cycle tape color) -->
               <div class="cassette-tape-card tape-clear" id="cassetteCard" title="คลิกเพื่อเปลี่ยนสีม้วนเทป (Click to switch tape color)">
                 <!-- The Razor-Sharp Image -->
-                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.8" alt="Cassette Tape" />
+                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.9" alt="Cassette Tape" />
                 
+                <!-- Custom Uploaded Tape Skin / Pattern Overlay -->
+                <div class="cassette-custom-skin" id="cassetteCustomSkin"></div>
+
                 <!-- Dynamic Tape Ribbon Spools -->
                 <div class="tape-pack tape-pack-left" id="tapePackLeft"></div>
                 <div class="tape-pack tape-pack-right" id="tapePackRight"></div>
 
-                <!-- 6-Tooth High-Contrast Spinning Hubs -->
+                <!-- 6-Tooth High-Contrast Spinning Hubs with Central Drive Spindle -->
                 <div class="tape-hub hub-left" id="hubLeft">
-                  <img class="hub-img" src="assets/cassette/cassette-reel-spool.png?v=2.7" alt="Cassette Reel" />
+                  <img class="hub-img" src="assets/cassette/cassette-reel-spool.png?v=2.9" alt="Cassette Reel" />
                 </div>
                 <div class="tape-hub hub-right" id="hubRight">
-                  <img class="hub-img" src="assets/cassette/cassette-reel-spool.png?v=2.7" alt="Cassette Reel" />
+                  <img class="hub-img" src="assets/cassette/cassette-reel-spool.png?v=2.9" alt="Cassette Reel" />
                 </div>
 
                 <!-- Cassette Tape Paper Label -->
@@ -592,18 +600,21 @@
             
             <!-- Large Cassette Tape in Walkman (Click to cycle tape color) -->
             <div class="wm-cassette-card tape-clear" id="wmCassetteCard" title="คลิกเพื่อเปลี่ยนสีม้วนเทป (Click to switch tape color)">
-              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.8" alt="Cassette Tape" />
+              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png?v=2.9" alt="Cassette Tape" />
               
+              <!-- Custom Uploaded Tape Skin / Pattern Overlay -->
+              <div class="wm-custom-skin" id="wmCustomSkin"></div>
+
               <!-- Dynamic Tape Ribbon Spools -->
               <div class="wm-spool-pack wm-spool-left" id="wmSpoolLeft"></div>
               <div class="wm-spool-pack wm-spool-right" id="wmSpoolRight"></div>
 
-              <!-- Large 6-Tooth High-Contrast Hubs -->
+              <!-- Large 6-Tooth High-Contrast Hubs with Central Drive Spindle -->
               <div class="wm-hub wm-hub-left" id="wmHubLeft">
-                <img class="wm-hub-img" src="assets/cassette/cassette-reel-spool.png?v=2.7" alt="Cassette Reel" />
+                <img class="wm-hub-img" src="assets/cassette/cassette-reel-spool.png?v=2.9" alt="Cassette Reel" />
               </div>
               <div class="wm-hub wm-hub-right" id="wmHubRight">
-                <img class="wm-hub-img" src="assets/cassette/cassette-reel-spool.png?v=2.7" alt="Cassette Reel" />
+                <img class="wm-hub-img" src="assets/cassette/cassette-reel-spool.png?v=2.9" alt="Cassette Reel" />
               </div>
 
               <!-- Cassette Paper Label with Handwritten Mixtape Title -->
@@ -739,7 +750,7 @@
   <!-- Scripts -->
   <script src="db.js"></script>
   <script src="id3.js"></script>
-  <script src="audio-engine.js?v=2.8"></script>
-  <script src="app.js?v=2.8"></script>
+  <script src="audio-engine.js?v=2.9"></script>
+  <script src="app.js?v=2.9"></script>
 </body>
 </html>

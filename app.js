@@ -1059,6 +1059,74 @@ document.addEventListener('DOMContentLoaded', async () => {
     }, 650);
   }
 
+  // Tape Reel Spin Gimmick (Rewind spins backwards, Fast-Forward spins forward 2x fast)
+  let spinGimmickTimer = null;
+  function triggerTapeSpinGimmick(mode, durationMs = 1500) {
+    const hubs = [hubLeft, hubRight, wmHubLeft, wmHubRight];
+    if (spinGimmickTimer) clearTimeout(spinGimmickTimer);
+
+    hubs.forEach(h => {
+      if (!h) return;
+      h.classList.remove('fast-forward', 'rewind');
+      h.classList.add(mode);
+    });
+
+    if (durationMs > 0) {
+      spinGimmickTimer = setTimeout(() => {
+        hubs.forEach(h => {
+          if (!h) return;
+          h.classList.remove('fast-forward', 'rewind');
+          if (!audioElement.paused && (audioElement.duration || 0) > 0) {
+            h.classList.add('spinning');
+          } else {
+            h.classList.remove('spinning');
+          }
+        });
+      }, durationMs);
+    }
+  }
+
+  // Custom Cassette Tape Skin Artwork Upload & Management
+  const customTapeSkinInput = document.getElementById('customTapeSkinInput');
+  const cassetteCustomSkin = document.getElementById('cassetteCustomSkin');
+  const wmCustomSkin = document.getElementById('wmCustomSkin');
+  const cmenuCustomTapeSkin = document.getElementById('cmenuCustomTapeSkin');
+  const cmenuResetTapeSkin = document.getElementById('cmenuResetTapeSkin');
+
+  function applyCustomTapeSkin(dataUrl, playSound = true) {
+    if (dataUrl) {
+      if (cassetteCustomSkin) {
+        cassetteCustomSkin.style.backgroundImage = `url("${dataUrl}")`;
+        cassetteCustomSkin.classList.add('active');
+      }
+      if (wmCustomSkin) {
+        wmCustomSkin.style.backgroundImage = `url("${dataUrl}")`;
+        wmCustomSkin.classList.add('active');
+      }
+      if (cmenuResetTapeSkin) cmenuResetTapeSkin.classList.remove('hidden');
+      window.winampDB.setSetting('cassette_custom_skin', dataUrl);
+      if (playSound) {
+        engine.playMechanicalSound('click');
+        showToast('🎨 ใส่รูปลวดลายบนม้วนเทปเรียบร้อยแล้ว!');
+      }
+    } else {
+      if (cassetteCustomSkin) {
+        cassetteCustomSkin.style.backgroundImage = 'none';
+        cassetteCustomSkin.classList.remove('active');
+      }
+      if (wmCustomSkin) {
+        wmCustomSkin.style.backgroundImage = 'none';
+        wmCustomSkin.classList.remove('active');
+      }
+      if (cmenuResetTapeSkin) cmenuResetTapeSkin.classList.add('hidden');
+      window.winampDB.setSetting('cassette_custom_skin', '');
+      if (playSound) {
+        engine.playMechanicalSound('click');
+        showToast('🔄 คืนค่าม้วนเทปเป็นแบบดั้งเดิม');
+      }
+    }
+  }
+
   function switchCassetteTape(tapeName, playSound = true) {
     const valid = TAPE_PRESETS[tapeName] ? tapeName : 'clear';
     cassetteState.tape = valid;
@@ -1074,7 +1142,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       wmCassetteCard.classList.add('tape-' + valid);
     }
 
-    const imgSrc = `assets/cassette/${preset.file}?v=2.8`;
+    const imgSrc = `assets/cassette/${preset.file}?v=2.9`;
     if (cassetteImg) cassetteImg.src = imgSrc;
     if (wmCassetteImg) wmCassetteImg.src = imgSrc;
 
@@ -1173,17 +1241,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (deckLed) deckLed.classList.toggle('active', isPlaying);
     if (wmLed) wmLed.classList.toggle('active', isPlaying);
 
-    // Tape pack / spool diameter calculation
+    // Dynamic Tape Ribbon Pack Physics (Concentric Magnetic Tape Winding)
+    // At 0%: supply spool is full (scale 1.0), take-up spool is empty (scale 0.443, hidden under white hub)
+    // As track plays: magnetic tape smoothly transfers across reels following square-root area physics
     const cur = audioElement.currentTime || 0;
     const dur = audioElement.duration || 0;
     let ratio = (dur > 0 && isFinite(dur)) ? Math.max(0, Math.min(1, cur / dur)) : 0;
-    if (cassetteState.side === 'B') {
-      ratio = 1 - ratio;
-    }
+    let p = (cassetteState.side === 'B') ? (1 - ratio) : ratio;
 
-    // Left pack shrinks from 1.0 down to 0.42; Right pack expands from 0.42 up to 1.0
-    const leftScale = 1.0 - (ratio * 0.58);
-    const rightScale = 0.42 + (ratio * 0.58);
+    const rEmptySq = 0.196; // 0.443^2
+    const areaDelta = 0.804; // 1.0 - 0.196
+    const leftScale = Math.sqrt(rEmptySq + areaDelta * (1 - p));
+    const rightScale = Math.sqrt(rEmptySq + areaDelta * p);
 
     if (tapePackLeft) tapePackLeft.style.transform = `translate(-50%, -50%) scale(${leftScale.toFixed(3)})`;
     if (tapePackRight) tapePackRight.style.transform = `translate(-50%, -50%) scale(${rightScale.toFixed(3)})`;
@@ -1267,6 +1336,50 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (cmenuTapeClear) cmenuTapeClear.addEventListener('click', () => { switchCassetteTape('clear'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuTapeOrange) cmenuTapeOrange.addEventListener('click', () => { switchCassetteTape('orange'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuCustomTapeSkin && customTapeSkinInput) {
+      cmenuCustomTapeSkin.addEventListener('click', () => {
+        customTapeSkinInput.click();
+        if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden');
+      });
+    }
+    if (cmenuResetTapeSkin) {
+      cmenuResetTapeSkin.addEventListener('click', () => {
+        applyCustomTapeSkin('');
+        if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden');
+      });
+    }
+    if (customTapeSkinInput) {
+      customTapeSkinInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          applyCustomTapeSkin(evt.target.result);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    // Drag & Drop image directly onto cassette
+    const cassetteHousingEl = document.getElementById('cassetteHousing');
+    [cassetteHousingEl, walkmanModal].forEach(zone => {
+      if (!zone) return;
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      });
+      zone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer && e.dataTransfer.files;
+        if (files && files.length > 0 && files[0].type.startsWith('image/')) {
+          e.preventDefault();
+          e.stopPropagation();
+          const reader = new FileReader();
+          reader.onload = (evt) => {
+            applyCustomTapeSkin(evt.target.result);
+          };
+          reader.readAsDataURL(files[0]);
+        }
+      });
+    });
     if (cmenuTapeFlip) cmenuTapeFlip.addEventListener('click', () => { toggleTapeSide(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuSoundFx) cmenuSoundFx.addEventListener('click', () => { toggleCassetteSoundFx(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuTogglePL) {
@@ -1376,22 +1489,57 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (cassetteDoorLid) cassetteDoorLid.addEventListener('click', cycleNextCassetteTape);
     if (wmDoorLid) wmDoorLid.addEventListener('click', cycleNextCassetteTape);
 
-    // Deck mechanical buttons
+    // Deck mechanical buttons & Walkman piano keys with rewind & fast-forward spin gimmicks
     if (mechPlay) mechPlay.addEventListener('click', () => { engine.playMechanicalSound('play'); btnPlay.click(); });
     if (mechPause) mechPause.addEventListener('click', () => { engine.playMechanicalSound('pause'); btnPause.click(); });
     if (mechStop) mechStop.addEventListener('click', () => { engine.playMechanicalSound('stop'); btnStop.click(); });
-    if (mechRew) {
-      mechRew.addEventListener('click', () => {
+
+    function setupHoldSeeking(btn, isRewind) {
+      if (!btn) return;
+      let holdTimer = null;
+      let seekInterval = null;
+
+      const startHold = (e) => {
+        if (e) e.preventDefault();
         engine.playMechanicalSound('click');
-        if (audioElement.duration) engine.seek(Math.max(0, audioElement.currentTime - 10));
-      });
+        triggerTapeSpinGimmick(isRewind ? 'rewind' : 'fast-forward', 0);
+
+        if (audioElement.duration) {
+          const delta = isRewind ? -5 : 5;
+          engine.seek(Math.max(0, Math.min(audioElement.duration, audioElement.currentTime + delta)));
+        }
+
+        holdTimer = setTimeout(() => {
+          seekInterval = setInterval(() => {
+            if (audioElement.duration) {
+              const delta = isRewind ? -5 : 5;
+              engine.seek(Math.max(0, Math.min(audioElement.duration, audioElement.currentTime + delta)));
+            }
+          }, 160);
+        }, 280);
+      };
+
+      const endHold = () => {
+        if (holdTimer) clearTimeout(holdTimer);
+        if (seekInterval) clearInterval(seekInterval);
+        holdTimer = null;
+        seekInterval = null;
+        triggerTapeSpinGimmick(isRewind ? 'rewind' : 'fast-forward', 1200);
+      };
+
+      btn.addEventListener('mousedown', startHold);
+      btn.addEventListener('mouseup', endHold);
+      btn.addEventListener('mouseleave', endHold);
+      btn.addEventListener('touchstart', startHold, { passive: false });
+      btn.addEventListener('touchend', endHold);
+      btn.addEventListener('touchcancel', endHold);
     }
-    if (mechFF) {
-      mechFF.addEventListener('click', () => {
-        engine.playMechanicalSound('click');
-        if (audioElement.duration) engine.seek(Math.min(audioElement.duration, audioElement.currentTime + 10));
-      });
-    }
+
+    setupHoldSeeking(mechRew, true);
+    setupHoldSeeking(mechFF, false);
+    setupHoldSeeking(wmKeyRew, true);
+    setupHoldSeeking(wmKeyFF, false);
+
     if (mechEject) {
       mechEject.addEventListener('click', () => toggleTapeSide());
     }
@@ -1410,18 +1558,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (wmKeyPlay) wmKeyPlay.addEventListener('click', () => { engine.playMechanicalSound('play'); btnPlay.click(); });
     if (wmKeyPause) wmKeyPause.addEventListener('click', () => { engine.playMechanicalSound('pause'); btnPause.click(); });
     if (wmKeyStop) wmKeyStop.addEventListener('click', () => { engine.playMechanicalSound('stop'); btnStop.click(); });
-    if (wmKeyRew) {
-      wmKeyRew.addEventListener('click', () => {
-        engine.playMechanicalSound('click');
-        if (audioElement.duration) engine.seek(Math.max(0, audioElement.currentTime - 10));
-      });
-    }
-    if (wmKeyFF) {
-      wmKeyFF.addEventListener('click', () => {
-        engine.playMechanicalSound('click');
-        if (audioElement.duration) engine.seek(Math.min(audioElement.duration, audioElement.currentTime + 10));
-      });
-    }
     if (wmKeyEject) {
       wmKeyEject.addEventListener('click', () => toggleTapeSide());
     }
@@ -2244,6 +2380,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   btnPrev.addEventListener('click', () => {
+    triggerTapeSpinGimmick('rewind');
     if (audioElement.currentTime > 3) {
       engine.seek(0);
     } else if (state.shuffle) {
@@ -2256,6 +2393,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   btnNext.addEventListener('click', () => {
+    triggerTapeSpinGimmick('fast-forward');
     if (state.shuffle) {
       playRandomTrack();
     } else if (state.currentIndex < state.playlist.length - 1) {
@@ -2723,6 +2861,11 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const savedTape = await window.winampDB.getSetting('cassette_tape', 'clear');
     switchCassetteTape(savedTape, false);
+
+    const savedCustomSkin = await window.winampDB.getSetting('cassette_custom_skin', '');
+    if (savedCustomSkin) {
+      applyCustomTapeSkin(savedCustomSkin, false);
+    }
 
     const savedSoundFx = await window.winampDB.getSetting('cassette_soundfx', true);
     engine.soundFxEnabled = savedSoundFx;
