@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=2.4">
+  <link rel="stylesheet" href="styles.css?v=2.5">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -60,6 +60,7 @@
             </div>
           </div>
           <div class="wa-titlebar-title-drag">WINAMP</div>
+          <button class="titlebar-cassette-btn" id="btnWinampToCassette" title="Switch to Walkman Cassette Player">📼 TAPE</button>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
             <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
@@ -491,17 +492,24 @@
             </div>
           </div>
 
-          <!-- Bottom Deck Bar: 7-Color Tape Switcher & Hardware Controls -->
+          <!-- Bottom Deck Bar: Tape Color Dropdown & Transport Controls -->
           <div class="deck-bottom-bar">
-            <!-- 7-Color Transparent Tape Selector -->
-            <div class="tape-select-group" id="deckTapeSelectGroup">
-              <button class="tape-sel-btn active" data-color="clear" id="btnTapeClear" title="Clear Crystal (ใส)">CLR</button>
-              <button class="tape-sel-btn" data-color="orange" id="btnTapeOrange" title="Neon Orange (ส้ม)">ORG</button>
-              <button class="tape-sel-btn" data-color="red" id="btnTapeRed" title="Ruby Red (แดง)">RED</button>
-              <button class="tape-sel-btn" data-color="green" id="btnTapeGreen" title="Emerald Green (เขียว)">GRN</button>
-              <button class="tape-sel-btn" data-color="blue" id="btnTapeBlue" title="Sky Blue (ฟ้า)">BLU</button>
-              <button class="tape-sel-btn" data-color="yellow" id="btnTapeYellow" title="Amber Yellow (เหลือง)">YEL</button>
-              <button class="tape-sel-btn" data-color="pink" id="btnTapePink" title="Neon Pink (ชมพู)">PNK</button>
+            <!-- Vintage Cassette Tape Dropdown Selector -->
+            <div class="tape-dropdown-container" id="tapeDropdownContainer">
+              <button class="tape-dropdown-toggle" id="tapeDropdownToggle" title="เลือกสีม้วนเทป (Select Cassette Tape)">
+                <span class="tape-chip-dot dot-clear" id="deckTapeChipDot"></span>
+                <span class="tape-chip-text" id="deckTapeChipText">ใสคริสตัล</span>
+                <span class="tape-chip-arrow">▾</span>
+              </button>
+              <div class="tape-dropdown-list hidden" id="tapeDropdownList">
+                <div class="tape-opt active" data-color="clear"><span class="opt-dot dot-clear"></span> ⚪ ใสคริสตัล (Clear)</div>
+                <div class="tape-opt" data-color="orange"><span class="opt-dot dot-orange"></span> 🟠 ส้มใส (Orange)</div>
+                <div class="tape-opt" data-color="red"><span class="opt-dot dot-red"></span> 🔴 แดงใส (Red)</div>
+                <div class="tape-opt" data-color="green"><span class="opt-dot dot-green"></span> 🟢 เขียวใส (Green)</div>
+                <div class="tape-opt" data-color="blue"><span class="opt-dot dot-blue"></span> 🔵 ฟ้าใส (Blue)</div>
+                <div class="tape-opt" data-color="yellow"><span class="opt-dot dot-yellow"></span> 🟡 เหลืองใส (Yellow)</div>
+                <div class="tape-opt" data-color="pink"><span class="opt-dot dot-pink"></span> 🌸 ชมพูใส (Pink)</div>
+              </div>
             </div>
 
             <!-- Hardware Vector Control Buttons (No Emoji) -->
@@ -733,15 +741,24 @@
 
           <!-- Walkman Tape Selector & Indicators Bar -->
           <div class="walkman-tape-bar">
-            <div class="wm-tape-selector" id="wmTapeSelector">
+            <div class="wm-tape-dropdown-wrap">
               <span class="wm-tape-selector-label">CASSETTE:</span>
-              <button class="wm-tape-btn active" data-color="clear" id="wmBtnClear" title="Clear Crystal (ใส)">CLEAR</button>
-              <button class="wm-tape-btn" data-color="orange" id="wmBtnOrange" title="Neon Orange (ส้ม)">ORANGE</button>
-              <button class="wm-tape-btn" data-color="red" id="wmBtnRed" title="Ruby Red (แดง)">RED</button>
-              <button class="wm-tape-btn" data-color="green" id="wmBtnGreen" title="Emerald Green (เขียว)">GREEN</button>
-              <button class="wm-tape-btn" data-color="blue" id="wmBtnBlue" title="Sky Blue (ฟ้า)">BLUE</button>
-              <button class="wm-tape-btn" data-color="yellow" id="wmBtnYellow" title="Amber Yellow (เหลือง)">YELLOW</button>
-              <button class="wm-tape-btn" data-color="pink" id="wmBtnPink" title="Neon Pink (ชมพู)">PINK</button>
+              <div class="wm-tape-dropdown-container" id="wmTapeDropdownContainer">
+                <button class="wm-tape-dropdown-toggle" id="wmTapeDropdownToggle" title="เลือกสีม้วนเทป (Select Cassette Tape)">
+                  <span class="tape-chip-dot dot-clear" id="wmTapeChipDot"></span>
+                  <span class="wm-tape-chip-text" id="wmTapeChipText">ใสคริสตัล (Clear Crystal)</span>
+                  <span class="tape-chip-arrow">▾</span>
+                </button>
+                <div class="wm-tape-dropdown-list hidden" id="wmTapeDropdownList">
+                  <div class="wm-tape-opt active" data-color="clear"><span class="opt-dot dot-clear"></span> ⚪ ใสคริสตัล (Clear Crystal)</div>
+                  <div class="wm-tape-opt" data-color="orange"><span class="opt-dot dot-orange"></span> 🟠 ส้มใส (Neon Orange)</div>
+                  <div class="wm-tape-opt" data-color="red"><span class="opt-dot dot-red"></span> 🔴 แดงใส (Ruby Red)</div>
+                  <div class="wm-tape-opt" data-color="green"><span class="opt-dot dot-green"></span> 🟢 เขียวใส (Emerald Green)</div>
+                  <div class="wm-tape-opt" data-color="blue"><span class="opt-dot dot-blue"></span> 🔵 ฟ้าใส (Sky Blue)</div>
+                  <div class="wm-tape-opt" data-color="yellow"><span class="opt-dot dot-yellow"></span> 🟡 เหลืองใส (Amber Yellow)</div>
+                  <div class="wm-tape-opt" data-color="pink"><span class="opt-dot dot-pink"></span> 🌸 ชมพูใส (Neon Pink)</div>
+                </div>
+              </div>
             </div>
 
             <!-- Tape Counter & LED -->
@@ -829,7 +846,7 @@
   <!-- Scripts -->
   <script src="db.js"></script>
   <script src="id3.js"></script>
-  <script src="audio-engine.js?v=2.4"></script>
-  <script src="app.js?v=2.4"></script>
+  <script src="audio-engine.js?v=2.5"></script>
+  <script src="app.js?v=2.5"></script>
 </body>
 </html>

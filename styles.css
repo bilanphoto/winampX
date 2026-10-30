@@ -2242,8 +2242,8 @@ body.skin-midnight .pl-resize-handle {
 /* Dynamic Tape Packs (Magnetic Ribbon) */
 .tape-pack {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 46.0%;
+  transform: translate(-50%, -50%);
   border-radius: 50%;
   background: radial-gradient(circle, #2d1e16 0%, #150d09 70%, #000 100%);
   box-shadow: inset 0 0 4px rgba(0,0,0,0.9), 0 0 2px rgba(0,0,0,0.8);
@@ -2253,42 +2253,38 @@ body.skin-midnight .pl-resize-handle {
 }
 
 .tape-pack-left {
-  left: 31.3%;
-  top: 48.2%;
-  transform: translate(-50%, -50%);
-  width: 48px;
-  height: 48px;
+  left: 30.7%;
+  top: 46.0%;
+  width: 44px;
+  height: 44px;
 }
 
 .tape-pack-right {
-  left: 68.7%;
-  top: 48.2%;
-  transform: translate(-50%, -50%);
-  width: 28px;
-  height: 28px;
+  left: 73.6%;
+  top: 46.0%;
+  width: 26px;
+  height: 26px;
 }
 
-/* Spinning Hubs with 6 teeth */
+/* Spinning Hubs with 6 teeth - Pixel-perfect alignment with tape spool holes */
 .tape-hub {
   position: absolute;
-  top: 48.2%;
-  width: 32px;
-  height: 32px;
+  top: 46.0%;
+  width: 26px;
+  height: 26px;
   transform: translate(-50%, -50%);
   z-index: 15;
   pointer-events: none;
 }
 
-.hub-left,
-.tape-pack-left {
-  left: 31.4%;
-  top: 52.1%;
+.hub-left {
+  left: 30.7%;
+  top: 46.0%;
 }
 
-.hub-right,
-.tape-pack-right {
-  left: 69.1%;
-  top: 52.1%;
+.hub-right {
+  left: 73.6%;
+  top: 46.0%;
 }
 
 .hub-svg {
@@ -2323,10 +2319,10 @@ body.skin-midnight .pl-resize-handle {
 /* Cassette Paper Label Overlay - Positioned cleanly in white area */
 .cassette-label-strip {
   position: absolute;
-  top: 9.5%;
-  left: 11%;
-  width: 78%;
-  height: 15.5%;
+  top: 11.0%;
+  left: 10.5%;
+  width: 79%;
+  height: 16.5%;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -2714,82 +2710,198 @@ body.skin-midnight .pl-resize-handle {
   padding: 0 2px;
 }
 
-.tape-select-group {
-  display: flex;
-  gap: 1.5px;
-  align-items: center;
+/* Vintage Cassette Tape Dropdown Selector */
+.tape-dropdown-container {
+  position: relative;
+  display: inline-block;
+  z-index: 30;
 }
 
-.tape-sel-btn {
-  background: #0f172a;
-  border: 1px solid #334155;
-  border-radius: 2px;
-  color: #94a3b8;
-  font-size: 6.5px;
-  font-weight: 800;
-  padding: 2px 2.5px;
-  cursor: pointer;
-  letter-spacing: 0.2px;
-  line-height: 1;
-  transition: all 0.15s ease;
-}
-
-.tape-sel-btn:hover {
-  background: #1e293b;
-  color: #fff;
-  border-color: #64748b;
-}
-
-.tape-sel-btn.active {
-  color: #fff;
-  border-color: #f8fafc;
-  box-shadow: 0 0 6px currentColor;
-}
-
-.tape-sel-btn[data-color="clear"].active  { background: #334155; border-color: #f8fafc; color: #fff; box-shadow: 0 0 6px rgba(255,255,255,0.6); }
-.tape-sel-btn[data-color="orange"].active { background: #c2410c; border-color: #fb923c; color: #fff; box-shadow: 0 0 6px rgba(249,115,22,0.8); }
-.tape-sel-btn[data-color="red"].active    { background: #b91c1c; border-color: #f87171; color: #fff; box-shadow: 0 0 6px rgba(239,68,68,0.8); }
-.tape-sel-btn[data-color="green"].active  { background: #15803d; border-color: #4ade80; color: #fff; box-shadow: 0 0 6px rgba(34,197,94,0.8); }
-.tape-sel-btn[data-color="blue"].active   { background: #0369a1; border-color: #38bdf8; color: #fff; box-shadow: 0 0 6px rgba(14,165,233,0.8); }
-.tape-sel-btn[data-color="yellow"].active { background: #a16207; border-color: #fde047; color: #fff; box-shadow: 0 0 6px rgba(234,179,8,0.8); }
-.tape-sel-btn[data-color="pink"].active   { background: #be185d; border-color: #f472b6; color: #fff; box-shadow: 0 0 6px rgba(236,72,153,0.8); }
-
-/* Walkman Modal Tape Buttons */
-.wm-tape-selector {
+.tape-dropdown-toggle {
   display: flex;
   align-items: center;
   gap: 4px;
-}
-
-.wm-tape-btn {
-  background: #1e293b;
+  height: 20px;
+  padding: 0 6px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
   border: 1px solid #475569;
   border-radius: 3px;
-  color: #94a3b8;
-  font-size: 8px;
-  font-weight: 800;
-  padding: 3px 6px;
+  color: #f1f5f9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
+  font-size: 8.5px;
+  font-weight: 600;
   cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 1px 2px rgba(0, 0, 0, 0.4);
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.tape-dropdown-toggle:hover {
+  border-color: #38bdf8;
+  background: linear-gradient(180deg, #273549 0%, #111a28 100%);
+  color: #38bdf8;
+}
+
+.tape-dropdown-toggle:active {
+  transform: translateY(1px);
+}
+
+.tape-chip-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 3px rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.4);
+  flex-shrink: 0;
+}
+
+.tape-chip-text {
+  white-space: nowrap;
+}
+
+.tape-chip-arrow {
+  font-size: 7px;
+  color: #94a3b8;
+  margin-left: 1px;
+}
+
+/* Dropdown Menu List */
+.tape-dropdown-list {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  min-width: 140px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.8), 0 0 1px rgba(255, 255, 255, 0.2);
+  padding: 3px 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
+}
+
+.tape-opt {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
+  font-size: 9px;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.tape-opt:hover {
+  background: #1e293b;
+  color: #38bdf8;
+}
+
+.tape-opt.active {
+  background: #0369a1;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Color dots */
+.opt-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  display: inline-block;
+  box-shadow: 0 0 2px rgba(0,0,0,0.6);
+  border: 1px solid rgba(255,255,255,0.5);
+  flex-shrink: 0;
+}
+
+.dot-clear  { background: #ffffff; border-color: #cbd5e1; box-shadow: 0 0 3px rgba(255,255,255,0.8); }
+.dot-orange { background: #ff7700; box-shadow: 0 0 4px rgba(255,119,0,0.8); }
+.dot-red    { background: #ef4444; box-shadow: 0 0 4px rgba(239,68,68,0.8); }
+.dot-green  { background: #10b981; box-shadow: 0 0 4px rgba(16,185,129,0.8); }
+.dot-blue   { background: #0ea5e9; box-shadow: 0 0 4px rgba(14,165,233,0.8); }
+.dot-yellow { background: #eab308; box-shadow: 0 0 4px rgba(234,179,8,0.8); }
+.dot-pink   { background: #ec4899; box-shadow: 0 0 4px rgba(236,72,153,0.8); }
+
+/* Walkman Modal Tape Selector Dropdown */
+.wm-tape-dropdown-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.wm-tape-dropdown-container {
+  position: relative;
+  display: inline-block;
+  z-index: 50;
+}
+
+.wm-tape-dropdown-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 8px;
+  background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+  border: 1px solid #475569;
+  border-radius: 3px;
+  color: #f8fafc;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), 0 1px 3px rgba(0,0,0,0.5);
   transition: all 0.15s ease;
 }
 
-.wm-tape-btn:hover {
-  background: #334155;
-  color: #fff;
+.wm-tape-dropdown-toggle:hover {
+  border-color: #38bdf8;
+  color: #38bdf8;
+  background: linear-gradient(180deg, #273549 0%, #111a28 100%);
 }
 
-.wm-tape-btn.active {
-  color: #fff;
-  border-color: #f8fafc;
+.wm-tape-dropdown-list {
+  position: absolute;
+  bottom: 28px;
+  left: 0;
+  min-width: 175px;
+  background: #0f172a;
+  border: 1px solid #334155;
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.9), 0 0 1px rgba(255, 255, 255, 0.2);
+  padding: 4px 0;
+  display: flex;
+  flex-direction: column;
+  z-index: 100;
 }
 
-.wm-tape-btn[data-color="clear"].active  { background: #334155; border-color: #f8fafc; color: #fff; box-shadow: 0 0 8px rgba(255,255,255,0.6); }
-.wm-tape-btn[data-color="orange"].active { background: #c2410c; border-color: #fb923c; color: #fff; box-shadow: 0 0 8px rgba(249,115,22,0.8); }
-.wm-tape-btn[data-color="red"].active    { background: #b91c1c; border-color: #f87171; color: #fff; box-shadow: 0 0 8px rgba(239,68,68,0.8); }
-.wm-tape-btn[data-color="green"].active  { background: #15803d; border-color: #4ade80; color: #fff; box-shadow: 0 0 8px rgba(34,197,94,0.8); }
-.wm-tape-btn[data-color="blue"].active   { background: #0369a1; border-color: #38bdf8; color: #fff; box-shadow: 0 0 8px rgba(14,165,233,0.8); }
-.wm-tape-btn[data-color="yellow"].active { background: #a16207; border-color: #fde047; color: #fff; box-shadow: 0 0 8px rgba(234,179,8,0.8); }
-.wm-tape-btn[data-color="pink"].active   { background: #be185d; border-color: #f472b6; color: #fff; box-shadow: 0 0 8px rgba(236,72,153,0.8); }
+.wm-tape-opt {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Thonburi", sans-serif;
+  font-size: 10px;
+  color: #cbd5e1;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+  user-select: none;
+  white-space: nowrap;
+}
+
+.wm-tape-opt:hover {
+  background: #1e293b;
+  color: #38bdf8;
+}
+
+.wm-tape-opt.active {
+  background: #0369a1;
+  color: #ffffff;
+  font-weight: bold;
+}
 
 .deck-transport {
   display: flex;
@@ -2894,7 +3006,11 @@ body.skin-midnight .pl-resize-handle {
   border-color: #38bdf8;
 }
 
-/* Skin: Walkman Cassette Player */
+/* Skin: Walkman Cassette Player (Defensive & Robust Visibility) */
+body:not(.skin-cassette) #cassetteWindow {
+  display: none !important;
+}
+
 body.skin-cassette {
   background: #090d16;
 }
@@ -2905,7 +3021,7 @@ body.skin-cassette #eqWindow {
 }
 
 body.skin-cassette #cassetteWindow {
-  display: block !important;
+  display: flex !important;
 }
 
 /* Playlist Styling for Cassette Skin (Fix blank white buttons) */
@@ -2959,6 +3075,31 @@ body.skin-cassette .pl-time-display-box,
 body.skin-cassette .pl-cur-time-box {
   color: #00ff00;
   text-shadow: 0 0 3px rgba(0, 255, 0, 0.6);
+}
+
+/* Quick Titlebar Switch Buttons */
+.titlebar-cassette-btn {
+  background: linear-gradient(180deg, #d97706 0%, #b45309 100%);
+  border: 1px solid #fbbf24;
+  border-radius: 2px;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 8px;
+  font-weight: bold;
+  height: 11px;
+  padding: 0 4px;
+  line-height: 9px;
+  cursor: pointer;
+  margin-left: auto;
+  margin-right: 4px;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.5);
+  display: inline-flex;
+  align-items: center;
+}
+.titlebar-cassette-btn:hover {
+  background: #f59e0b;
+  border-color: #fde68a;
+  box-shadow: 0 0 4px #f59e0b;
 }
 
 .titlebar-winamp-btn {
@@ -3168,39 +3309,39 @@ body.skin-cassette .pl-cur-time-box {
 }
 
 .wm-spool-left {
-  left: 31.5%;
+  left: 30.7%;
+  top: 46.0%;
   transform: translate(-50%, -50%);
-  width: 76px;
-  height: 76px;
+  width: 68px;
+  height: 68px;
 }
 
 .wm-spool-right {
-  left: 68.5%;
+  left: 73.6%;
+  top: 46.0%;
   transform: translate(-50%, -50%);
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
 }
 
 .wm-hub {
   position: absolute;
-  top: 52.1%;
-  width: 52px;
-  height: 52px;
+  top: 46.0%;
+  width: 40px;
+  height: 40px;
   transform: translate(-50%, -50%);
   z-index: 15;
   pointer-events: none;
 }
 
-.wm-hub-left,
-.wm-spool-left {
-  left: 31.4%;
-  top: 52.1%;
+.wm-hub-left {
+  left: 30.7%;
+  top: 46.0%;
 }
 
-.wm-hub-right,
-.wm-spool-right {
-  left: 69.1%;
-  top: 52.1%;
+.wm-hub-right {
+  left: 73.6%;
+  top: 46.0%;
 }
 
 .wm-hub-svg {
@@ -3222,10 +3363,10 @@ body.skin-cassette .pl-cur-time-box {
 
 .wm-label-strip {
   position: absolute;
-  top: 9.5%;
-  left: 11%;
-  width: 78%;
-  height: 15.5%;
+  top: 11.0%;
+  left: 10.5%;
+  width: 79%;
+  height: 16.5%;
   display: flex;
   align-items: center;
   justify-content: space-between;

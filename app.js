@@ -254,6 +254,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   // SKIN SWITCHING LOGIC
   // =========================================================================
   function switchSkin(skinName) {
+    if (skinName !== 'skin-cassette') {
+      state.lastWinampSkin = skinName;
+    }
     state.currentSkin = skinName;
     document.body.classList.remove('skin-classic', 'skin-modern', 'skin-midnight', 'skin-cassette');
     document.body.classList.add(skinName);
@@ -274,14 +277,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (skinName === 'skin-cassette') {
       mainWindow.classList.add('hidden');
       eqWindow.classList.add('hidden');
-      cassetteWindow.classList.remove('hidden');
+      cassetteWindow.classList.remove('hidden', 'shaded');
       if (state.currentIndex >= 0 && state.currentIndex < state.playlist.length) {
         updateCassetteLabel(state.playlist[state.currentIndex]);
       }
       updateCassetteUI();
     } else {
-      mainWindow.classList.remove('hidden');
       cassetteWindow.classList.add('hidden');
+      mainWindow.classList.remove('hidden', 'shaded');
       const isEqEnabled = btnToggleEQ && btnToggleEQ.classList.contains('active');
       if (isEqEnabled) eqWindow.classList.remove('hidden');
     }
@@ -692,6 +695,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (layout.cs.shaded) cassetteWindow.classList.add('shaded');
       }
     }
+
+    // Defensive check: ensure mutually exclusive visibility matching active skin
+    const isCassetteSkin = document.body.classList.contains('skin-cassette');
+    if (isCassetteSkin) {
+      cassetteWindow.classList.remove('hidden', 'shaded');
+      mainWindow.classList.add('hidden');
+      eqWindow.classList.add('hidden');
+    } else {
+      cassetteWindow.classList.add('hidden');
+      mainWindow.classList.remove('hidden');
+    }
+
     updateResponsiveLayout();
   }
 
@@ -998,13 +1013,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // CASSETTE DECK & PORTABLE WALKMAN CONTROLS
   // =========================================================================
   const TAPE_PRESETS = {
-    clear:  { label: 'Clear Crystal (ม้วนใสคริสตัล)',   file: 'tape-clear-clean.png',  badge: '⚪' },
-    orange: { label: 'Neon Orange (ม้วนส้มใส)',         file: 'tape-orange-clean.png', badge: '🟠' },
-    red:    { label: 'Ruby Red (ม้วนแดงใส)',            file: 'tape-red-clean.png',    badge: '🔴' },
-    green:  { label: 'Emerald Green (ม้วนเขียวใส)',     file: 'tape-green-clean.png',  badge: '🟢' },
-    blue:   { label: 'Sky Blue (ม้วนฟ้าใส)',            file: 'tape-blue-clean.png',   badge: '🔵' },
-    yellow: { label: 'Amber Yellow (ม้วนเหลืองใส)',     file: 'tape-yellow-clean.png', badge: '🟡' },
-    pink:   { label: 'Neon Pink (ม้วนชมพูใส)',          file: 'tape-pink-clean.png',   badge: '🌸' }
+    clear:  { label: 'ใสคริสตัล (Clear Crystal)', shortLabel: 'ใสคริสตัล', file: 'tape-clear-clean.png',  badge: '⚪', dot: 'dot-clear' },
+    orange: { label: 'ส้มใส (Neon Orange)',       shortLabel: 'ส้มใส',     file: 'tape-orange-clean.png', badge: '🟠', dot: 'dot-orange' },
+    red:    { label: 'แดงใส (Ruby Red)',          shortLabel: 'แดงใส',     file: 'tape-red-clean.png',    badge: '🔴', dot: 'dot-red' },
+    green:  { label: 'เขียวใส (Emerald Green)',   shortLabel: 'เขียวใส',   file: 'tape-green-clean.png',  badge: '🟢', dot: 'dot-green' },
+    blue:   { label: 'ฟ้าใส (Sky Blue)',          shortLabel: 'ฟ้าใส',     file: 'tape-blue-clean.png',   badge: '🔵', dot: 'dot-blue' },
+    yellow: { label: 'เหลืองใส (Amber Yellow)',   shortLabel: 'เหลืองใส',  file: 'tape-yellow-clean.png', badge: '🟡', dot: 'dot-yellow' },
+    pink:   { label: 'ชมพูใส (Neon Pink)',        shortLabel: 'ชมพูใส',    file: 'tape-pink-clean.png',   badge: '🌸', dot: 'dot-pink' }
   };
 
   function triggerDoorEjectAnimation() {
@@ -1023,6 +1038,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   function switchCassetteTape(tapeName, playSound = true) {
     const valid = TAPE_PRESETS[tapeName] ? tapeName : 'clear';
     cassetteState.tape = valid;
+    const preset = TAPE_PRESETS[valid];
 
     const allColors = Object.keys(TAPE_PRESETS);
     if (cassetteCard) {
@@ -1034,11 +1050,38 @@ document.addEventListener('DOMContentLoaded', async () => {
       wmCassetteCard.classList.add('tape-' + valid);
     }
 
-    const preset = TAPE_PRESETS[valid];
-    const imgSrc = `assets/cassette/${preset.file}?v=2.4`;
+    const imgSrc = `assets/cassette/${preset.file}?v=2.5`;
     if (cassetteImg) cassetteImg.src = imgSrc;
     if (wmCassetteImg) wmCassetteImg.src = imgSrc;
 
+    // Update Dropdown Chips
+    const deckTapeChipDot = document.getElementById('deckTapeChipDot');
+    const deckTapeChipText = document.getElementById('deckTapeChipText');
+    if (deckTapeChipDot) {
+      deckTapeChipDot.className = `tape-chip-dot ${preset.dot}`;
+    }
+    if (deckTapeChipText) {
+      deckTapeChipText.textContent = preset.shortLabel;
+    }
+
+    const wmTapeChipDot = document.getElementById('wmTapeChipDot');
+    const wmTapeChipText = document.getElementById('wmTapeChipText');
+    if (wmTapeChipDot) {
+      wmTapeChipDot.className = `tape-chip-dot ${preset.dot}`;
+    }
+    if (wmTapeChipText) {
+      wmTapeChipText.textContent = preset.label;
+    }
+
+    // Update active state in dropdown options
+    document.querySelectorAll('.tape-opt').forEach(opt => {
+      opt.classList.toggle('active', opt.getAttribute('data-color') === valid);
+    });
+    document.querySelectorAll('.wm-tape-opt').forEach(opt => {
+      opt.classList.toggle('active', opt.getAttribute('data-color') === valid);
+    });
+
+    // Also update legacy buttons if any
     document.querySelectorAll('.tape-sel-btn, .wm-tape-btn').forEach(btn => {
       const col = btn.getAttribute('data-color');
       if (col) btn.classList.toggle('active', col === valid);
@@ -1167,10 +1210,16 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const btnCassetteToWinamp = document.getElementById('btnCassetteToWinamp');
     if (btnCassetteToWinamp) {
-      btnCassetteToWinamp.addEventListener('click', () => switchSkin('skin-midnight'));
+      btnCassetteToWinamp.addEventListener('click', () => {
+        const targetSkin = state.lastWinampSkin || 'skin-midnight';
+        switchSkin(targetSkin);
+      });
     }
     if (cassetteCloseBtn) {
-      cassetteCloseBtn.addEventListener('click', () => switchSkin('skin-midnight'));
+      cassetteCloseBtn.addEventListener('click', () => {
+        const targetSkin = state.lastWinampSkin || 'skin-midnight';
+        switchSkin(targetSkin);
+      });
     }
 
     // Cassette context menu items
@@ -1235,7 +1284,63 @@ document.addEventListener('DOMContentLoaded', async () => {
       });
     }
 
-    // Tape switch buttons on deck window and Walkman modal (7 Colors)
+    // Vintage Cassette Tape Dropdown logic (Deck bar)
+    const tapeDropdownToggle = document.getElementById('tapeDropdownToggle');
+    const tapeDropdownList = document.getElementById('tapeDropdownList');
+    if (tapeDropdownToggle && tapeDropdownList) {
+      tapeDropdownToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        tapeDropdownList.classList.toggle('hidden');
+        const wmTapeDropList = document.getElementById('wmTapeDropdownList');
+        if (wmTapeDropList) wmTapeDropList.classList.add('hidden');
+      });
+    }
+
+    document.querySelectorAll('.tape-opt').forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const color = opt.getAttribute('data-color');
+        if (color) switchCassetteTape(color);
+        if (tapeDropdownList) tapeDropdownList.classList.add('hidden');
+      });
+    });
+
+    // Walkman Modal Tape Dropdown logic
+    const wmTapeDropdownToggle = document.getElementById('wmTapeDropdownToggle');
+    const wmTapeDropdownList = document.getElementById('wmTapeDropdownList');
+    if (wmTapeDropdownToggle && wmTapeDropdownList) {
+      wmTapeDropdownToggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        wmTapeDropdownList.classList.toggle('hidden');
+        if (tapeDropdownList) tapeDropdownList.classList.add('hidden');
+      });
+    }
+
+    document.querySelectorAll('.wm-tape-opt').forEach(opt => {
+      opt.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const color = opt.getAttribute('data-color');
+        if (color) switchCassetteTape(color);
+        if (wmTapeDropdownList) wmTapeDropdownList.classList.add('hidden');
+      });
+    });
+
+    // Close dropdowns on click outside
+    document.addEventListener('click', () => {
+      if (tapeDropdownList) tapeDropdownList.classList.add('hidden');
+      if (wmTapeDropdownList) wmTapeDropdownList.classList.add('hidden');
+    });
+
+    // Titlebar buttons to switch between Winamp and Cassette
+    const btnWinampToCassette = document.getElementById('btnWinampToCassette');
+    if (btnWinampToCassette) {
+      btnWinampToCassette.addEventListener('click', (e) => {
+        e.stopPropagation();
+        switchSkin('skin-cassette');
+      });
+    }
+
+    // Tape switch buttons on deck window and Walkman modal (7 Colors - Legacy/Fallbacks)
     document.querySelectorAll('.tape-sel-btn, .wm-tape-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         const color = btn.getAttribute('data-color');
