@@ -1,8 +1,9 @@
 {
-  "name": "Winamp",
+  "name": "Winamp & Walkman Retro Player",
   "short_name": "Winamp",
-  "description": "Winamp Player for Web and Mobile",
-  "start_url": "./index.html",
+  "description": "Winamp & Portable Walkman Cassette Player for Web and Mobile (Offline Ready)",
+  "start_url": "./",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#181622",
   "theme_color": "#2b283d",

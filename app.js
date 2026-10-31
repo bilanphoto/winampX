@@ -3051,4 +3051,41 @@ document.addEventListener('DOMContentLoaded', async () => {
   await restoreSettings();
   await restoreWindowPositions();
   await loadStoredTracks();
+
+  // Request Persistent Storage so browser never evicts cached songs or offline app shell
+  if (navigator.storage && navigator.storage.persist) {
+    navigator.storage.persist().catch(() => {});
+  }
+
+  // Register Service Worker for 100% Offline Support after first visit
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js', { scope: './' })
+      .then((reg) => {
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+          newWorker.addEventListener('statechange', () => {
+            if (newWorker.state === 'activated' && !navigator.serviceWorker.controller) {
+              showToast('✅ บันทึกแอปลงเครื่องแล้ว ครั้งต่อไปเปิดเล่นได้โดยไม่ต้องต่อเน็ต!');
+            }
+          });
+        });
+      })
+      .catch((err) => {
+        console.warn('Service Worker registration failed:', err);
+      });
+  }
+
+  // Offline / Online status notifications
+  if (!navigator.onLine) {
+    setTimeout(() => {
+      showToast('📴 โหมดออฟไลน์: พร้อมเล่นเพลงได้ทันทีโดยไม่ต้องใช้อินเทอร์เน็ต');
+    }, 600);
+  }
+  window.addEventListener('offline', () => {
+    showToast('📴 ตัดการเชื่อมต่อเน็ตแล้ว (ยังเปิดและเล่นเพลงแบบออฟไลน์ได้ตามปกติ)');
+  });
+  window.addEventListener('online', () => {
+    showToast('🌐 เชื่อมต่ออินเทอร์เน็ตแล้ว');
+  });
 });
