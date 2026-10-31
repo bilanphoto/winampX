@@ -4,17 +4,17 @@
  * so the player opens and plays music 100% offline without an internet connection.
  */
 
-const CACHE_NAME = 'winamp-walkman-offline-v3.2';
+const CACHE_NAME = 'winamp-walkman-offline-v3.3';
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './styles.css',
-  './styles.css?v=3.2',
+  './styles.css?v=3.3',
   './app.js',
-  './app.js?v=3.2',
+  './app.js?v=3.3',
   './audio-engine.js',
-  './audio-engine.js?v=3.2',
+  './audio-engine.js?v=3.3',
   './db.js',
   './id3.js',
   './manifest.json',
@@ -90,8 +90,12 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
 
-  // Only handle GET requests over http/https
+  // Only handle same-origin GET requests over http/https (let YouTube / external APIs pass through directly)
   if (request.method !== 'GET' || !request.url.startsWith('http')) {
+    return;
+  }
+  const reqUrl = new URL(request.url);
+  if (reqUrl.origin !== self.location.origin) {
     return;
   }
 

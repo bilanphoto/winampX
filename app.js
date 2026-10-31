@@ -987,6 +987,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const menuTapeClear = document.getElementById('menuTapeClear');
     const menuTapeOrange = document.getElementById('menuTapeOrange');
     const menuOpenFiles = document.getElementById('menuOpenFiles');
+    const menuOpenYoutube = document.getElementById('menuOpenYoutube');
     const menuOpenDemo = document.getElementById('menuOpenDemo');
     const menuResetWin = document.getElementById('menuResetWin');
     const menuShowHelp = document.getElementById('menuShowHelp');
@@ -1004,6 +1005,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (menuTapeClear) menuTapeClear.addEventListener('click', () => { switchCassetteTape('clear'); mainContextMenu.classList.add('hidden'); });
     if (menuTapeOrange) menuTapeOrange.addEventListener('click', () => { switchCassetteTape('orange'); mainContextMenu.classList.add('hidden'); });
     if (menuOpenFiles) menuOpenFiles.addEventListener('click', () => { fileInput.click(); mainContextMenu.classList.add('hidden'); });
+    if (menuOpenYoutube) menuOpenYoutube.addEventListener('click', () => { openYoutubeModal(); mainContextMenu.classList.add('hidden'); });
     if (menuOpenDemo) menuOpenDemo.addEventListener('click', () => { loadDemoSongs(); mainContextMenu.classList.add('hidden'); });
     if (menuResetWin) menuResetWin.addEventListener('click', () => { resetWindowLayout(); mainContextMenu.classList.add('hidden'); });
     if (menuShowHelp) menuShowHelp.addEventListener('click', () => { helpModal.classList.remove('hidden'); mainContextMenu.classList.add('hidden'); });
@@ -1076,7 +1078,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         hubs.forEach(h => {
           if (!h) return;
           h.classList.remove('fast-forward', 'rewind');
-          if (!audioElement.paused && (audioElement.duration || 0) > 0) {
+          if (!engine.isPaused() && (engine.getDuration() || 0) > 0) {
             h.classList.add('spinning');
           } else {
             h.classList.remove('spinning');
@@ -1329,8 +1331,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Dynamic Tape Ribbon Pack Physics (Concentric Magnetic Tape Winding)
     // At 0%: supply spool is full (scale 1.0), take-up spool is empty (scale 0.443, hidden under white hub)
     // As track plays: magnetic tape smoothly transfers across reels following square-root area physics
-    const cur = audioElement.currentTime || 0;
-    const dur = audioElement.duration || 0;
+    const cur = engine.getCurrentTime() || 0;
+    const dur = engine.getDuration() || 0;
     let ratio = (dur > 0 && isFinite(dur)) ? Math.max(0, Math.min(1, cur / dur)) : 0;
     let p = (cassetteState.side === 'B') ? (1 - ratio) : ratio;
 
@@ -1421,6 +1423,27 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     if (cmenuTapeClear) cmenuTapeClear.addEventListener('click', () => { switchCassetteTape('clear'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuTapeOrange) cmenuTapeOrange.addEventListener('click', () => { switchCassetteTape('orange'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    const btnDeckYoutube = document.getElementById('btnDeckYoutube');
+    if (btnDeckYoutube) {
+      btnDeckYoutube.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openYoutubeModal();
+      });
+    }
+    const wmYoutubeBtn = document.getElementById('wmYoutubeBtn');
+    if (wmYoutubeBtn) {
+      wmYoutubeBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        openYoutubeModal();
+      });
+    }
+    const cmenuYoutube = document.getElementById('cmenuYoutube');
+    if (cmenuYoutube) {
+      cmenuYoutube.addEventListener('click', () => {
+        if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden');
+        openYoutubeModal();
+      });
+    }
     const btnUploadTapePhoto = document.getElementById('btnUploadTapePhoto');
     if (btnUploadTapePhoto && customTapeSkinInput) {
       btnUploadTapePhoto.addEventListener('click', (e) => {
@@ -1500,7 +1523,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Counter resets
     if (deckCounterReset) {
       deckCounterReset.addEventListener('click', () => {
-        cassetteState.counterOffset = -Math.floor((audioElement.currentTime || 0) * 0.6);
+        cassetteState.counterOffset = -Math.floor((engine.getCurrentTime() || 0) * 0.6);
         updateCassetteUI();
         engine.playMechanicalSound('click');
         showToast('⟲ รีเซ็ตเทปเคาน์เตอร์: 000');
@@ -1508,7 +1531,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     if (wmCounterReset) {
       wmCounterReset.addEventListener('click', () => {
-        cassetteState.counterOffset = -Math.floor((audioElement.currentTime || 0) * 0.6);
+        cassetteState.counterOffset = -Math.floor((engine.getCurrentTime() || 0) * 0.6);
         updateCassetteUI();
         engine.playMechanicalSound('click');
         showToast('⟲ รีเซ็ตเทปเคาน์เตอร์: 000');
@@ -1598,16 +1621,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         engine.playMechanicalSound('click');
         triggerTapeSpinGimmick(isRewind ? 'rewind' : 'fast-forward', 0);
 
-        if (audioElement.duration) {
+        const dur = engine.getDuration();
+        if (dur) {
           const delta = isRewind ? -5 : 5;
-          engine.seek(Math.max(0, Math.min(audioElement.duration, audioElement.currentTime + delta)));
+          engine.seek(Math.max(0, Math.min(dur, engine.getCurrentTime() + delta)));
         }
 
         holdTimer = setTimeout(() => {
           seekInterval = setInterval(() => {
-            if (audioElement.duration) {
+            const d = engine.getDuration();
+            if (d) {
               const delta = isRewind ? -5 : 5;
-              engine.seek(Math.max(0, Math.min(audioElement.duration, audioElement.currentTime + delta)));
+              engine.seek(Math.max(0, Math.min(d, engine.getCurrentTime() + delta)));
             }
           }, 160);
         }, 280);
@@ -1746,18 +1771,19 @@ document.addEventListener('DOMContentLoaded', async () => {
   // SEEK BAR / SCRUBBER
   // =========================================================================
   function handleSeekDrag(e) {
-    if (!audioElement.duration) return;
+    const dur = engine.getDuration();
+    if (!dur) return;
     const rect = seekTrack.getBoundingClientRect();
     let ratio = (e.clientX - rect.left) / rect.width;
     ratio = Math.max(0, Math.min(1, ratio));
-    const targetTime = ratio * audioElement.duration;
+    const targetTime = ratio * dur;
     seekThumb.style.left = `${ratio * 100}%`;
-    updateTimerDisplay(targetTime, audioElement.duration);
+    updateTimerDisplay(targetTime, dur);
     return targetTime;
   }
 
   seekTrack.addEventListener('mousedown', (e) => {
-    if (!audioElement.duration) return;
+    if (!engine.getDuration()) return;
     state.isDraggingSeek = true;
     const targetTime = handleSeekDrag(e);
 
@@ -1785,7 +1811,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   timeDisplay.addEventListener('click', () => {
     state.timeRemainingMode = !state.timeRemainingMode;
     timeMinus.classList.toggle('active', state.timeRemainingMode);
-    updateTimerDisplay(audioElement.currentTime, audioElement.duration);
+    updateTimerDisplay(engine.getCurrentTime(), engine.getDuration());
     window.winampDB.setSetting('timeRemainingMode', state.timeRemainingMode);
   });
 
@@ -1820,14 +1846,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     plCurTime.textContent = AudioMetadataParser.formatTime(currentTime);
   }
 
+  audioElement.addEventListener('loadedmetadata', () => {
+    updateMediaSessionPosition();
+    updateCassetteUI();
+  });
+
+  audioElement.addEventListener('durationchange', () => {
+    updateMediaSessionPosition();
+  });
+
   audioElement.addEventListener('timeupdate', () => {
     if (!state.isDraggingSeek) {
-      const cur = audioElement.currentTime;
-      const dur = audioElement.duration;
+      const cur = engine.getCurrentTime();
+      const dur = engine.getDuration();
       updateTimerDisplay(cur, dur);
 
-      if (dur && isFinite(dur)) {
-        const percent = (cur / dur) * 100;
+      if (dur && isFinite(dur) && dur > 0) {
+        // Update stored track duration if it was 0 (e.g. newly loaded YouTube track)
+        const activeTrack = state.playlist[state.currentIndex];
+        if (activeTrack && (!activeTrack.duration || activeTrack.duration === 0)) {
+          activeTrack.duration = Math.round(dur);
+          window.winampDB.saveTrack(activeTrack).catch(() => {});
+          renderPlaylist();
+        }
+
+        const percent = Math.min(100, Math.max(0, (cur / dur) * 100));
         seekThumb.style.left = `${percent}%`;
 
         const curSec = Math.floor(cur);
@@ -1852,7 +1895,9 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   audioElement.addEventListener('pause', () => {
-    if (audioElement.currentTime > 0 && !audioElement.ended) {
+    const cur = engine.getCurrentTime();
+    const dur = engine.getDuration();
+    if (cur > 0 && (!dur || cur < dur - 0.2)) {
       state.isPlaying = false;
       state.isPaused = true;
       playStatusIcon.className = 'play-status-icon pause';
@@ -1879,7 +1924,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function handleTrackEnded() {
     if (state.repeat === 'single') {
-      audioElement.currentTime = 0;
+      engine.seek(0);
       engine.play();
     } else if (state.shuffle) {
       playRandomTrack();
@@ -2304,14 +2349,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   function updateMediaSession(track) {
     if ('mediaSession' in navigator && track) {
       try {
+        const icon192 = new URL('icon-192.png', window.location.href).href;
+        const icon512 = new URL('icon-512.png', window.location.href).href;
+        const artworkList = track.thumbnail
+          ? [
+              { src: track.thumbnail, sizes: '480x360', type: 'image/jpeg' },
+              { src: icon192, sizes: '192x192', type: 'image/png' },
+              { src: icon512, sizes: '512x512', type: 'image/png' }
+            ]
+          : [
+              { src: icon192, sizes: '192x192', type: 'image/png' },
+              { src: icon512, sizes: '512x512', type: 'image/png' }
+            ];
+
         navigator.mediaSession.metadata = new MediaMetadata({
           title: track.title || 'Unknown Title',
           artist: track.artist || 'Winamp Web Player',
           album: track.album || 'Winamp',
-          artwork: [
-            { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
-            { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
-          ],
+          artwork: artworkList
         });
         updateMediaSessionPosition();
       } catch (e) {}
@@ -2320,13 +2375,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function updateMediaSessionPosition() {
     if ('mediaSession' in navigator && 'setPositionState' in navigator.mediaSession) {
-      const dur = audioElement.duration;
+      const dur = engine.getDuration();
       if (dur && isFinite(dur) && dur > 0) {
         try {
           navigator.mediaSession.setPositionState({
             duration: dur,
             playbackRate: audioElement.playbackRate || 1.0,
-            position: Math.min(Math.max(0, audioElement.currentTime || 0), dur)
+            position: Math.min(Math.max(0, engine.getCurrentTime() || 0), dur)
           });
         } catch (e) {}
       }
@@ -2357,10 +2412,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     try {
       updateCassetteLabel(track);
       updateCassetteUI();
-      await engine.loadTrack(track.blob);
-      await engine.play();
       renderPlaylist();
       window.winampDB.setSetting('lastTrackIndex', idx);
+
+      if (track.youtubeId) {
+        if (!navigator.onLine) {
+          showToast('📴 เพลงจาก YouTube ต้องใช้อินเทอร์เน็ตในการเล่น');
+          return;
+        }
+        await engine.loadYoutubeTrack(track.youtubeId, track.duration || 0);
+      } else {
+        await engine.loadTrack(track.blob);
+        await engine.play();
+      }
     } catch (e) {
       console.error("Playback error:", e);
       showToast(`Playback failed: ${track.title}`);
@@ -2475,7 +2539,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   btnPrev.addEventListener('click', () => {
     triggerTapeSpinGimmick('rewind');
-    if (audioElement.currentTime > 3) {
+    if (engine.getCurrentTime() > 3) {
       engine.seek(0);
     } else if (state.shuffle) {
       playRandomTrack();
@@ -2509,40 +2573,52 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
   }
 
-  // Setup MediaSession API for lock-screen & background playback controls on iOS / Android / Desktop
+  // Setup MediaSession API for Apple CarPlay, Lock Screen & Background Playback
   if ('mediaSession' in navigator) {
-    try {
-      navigator.mediaSession.setActionHandler('play', async () => {
-        await engine.play();
-      });
-      navigator.mediaSession.setActionHandler('pause', () => {
+    const handlers = {
+      play: async () => {
+        if (state.currentIndex < 0 && state.playlist.length > 0) {
+          await playTrackIndex(0);
+        } else {
+          await engine.play();
+        }
+      },
+      pause: () => {
         engine.pause();
-      });
-      navigator.mediaSession.setActionHandler('previoustrack', () => {
+      },
+      stop: () => {
+        engine.stop();
+        setStoppedState();
+      },
+      previoustrack: () => {
         btnPrev.click();
-      });
-      navigator.mediaSession.setActionHandler('nexttrack', () => {
+      },
+      nexttrack: () => {
         btnNext.click();
-      });
-      navigator.mediaSession.setActionHandler('seekto', (details) => {
-        if (details.seekTime !== undefined) {
+      },
+      seekto: (details) => {
+        if (details && details.seekTime !== undefined) {
           engine.seek(details.seekTime);
           updateMediaSessionPosition();
         }
-      });
-      navigator.mediaSession.setActionHandler('seekbackward', (details) => {
-        const skip = details.seekOffset || 10;
-        engine.seek(Math.max(0, audioElement.currentTime - skip));
+      },
+      seekbackward: (details) => {
+        const skip = (details && details.seekOffset) || 10;
+        engine.seek(Math.max(0, engine.getCurrentTime() - skip));
         updateMediaSessionPosition();
-      });
-      navigator.mediaSession.setActionHandler('seekforward', (details) => {
-        const skip = details.seekOffset || 10;
-        engine.seek(Math.min(audioElement.duration || 0, audioElement.currentTime + skip));
+      },
+      seekforward: (details) => {
+        const skip = (details && details.seekOffset) || 10;
+        engine.seek(Math.min(engine.getDuration() || 0, engine.getCurrentTime() + skip));
         updateMediaSessionPosition();
-      });
-    } catch (e) {
-      console.warn('MediaSession handler registration failed:', e);
-    }
+      }
+    };
+
+    Object.entries(handlers).forEach(([action, handler]) => {
+      try {
+        navigator.mediaSession.setActionHandler(action, handler);
+      } catch (e) {}
+    });
   }
 
   btnShuffle.addEventListener('click', () => {
@@ -2597,6 +2673,14 @@ document.addEventListener('DOMContentLoaded', async () => {
       document.querySelectorAll('.popup-menu').forEach(m => m.classList.add('hidden'));
     }
   });
+
+  const menuAddYoutube = document.getElementById('menuAddYoutube');
+  if (menuAddYoutube) {
+    menuAddYoutube.addEventListener('click', () => {
+      plAddMenu.classList.add('hidden');
+      openYoutubeModal();
+    });
+  }
 
   document.getElementById('menuAddFile').addEventListener('click', () => {
     fileInput.click();
@@ -2705,7 +2789,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   document.getElementById('menuSortFilename').addEventListener('click', async () => {
     plMiscMenu.classList.add('hidden');
-    state.playlist.sort((a, b) => (a.blob.name || a.title).localeCompare(b.blob.name || b.title));
+    state.playlist.sort((a, b) => ((a.blob && a.blob.name) || a.title).localeCompare((b.blob && b.blob.name) || b.title));
     await window.winampDB.updateOrder(state.playlist);
     renderPlaylist();
     showToast('Sorted by filename');
@@ -2968,6 +3052,182 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (wmSoundFxBtn) wmSoundFxBtn.textContent = `🔊 SFX: ${savedSoundFx ? 'ON' : 'OFF'}`;
   }
 
+  // =========================================================================
+  // YOUTUBE LINK PASTE & PLAY ENGINE
+  // =========================================================================
+  const youtubeModal = document.getElementById('youtubeModal');
+  const ytModalCloseBtn = document.getElementById('ytModalCloseBtn');
+  const ytUrlInput = document.getElementById('ytUrlInput');
+  const ytPasteBtn = document.getElementById('ytPasteBtn');
+  const ytPlayNowBtn = document.getElementById('ytPlayNowBtn');
+  const ytAddQueueBtn = document.getElementById('ytAddQueueBtn');
+  const ytStatusMsg = document.getElementById('ytStatusMsg');
+
+  function extractYoutubeId(input) {
+    if (!input || typeof input !== 'string') return null;
+    const str = input.trim();
+    // Match standard watch?v=, youtu.be/, shorts/, embed/, live/, music.youtube.com
+    const regExp = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?|shorts|live)\/|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = str.match(regExp);
+    if (match && match[1]) return match[1];
+    // Or if the user pasted a raw 11-char video ID directly in the modal
+    if (/^[a-zA-Z0-9_-]{11}$/.test(str)) return str;
+    return null;
+  }
+
+  function showYtStatus(msg, isError = false) {
+    if (!ytStatusMsg) return;
+    ytStatusMsg.textContent = msg;
+    ytStatusMsg.style.color = isError ? '#f87171' : '#38bdf8';
+    ytStatusMsg.classList.remove('hidden');
+  }
+
+  function openYoutubeModal(prefillUrl = '') {
+    if (!youtubeModal) return;
+    youtubeModal.classList.remove('hidden');
+    if (ytStatusMsg) ytStatusMsg.classList.add('hidden');
+    if (ytUrlInput) {
+      ytUrlInput.value = prefillUrl || '';
+      setTimeout(() => ytUrlInput.focus(), 60);
+    }
+    // Pre-warm YouTube IFrame API in the background
+    if (navigator.onLine) {
+      engine.initYoutubePlayer().catch(() => {});
+    }
+  }
+
+  function closeYoutubeModal() {
+    if (!youtubeModal) return;
+    youtubeModal.classList.add('hidden');
+  }
+
+  async function fetchYoutubeMetadata(videoId) {
+    const watchUrl = `https://www.youtube.com/watch?v=${videoId}`;
+    const defaultMeta = {
+      title: `YouTube Track (${videoId})`,
+      artist: 'YouTube',
+      thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`
+    };
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 4000);
+      const res = await fetch(`https://noembed.com/embed?url=${encodeURIComponent(watchUrl)}`, {
+        signal: controller.signal
+      });
+      clearTimeout(timer);
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.title) {
+          return {
+            title: data.title,
+            artist: data.author_name || 'YouTube',
+            thumbnail: data.thumbnail_url || defaultMeta.thumbnail
+          };
+        }
+      }
+    } catch (e) {}
+    return defaultMeta;
+  }
+
+  async function addYoutubeUrl(rawUrl, playImmediately = true) {
+    const videoId = extractYoutubeId(rawUrl);
+    if (!videoId) {
+      showYtStatus('❌ ลิงก์ YouTube ไม่ถูกต้อง กรุณาวางลิงก์เช่น https://youtu.be/... หรือ https://www.youtube.com/watch?v=...', true);
+      showToast('❌ ลิงก์ YouTube ไม่ถูกต้อง');
+      return false;
+    }
+
+    showYtStatus('⏳ กำลังดึงข้อมูลเพลงจาก YouTube...');
+    showToast('⏳ กำลังโหลดข้อมูลเพลงจาก YouTube...');
+
+    // Start warming up YT IFrame Player right away
+    engine.initYoutubePlayer().catch(() => {});
+
+    const meta = await fetchYoutubeMetadata(videoId);
+    const trackObj = {
+      id: `yt_${videoId}_${Date.now()}`,
+      title: `▶️ ${meta.title}`,
+      artist: meta.artist,
+      album: 'YouTube Stream',
+      duration: 0,
+      bitrate: 192,
+      sampleRate: 44100,
+      channels: 2,
+      youtubeId: videoId,
+      youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
+      thumbnail: meta.thumbnail,
+      order: state.playlist.length
+    };
+
+    await window.winampDB.saveTrack(trackObj);
+    state.playlist.push(trackObj);
+    renderPlaylist();
+
+    closeYoutubeModal();
+    showToast(`▶️ เพิ่มเพลง YouTube: ${meta.title}`);
+
+    if (playImmediately || state.currentIndex === -1) {
+      const newIdx = state.playlist.length - 1;
+      await playTrackIndex(newIdx);
+    }
+    return true;
+  }
+
+  if (ytModalCloseBtn) ytModalCloseBtn.addEventListener('click', closeYoutubeModal);
+  if (youtubeModal) {
+    youtubeModal.addEventListener('click', (e) => {
+      if (e.target === youtubeModal) closeYoutubeModal();
+    });
+  }
+
+  if (ytPasteBtn && ytUrlInput) {
+    ytPasteBtn.addEventListener('click', async () => {
+      try {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          ytUrlInput.value = text.trim();
+          showYtStatus('📋 วางลิงก์จากคลิปบอร์ดแล้ว กด "เล่นทันที" ได้เลย');
+        }
+      } catch (err) {
+        ytUrlInput.focus();
+        showYtStatus('กรุณากดค้างในช่องแล้วเลือก "วาง (Paste)"', true);
+      }
+    });
+  }
+
+  if (ytPlayNowBtn && ytUrlInput) {
+    ytPlayNowBtn.addEventListener('click', () => {
+      addYoutubeUrl(ytUrlInput.value, true);
+    });
+  }
+
+  if (ytAddQueueBtn && ytUrlInput) {
+    ytAddQueueBtn.addEventListener('click', () => {
+      addYoutubeUrl(ytUrlInput.value, false);
+    });
+  }
+
+  if (ytUrlInput) {
+    ytUrlInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addYoutubeUrl(ytUrlInput.value, true);
+      } else if (e.key === 'Escape') {
+        closeYoutubeModal();
+      }
+    });
+  }
+
+  // Global Paste Listener: Paste a YouTube link anywhere on the app to play immediately!
+  window.addEventListener('paste', (e) => {
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    const pastedText = (e.clipboardData || window.clipboardData)?.getData('text');
+    if (pastedText && extractYoutubeId(pastedText)) {
+      e.preventDefault();
+      addYoutubeUrl(pastedText, true);
+    }
+  });
+
   if (btnKeyboardHelp) btnKeyboardHelp.addEventListener('click', () => helpModal.classList.remove('hidden'));
   if (btnAbout) btnAbout.addEventListener('click', () => helpModal.classList.remove('hidden'));
   modalCloseBtn.addEventListener('click', () => helpModal.classList.add('hidden'));
@@ -2979,6 +3239,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
 
     switch (e.key.toUpperCase()) {
+      case 'Y':
+        e.preventDefault();
+        openYoutubeModal();
+        break;
       case 'Z':
         btnPrev.click();
         break;
@@ -3029,14 +3293,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         break;
       case 'ARROWLEFT':
         e.preventDefault();
-        if (audioElement.duration) {
-          engine.seek(Math.max(0, audioElement.currentTime - 5));
+        if (engine.getDuration()) {
+          engine.seek(Math.max(0, engine.getCurrentTime() - 5));
         }
         break;
       case 'ARROWRIGHT':
         e.preventDefault();
-        if (audioElement.duration) {
-          engine.seek(Math.min(audioElement.duration, audioElement.currentTime + 5));
+        if (engine.getDuration()) {
+          engine.seek(Math.min(engine.getDuration(), engine.getCurrentTime() + 5));
         }
         break;
       case 'DELETE':

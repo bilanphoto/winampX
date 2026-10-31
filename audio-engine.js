@@ -1,7 +1,7 @@
 /**
- * Winamp Web Player - Audio Engine (Web Audio API)
+ * Winamp Web Player - Audio Engine (Web Audio API + Native CarPlay Pipeline + YouTube Bridge)
  * Handles audio playback, 10-band equalizer, preamp, stereo panning,
- * spectrum & oscilloscope analysis, and chiptune demo generation.
+ * spectrum & oscilloscope analysis, YouTube link playback, and chiptune demo generation.
  */
 
 class WinampAudioEngine {
@@ -19,7 +19,29 @@ class WinampAudioEngine {
     this.eqEnabled = true;
     this.preampValue = 0; // dB (-12 to +12)
     this.soundFxEnabled = true; // Mechanical Cassette Sound FX
-    
+    this.volumeValue = 0.8;
+
+    // Detect iOS / iPadOS / Apple CarPlay environment:
+    // On iOS WebKit, calling AudioContext.createMediaElementSource(audio) detaches <audio>
+    // from iOS's native hardware AVPlayer pipeline, causing Apple CarPlay & Lock Screen
+    // controls/audio routing to fail or mute. Keeping <audio> on the native pipeline
+    // guarantees 100% Apple CarPlay compatibility!
+    this.isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent || '') ||
+      (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    this.useNativeAudio = this.isIOS;
+
+    // Playback mode: 'audio' (HTML5 <audio>) or 'youtube' (YouTube IFrame API)
+    this.activeMode = 'audio';
+    this.ytPlayer = null;
+    this.ytReady = false;
+    this.ytApiLoading = false;
+    this.ytPendingVideoId = null;
+    this.ytPendingAutoPlay = false;
+    this.ytTimer = null;
+    this.ytPlaying = false;
+    this.ytDuration = 0;
+    this.ytCurrentTime = 0;
+
     // Winamp EQ Frequencies (Hz)
     this.eqFrequencies = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000];
     this.eqGains = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; // dB
@@ -43,6 +65,13 @@ class WinampAudioEngine {
       softrock: [2.4, 2.4, 1.2, -0.6, -2.4, -3.2, -1.8, 0, 1.8, 5.8],
       vocal: [-1.8, -3.2, -3.2, 1.2, 4.8, 4.8, 3.2, 1.2, 0, -1.8]
     };
+
+    // Configure iOS audioSession to 'playback' immediately if supported
+    if ('audioSession' in navigator) {
+      try {
+        navigator.audioSession.type = 'playback';
+      } catch (e) {}
+    }
   }
 
   // Initialize Web Audio Graph upon first user interaction
@@ -54,52 +83,13 @@ class WinampAudioEngine {
       if (oldBg) oldBg.remove();
 
       const AudioCtx = window.AudioContext || window.webkitAudioContext;
-      // Configure latencyHint: 'playback' for optimal CarPlay & Bluetooth streaming buffers
+      if (!AudioCtx) return;
+
       try {
         this.ctx = new AudioCtx({ latencyHint: 'playback' });
       } catch (e) {
         this.ctx = new AudioCtx();
       }
-
-      // Create nodes
-      this.source = this.ctx.createMediaElementSource(this.audio);
-      this.preampGain = this.ctx.createGain();
-      this.panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
-      this.masterGain = this.ctx.createGain();
-      this.analyser = this.ctx.createAnalyser();
-
-      // Analyser config for smooth Winamp visualizer
-      this.analyser.fftSize = 128;
-      this.analyser.smoothingTimeConstant = 0.75;
-
-      // Create 10 EQ Peaking Filters
-      this.eqFilters = this.eqFrequencies.map((freq) => {
-        const filter = this.ctx.createBiquadFilter();
-        filter.type = 'peaking';
-        filter.frequency.value = freq;
-        filter.Q.value = 1.4;
-        filter.gain.value = 0;
-        return filter;
-      });
-
-      // Chain: Source -> Preamp -> EQ filters -> Panner -> Master -> Analyser -> Destination
-      let currentNode = this.source;
-      currentNode.connect(this.preampGain);
-      currentNode = this.preampGain;
-
-      for (const filter of this.eqFilters) {
-        currentNode.connect(filter);
-        currentNode = filter;
-      }
-
-      if (this.panner) {
-        currentNode.connect(this.panner);
-        currentNode = this.panner;
-      }
-
-      currentNode.connect(this.masterGain);
-      this.masterGain.connect(this.analyser);
-      this.analyser.connect(this.ctx.destination);
 
       // Set audioSession type to 'playback' for iOS Safari & Apple CarPlay integration
       if ('audioSession' in navigator) {
@@ -108,67 +98,122 @@ class WinampAudioEngine {
         } catch (e) {}
       }
 
-      // Handle AudioContext state changes (interruption from CarPlay, Bluetooth route changes, calls)
+      // IMPORTANT FOR APPLE CARPLAY & iOS:
+      // Do NOT call createMediaElementSource(this.audio) on iOS/CarPlay devices!
+      // Leaving this.audio attached directly to iOS's native hardware AVPlayer allows
+      // seamless Apple CarPlay audio routing, steering-wheel controls, and lock-screen playback.
+      if (!this.useNativeAudio) {
+        this.source = this.ctx.createMediaElementSource(this.audio);
+        this.preampGain = this.ctx.createGain();
+        this.panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+        this.masterGain = this.ctx.createGain();
+        this.analyser = this.ctx.createAnalyser();
+
+        this.analyser.fftSize = 128;
+        this.analyser.smoothingTimeConstant = 0.75;
+
+        this.eqFilters = this.eqFrequencies.map((freq, idx) => {
+          const filter = this.ctx.createBiquadFilter();
+          filter.type = 'peaking';
+          filter.frequency.value = freq;
+          filter.Q.value = 1.4;
+          filter.gain.value = this.eqEnabled ? (this.eqGains[idx] || 0) : 0;
+          return filter;
+        });
+
+        let currentNode = this.source;
+        currentNode.connect(this.preampGain);
+        currentNode = this.preampGain;
+
+        for (const filter of this.eqFilters) {
+          currentNode.connect(filter);
+          currentNode = filter;
+        }
+
+        if (this.panner) {
+          currentNode.connect(this.panner);
+          currentNode = this.panner;
+        }
+
+        currentNode.connect(this.masterGain);
+        this.masterGain.connect(this.analyser);
+        this.analyser.connect(this.ctx.destination);
+      }
+
       if (this.ctx) {
         this.ctx.addEventListener('statechange', () => {
-          if (!this.audio.paused && this.ctx) {
-            if (this.ctx.state === 'suspended') {
-              this.ctx.resume().catch(() => {});
-            } else if (this.ctx.state === 'interrupted') {
-              // Interruption in progress (e.g. CarPlay connecting or route change);
-              // attempt delayed resume once interruption settles
-              setTimeout(() => {
-                if (this.ctx && !this.audio.paused && this.ctx.state !== 'running') {
-                  this.ctx.resume().catch(() => {});
-                }
-              }, 250);
-              setTimeout(() => {
-                if (this.ctx && !this.audio.paused && this.ctx.state !== 'running') {
-                  this.ctx.resume().catch(() => {});
-                }
-              }, 800);
-            }
+          if (!this.isPaused() && this.ctx && this.ctx.state !== 'running') {
+            this.ctx.resume().catch(() => {});
           }
         });
       }
 
-      // Keep Web Audio graph active when audio element plays or resumes
-      this.audio.addEventListener('play', () => this.ensureRunning());
-      this.audio.addEventListener('playing', () => this.ensureRunning());
-
-      const resumeFn = () => {
-        if (!this.audio.paused) {
-          this.ensureRunning();
-        }
-      };
-
-      document.addEventListener('visibilitychange', resumeFn);
-      window.addEventListener('pageshow', resumeFn);
+      this.audio.addEventListener('play', () => {
+        if (!this.useNativeAudio) this.ensureRunning();
+      });
 
       this.isInitialized = true;
     } catch (e) {
-      console.warn("Web Audio API could not be initialized yet:", e);
+      console.warn('Web Audio API initialization skipped:', e);
     }
   }
 
-  // Resume context if suspended or interrupted
+  // Resume context if suspended or interrupted (non-blocking for native audio)
   async ensureRunning() {
     this.initAudioGraph();
     if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
       try {
         await this.ctx.resume();
-      } catch (e) {
-        // Ignored; will retry on next user interaction or statechange
-      }
+      } catch (e) {}
     }
+  }
+
+  // Unified getters for active playback (works for both <audio> and YouTube)
+  getCurrentTime() {
+    if (this.activeMode === 'youtube') {
+      if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.getCurrentTime === 'function') {
+        try {
+          const t = this.ytPlayer.getCurrentTime();
+          if (isFinite(t)) this.ytCurrentTime = t;
+        } catch (e) {}
+      }
+      return this.ytCurrentTime || 0;
+    }
+    return this.audio.currentTime || 0;
+  }
+
+  getDuration() {
+    if (this.activeMode === 'youtube') {
+      if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.getDuration === 'function') {
+        try {
+          const d = this.ytPlayer.getDuration();
+          if (isFinite(d) && d > 0) this.ytDuration = d;
+        } catch (e) {}
+      }
+      return this.ytDuration || 0;
+    }
+    return this.audio.duration || 0;
+  }
+
+  isPaused() {
+    if (this.activeMode === 'youtube') {
+      return !this.ytPlaying;
+    }
+    return this.audio.paused;
   }
 
   // Volume (0.0 to 1.0)
   setVolume(val) {
     const clamped = Math.max(0, Math.min(1, val));
+    this.volumeValue = clamped;
     this.audio.volume = clamped;
-    if (this.masterGain) {
+    if (this.masterGain && this.ctx) {
       this.masterGain.gain.setValueAtTime(clamped, this.ctx.currentTime);
+    }
+    if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.setVolume === 'function') {
+      try {
+        this.ytPlayer.setVolume(Math.round(clamped * 100));
+      } catch (e) {}
     }
   }
 
@@ -218,7 +263,6 @@ class WinampAudioEngine {
   applyPreset(name) {
     const preset = this.presets[name.toLowerCase()];
     if (!preset) return false;
-    
     preset.forEach((val, idx) => {
       this.setBandGain(idx, val);
     });
@@ -227,99 +271,333 @@ class WinampAudioEngine {
 
   // Get Frequency / FFT Data for Spectrum Analyzer (0 - 255)
   getFrequencyData(array) {
-    if (this.analyser && this.isInitialized) {
+    if (this.analyser && this.isInitialized && !this.useNativeAudio && this.activeMode === 'audio') {
       this.analyser.getByteFrequencyData(array);
-    } else {
+      return;
+    }
+
+    // Reactive synthesized spectrum for Native CarPlay Audio Mode & YouTube Mode
+    if (this.isPaused()) {
       array.fill(0);
+      return;
+    }
+
+    const now = performance.now() * 0.006;
+    const t = this.getCurrentTime();
+    const beat = Math.pow(Math.max(0, Math.sin(t * 7.2) * 0.5 + Math.sin(now * 2.3) * 0.5), 1.4);
+    const volScale = Math.max(0.25, this.volumeValue);
+
+    for (let i = 0; i < array.length; i++) {
+      const norm = i / array.length;
+      const eqIdx = Math.min(9, Math.floor(norm * 10));
+      const eqBoost = this.eqEnabled ? ((this.eqGains[eqIdx] || 0) * 3.5) : 0;
+      const bassEnvelope = Math.exp(-norm * 2.2) * 145 * (0.65 + 0.55 * beat);
+      const midWave = Math.abs(Math.sin(now * 1.7 + i * 0.45) * Math.cos(now * 1.1 - i * 0.25)) * 115 * (1 - norm * 0.45);
+      const shimmer = Math.abs(Math.sin(now * 4.3 + i * 1.7)) * 42;
+      const raw = (bassEnvelope + midWave + shimmer + eqBoost) * volScale;
+      array[i] = Math.max(0, Math.min(255, Math.floor(raw)));
     }
   }
 
   // Get TimeDomain / Waveform Data for Oscilloscope (0 - 255)
   getTimeDomainData(array) {
-    if (this.analyser && this.isInitialized) {
+    if (this.analyser && this.isInitialized && !this.useNativeAudio && this.activeMode === 'audio') {
       this.analyser.getByteTimeDomainData(array);
-    } else {
+      return;
+    }
+
+    if (this.isPaused()) {
       array.fill(128);
+      return;
+    }
+
+    const now = performance.now() * 0.012;
+    const amp = 48 * Math.max(0.25, this.volumeValue);
+    for (let i = 0; i < array.length; i++) {
+      const wave = Math.sin(now * 2.2 + i * 0.35) * 0.6 +
+                   Math.sin(now * 5.1 - i * 0.7) * 0.4;
+      array[i] = Math.max(0, Math.min(255, Math.floor(128 + wave * amp)));
     }
   }
 
-  // Play audio file (Blob / URL)
-  async loadTrack(source) {
-    await this.ensureRunning();
-    return new Promise((resolve, reject) => {
-      let srcUrl = '';
-      if (source instanceof Blob || source instanceof File) {
-        if (this._currentBlobUrl) {
-          try { URL.revokeObjectURL(this._currentBlobUrl); } catch (e) {}
-        }
-        this._currentBlobUrl = URL.createObjectURL(source);
-        srcUrl = this._currentBlobUrl;
-      } else if (typeof source === 'string') {
-        srcUrl = source;
+  // =========================================================================
+  // YOUTUBE IFRAME API & DIRECT STREAM SUPPORT
+  // =========================================================================
+  initYoutubePlayer() {
+    return new Promise((resolve) => {
+      if (this.ytReady && this.ytPlayer) {
+        resolve(this.ytPlayer);
+        return;
       }
 
-      const onReady = () => {
-        cleanup();
-        resolve();
-      };
-      const onError = (e) => {
-        cleanup();
-        reject(e);
-      };
-      const cleanup = () => {
-        this.audio.removeEventListener('canplay', onReady);
-        this.audio.removeEventListener('loadeddata', onReady);
-        this.audio.removeEventListener('error', onError);
+      this._ytResolveList = this._ytResolveList || [];
+      this._ytResolveList.push(resolve);
+
+      const createPlayerInstance = () => {
+        if (this.ytPlayer) return;
+        try {
+          this.ytPlayer = new window.YT.Player('ytPlayerFrame', {
+            width: '200',
+            height: '112',
+            playerVars: {
+              autoplay: 1,
+              controls: 0,
+              disablekb: 1,
+              fs: 0,
+              iv_load_policy: 3,
+              modestbranding: 1,
+              playsinline: 1,
+              rel: 0,
+              origin: window.location.origin
+            },
+            events: {
+              onReady: () => {
+                this.ytReady = true;
+                try {
+                  this.ytPlayer.setVolume(Math.round(this.volumeValue * 100));
+                } catch (e) {}
+
+                if (this._ytResolveList) {
+                  this._ytResolveList.forEach(fn => fn(this.ytPlayer));
+                  this._ytResolveList = [];
+                }
+
+                if (this.ytPendingVideoId) {
+                  const vid = this.ytPendingVideoId;
+                  const auto = this.ytPendingAutoPlay;
+                  this.ytPendingVideoId = null;
+                  if (auto) {
+                    this.ytPlayer.loadVideoById(vid);
+                  } else {
+                    this.ytPlayer.cueVideoById(vid);
+                  }
+                }
+              },
+              onStateChange: (event) => {
+                if (this.activeMode !== 'youtube') return;
+                const YTState = window.YT ? window.YT.PlayerState : {};
+                if (event.data === YTState.PLAYING) {
+                  this.ytPlaying = true;
+                  const d = this.ytPlayer.getDuration();
+                  if (isFinite(d) && d > 0) this.ytDuration = d;
+                  this._startYtTimer();
+                  this.audio.dispatchEvent(new Event('play'));
+                  this.audio.dispatchEvent(new Event('timeupdate'));
+                } else if (event.data === YTState.PAUSED) {
+                  this.ytPlaying = false;
+                  this._stopYtTimer();
+                  this.audio.dispatchEvent(new Event('pause'));
+                } else if (event.data === YTState.ENDED) {
+                  this.ytPlaying = false;
+                  this._stopYtTimer();
+                  this.audio.dispatchEvent(new Event('ended'));
+                }
+              },
+              onError: (err) => {
+                console.warn('YouTube Player error:', err);
+                if (this.activeMode === 'youtube') {
+                  this.ytPlaying = false;
+                  this._stopYtTimer();
+                  this.audio.dispatchEvent(new Event('error'));
+                }
+              }
+            }
+          });
+        } catch (err) {
+          console.warn('Failed to create YT.Player:', err);
+          if (this._ytResolveList) {
+            this._ytResolveList.forEach(fn => fn(null));
+            this._ytResolveList = [];
+          }
+        }
       };
 
-      this.audio.addEventListener('canplay', onReady, { once: true });
-      this.audio.addEventListener('loadeddata', onReady, { once: true });
-      this.audio.addEventListener('error', onError, { once: true });
+      if (window.YT && window.YT.Player) {
+        createPlayerInstance();
+        return;
+      }
 
-      this.audio.src = srcUrl;
-      this.audio.load();
+      const prevCallback = window.onYouTubeIframeAPIReady;
+      window.onYouTubeIframeAPIReady = () => {
+        if (typeof prevCallback === 'function') prevCallback();
+        createPlayerInstance();
+      };
 
-      if (this.audio.readyState >= 2) {
-        cleanup();
-        resolve();
+      if (!this.ytApiLoading) {
+        this.ytApiLoading = true;
+        const tag = document.createElement('script');
+        tag.src = 'https://www.youtube.com/iframe_api';
+        tag.async = true;
+        tag.onerror = () => {
+          this.ytApiLoading = false;
+          if (this._ytResolveList) {
+            this._ytResolveList.forEach(fn => fn(null));
+            this._ytResolveList = [];
+          }
+        };
+        document.head.appendChild(tag);
       }
     });
   }
 
-  async play() {
-    await this.ensureRunning();
+  _startYtTimer() {
+    this._stopYtTimer();
+    this.ytTimer = setInterval(() => {
+      if (this.activeMode === 'youtube' && this.ytPlaying && this.ytPlayer && this.ytReady) {
+        try {
+          const cur = this.ytPlayer.getCurrentTime();
+          const dur = this.ytPlayer.getDuration();
+          if (isFinite(cur)) this.ytCurrentTime = cur;
+          if (isFinite(dur) && dur > 0) this.ytDuration = dur;
+          this.audio.dispatchEvent(new Event('timeupdate'));
+        } catch (e) {}
+      }
+    }, 250);
+  }
+
+  _stopYtTimer() {
+    if (this.ytTimer) {
+      clearInterval(this.ytTimer);
+      this.ytTimer = null;
+    }
+  }
+
+  // Load a YouTube track (uses YT IFrame Player API for 100% reliability)
+  async loadYoutubeTrack(videoId, knownDuration = 0) {
+    // Stop HTML5 audio cleanly
+    try {
+      this.audio.pause();
+    } catch (e) {}
+
+    this.activeMode = 'youtube';
+    this.ytCurrentTime = 0;
+    this.ytDuration = knownDuration || 0;
+    this.ytPlaying = false;
+    this.ytPendingVideoId = videoId;
+    this.ytPendingAutoPlay = true;
+
+    await this.initYoutubePlayer();
+    if (this.ytPlayer && this.ytReady) {
+      this.ytPendingVideoId = null;
+      this.ytPlayer.setVolume(Math.round(this.volumeValue * 100));
+      this.ytPlayer.loadVideoById(videoId);
+    }
+  }
+
+  // Load standard audio file (Blob / File / URL)
+  // Synchronous src assignment preserves iOS Safari / Apple CarPlay user gesture & MediaSession tokens!
+  async loadTrack(source) {
+    // Stop YouTube player if switching back to standard audio
+    if (this.activeMode === 'youtube') {
+      this.activeMode = 'audio';
+      this.ytPlaying = false;
+      this._stopYtTimer();
+      if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.stopVideo === 'function') {
+        try { this.ytPlayer.stopVideo(); } catch (e) {}
+      }
+    }
+
+    if (!this.useNativeAudio) {
+      this.initAudioGraph();
+      if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+        this.ctx.resume().catch(() => {});
+      }
+    }
+
     if ('audioSession' in navigator) {
       try {
         navigator.audioSession.type = 'playback';
       } catch (e) {}
     }
+
+    let srcUrl = '';
+    if (source instanceof Blob || source instanceof File) {
+      if (this._currentBlobUrl) {
+        try { URL.revokeObjectURL(this._currentBlobUrl); } catch (e) {}
+      }
+      this._currentBlobUrl = URL.createObjectURL(source);
+      srcUrl = this._currentBlobUrl;
+    } else if (typeof source === 'string') {
+      srcUrl = source;
+    }
+
+    this.audio.src = srcUrl;
+    this.audio.load();
+  }
+
+  async play() {
+    if ('audioSession' in navigator) {
+      try {
+        navigator.audioSession.type = 'playback';
+      } catch (e) {}
+    }
+
+    if (this.activeMode === 'youtube') {
+      await this.initYoutubePlayer();
+      if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.playVideo === 'function') {
+        this.ytPlayer.playVideo();
+      }
+      return;
+    }
+
+    if (!this.useNativeAudio) {
+      this.initAudioGraph();
+      if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+        this.ctx.resume().catch(() => {});
+      }
+    }
+
     return this.audio.play();
   }
 
   pause() {
+    if (this.activeMode === 'youtube') {
+      if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.pauseVideo === 'function') {
+        this.ytPlayer.pauseVideo();
+      }
+      return;
+    }
     this.audio.pause();
   }
 
   stop() {
+    if (this.activeMode === 'youtube') {
+      this.ytPlaying = false;
+      this.ytCurrentTime = 0;
+      this._stopYtTimer();
+      if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.stopVideo === 'function') {
+        try { this.ytPlayer.stopVideo(); } catch (e) {}
+      }
+      return;
+    }
     this.audio.pause();
     this.audio.currentTime = 0;
   }
 
   seek(seconds) {
-    if (isFinite(seconds) && seconds >= 0) {
-      this.audio.currentTime = seconds;
+    if (!isFinite(seconds) || seconds < 0) return;
+    if (this.activeMode === 'youtube') {
+      this.ytCurrentTime = seconds;
+      if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.seekTo === 'function') {
+        try {
+          this.ytPlayer.seekTo(seconds, true);
+          this.audio.dispatchEvent(new Event('timeupdate'));
+        } catch (e) {}
+      }
+      return;
     }
+    this.audio.currentTime = seconds;
   }
 
   // Mechanical Cassette Sound Synthesizer (Realistic Walkman physical button sounds)
+  // On iOS/CarPlay, skips creating WebAudio oscillators so iOS never interrupts CarPlay AVPlayer!
   playMechanicalSound(type = 'click') {
-    if (!this.soundFxEnabled) return;
+    if (!this.soundFxEnabled || this.useNativeAudio) return;
     try {
       this.initAudioGraph();
       if (!this.ctx || this.ctx.state !== 'running') return;
       const now = this.ctx.currentTime;
       if (type === 'play' || type === 'clunk') {
-        // Heavy spring-loaded Walkman play key latch sound
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'triangle';
@@ -332,7 +610,6 @@ class WinampAudioEngine {
         osc.start(now);
         osc.stop(now + 0.08);
 
-        // Click transient
         const bufferSize = Math.floor(this.ctx.sampleRate * 0.03);
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
         const data = buffer.getChannelData(0);
@@ -345,7 +622,6 @@ class WinampAudioEngine {
         noiseGain.connect(this.ctx.destination);
         noise.start(now);
       } else if (type === 'stop' || type === 'pause' || type === 'click') {
-        // Crisp spring latch snap
         const bufferSize = Math.floor(this.ctx.sampleRate * 0.025);
         const buffer = this.ctx.createBuffer(1, bufferSize, this.ctx.sampleRate);
         const data = buffer.getChannelData(0);
@@ -358,7 +634,6 @@ class WinampAudioEngine {
         noiseGain.connect(this.ctx.destination);
         noise.start(now);
       } else if (type === 'eject') {
-        // Dual latch pop
         const osc = this.ctx.createOscillator();
         const gain = this.ctx.createGain();
         osc.type = 'square';
@@ -381,7 +656,6 @@ class WinampAudioEngine {
     const numSamples = sampleRate * duration;
     const buffer = new Float32Array(numSamples);
 
-    // Retro 8-bit / 90s tracker arpeggios and chords (Am - F - C - G progression)
     const chords = [
       [220, 261.63, 329.63, 440], // Am
       [174.61, 220, 261.63, 349.23], // F
@@ -398,47 +672,35 @@ class WinampAudioEngine {
       const chordIdx = Math.floor((step / 16) % chords.length);
       const chord = chords[chordIdx];
       const arpNote = chord[step % chord.length];
-
-      // Bass note
       const bassFreq = chord[0] / 2;
 
       for (let s = 0; s < stepSamples && sampleIdx < numSamples; s++, sampleIdx++) {
         const t = sampleIdx / sampleRate;
-
-        // Lead: Pulse wave with envelope
         const env = Math.exp(-((s / stepSamples) * 3));
         const leadPhase = (t * arpNote) % 1;
         const lead = (leadPhase < 0.3 ? 1 : -1) * 0.22 * env;
 
-        // Bass: Triangular/Saw wave
         const bassPhase = (t * bassFreq) % 1;
         const bass = (bassPhase * 2 - 1) * 0.25;
 
-        // Drums: Kick on 0, 4, 8, 12; Snare on 4, 12; Hi-hat on every 2
         let drum = 0;
         const stepInBeat = step % 4;
         if (stepInBeat === 0) {
-          // Kick
           const kickEnv = Math.exp(-(s / (sampleRate * 0.15)) * 12);
           const kickFreq = 120 * Math.exp(-(s / (sampleRate * 0.05)) * 8);
           drum += Math.sin(2 * Math.PI * kickFreq * (s / sampleRate)) * 0.5 * kickEnv;
         } else if (stepInBeat === 2) {
-          // Snare (noise)
           const snareEnv = Math.exp(-(s / (sampleRate * 0.12)) * 10);
           drum += (Math.random() * 2 - 1) * 0.35 * snareEnv;
         }
-        // Hihat on 16ths
         const hatEnv = Math.exp(-(s / (sampleRate * 0.04)) * 20);
         drum += (Math.random() * 2 - 1) * 0.08 * hatEnv;
 
-        // Mix
         let sample = lead + bass + drum;
-        // Soft clipping
         buffer[sampleIdx] = Math.max(-0.95, Math.min(0.95, sample));
       }
     }
 
-    // Convert to 16-bit PCM WAV Blob
     return this.encodeWAV(buffer, sampleRate);
   }
 
@@ -449,7 +711,6 @@ class WinampAudioEngine {
     const numSamples = sampleRate * duration;
     const buffer = new Float32Array(numSamples);
 
-    // Retro FM Synth sweep + "WINAMP - IT REALLY WHIPS THE LLAMA'S ASS" fanfare
     const melody = [261.63, 329.63, 392, 523.25, 392, 523.25];
     const noteDuration = sampleRate * 0.4;
 
@@ -459,12 +720,10 @@ class WinampAudioEngine {
       const freq = melody[noteIdx];
       const noteT = (i % noteDuration) / sampleRate;
 
-      // Brass-like synth FM modulation
       const mod = Math.sin(2 * Math.PI * (freq * 2) * noteT) * 2;
       const carrier = Math.sin(2 * Math.PI * freq * noteT + mod);
       const env = Math.exp(-noteT * 2.5);
 
-      // Whip whip noise sound at the end
       let whip = 0;
       if (t > 2.8 && t < 3.8) {
         const whipT = t - 2.8;
@@ -484,26 +743,22 @@ class WinampAudioEngine {
     const buffer = new ArrayBuffer(44 + samples.length * 2);
     const view = new DataView(buffer);
 
-    // RIFF chunk descriptor
     this.writeString(view, 0, 'RIFF');
     view.setUint32(4, 36 + samples.length * 2, true);
     this.writeString(view, 8, 'WAVE');
 
-    // fmt sub-chunk
     this.writeString(view, 12, 'fmt ');
-    view.setUint32(16, 16, true); // Subchunk1Size (16 for PCM)
-    view.setUint16(20, 1, true); // AudioFormat (1 = PCM)
-    view.setUint16(22, 1, true); // NumChannels (1 = Mono)
-    view.setUint32(24, sampleRate, true); // SampleRate
-    view.setUint32(28, sampleRate * 2, true); // ByteRate
-    view.setUint16(32, 2, true); // BlockAlign
-    view.setUint16(34, 16, true); // BitsPerSample (16 bits)
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, 1, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * 2, true);
+    view.setUint16(32, 2, true);
+    view.setUint16(34, 16, true);
 
-    // data sub-chunk
     this.writeString(view, 36, 'data');
     view.setUint32(40, samples.length * 2, true);
 
-    // Write PCM 16-bit samples
     let offset = 44;
     for (let i = 0; i < samples.length; i++, offset += 2) {
       const s = Math.max(-1, Math.min(1, samples[i]));

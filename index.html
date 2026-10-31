@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=3.2">
+  <link rel="stylesheet" href="styles.css?v=3.3">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -55,6 +55,7 @@
               <div class="menu-item" id="menuTapeOrange">📼 Tape: Neon Orange (ม้วนส้มใส)</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuOpenFiles">📂 Add Audio Files... (L)</div>
+              <div class="menu-item" id="menuOpenYoutube">▶️ Add YouTube Link... (Y)</div>
               <div class="menu-item" id="menuOpenDemo">🎵 Load Demo Songs</div>
               <div class="menu-item" id="menuResetWin">⟲ Reset Windows</div>
               <div class="menu-separator"></div>
@@ -270,6 +271,7 @@
           <div class="menu-btn-wrap pl-btn-wrap-add">
             <button class="pledif-btn btn-pl-add" id="plAddBtn" title="Add tracks"></button>
             <div class="popup-menu hidden" id="plAddMenu">
+              <div class="menu-item" id="menuAddYoutube">▶️ Add YouTube Link...</div>
               <div class="menu-item" id="menuAddFile">Add File(s)...</div>
               <div class="menu-item" id="menuAddFolder">Add Directory...</div>
               <div class="menu-item" id="menuAddDemo">Add Demo Songs</div>
@@ -356,6 +358,7 @@
               <div class="menu-separator"></div>
               <div class="menu-item" id="cmenuCustomTapeSkin">🎨 ใส่รูปลวดลายบนม้วนเทป (Custom Tape Art...)</div>
               <div class="menu-item hidden" id="cmenuResetTapeSkin">❌ ลบลวดลายม้วนเทป (Reset Default)</div>
+              <div class="menu-item" id="cmenuYoutube">▶️ วางลิงก์ YouTube (Play YouTube Link...)</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="cmenuTapeFlip">🔄 พลิกหน้าเทป (Side A / Side B)</div>
               <div class="menu-item" id="cmenuSoundFx">🔊 เสียงกลไกเทป (Sound FX: เปิด)</div>
@@ -383,6 +386,7 @@
               <button class="deck-counter-rst" id="deckCounterReset" title="Reset Counter">R</button>
             </div>
             <div class="deck-top-controls">
+              <button class="deck-yt-btn" id="btnDeckYoutube" title="วางลิงก์ YouTube เพื่อเล่นเพลง (Play YouTube Link)">▶ YT</button>
               <button class="deck-photo-btn" id="btnUploadTapePhoto" title="เลือกรูปใส่บนม้วนเทป (Custom Tape Photo)">📷</button>
               <div class="deck-status-led" id="deckLed" title="Tape Motor Running"></div>
               <button class="deck-winamp-btn" id="btnCassetteToWinamp" title="สลับกลับไปสกิน Winamp (Switch to Winamp)">⚡</button>
@@ -581,6 +585,7 @@
             <span class="walkman-brand-logo">WINAMP <em>Walkman</em></span>
           </div>
           <div class="walkman-top-actions">
+            <button class="walkman-action-btn walkman-yt-btn" id="wmYoutubeBtn" title="วางลิงก์ YouTube (Play YouTube)">▶ YT</button>
             <button class="walkman-action-btn" id="wmSoundFxBtn" title="Toggle Mechanical Sound FX">🔊 SFX: ON</button>
             <button class="walkman-action-btn" id="wmSideBtn" title="Flip Tape Side (Side A / B)">SIDE A</button>
             <button class="walkman-close-btn" id="wmCloseBtn" title="Back to Winamp Windows">✕</button>
@@ -743,15 +748,47 @@
       </div>
     </div>
 
+    <!-- ============================================== -->
+    <!-- 6. YOUTUBE LINK MODAL                          -->
+    <!-- ============================================== -->
+    <div id="youtubeModal" class="modal-backdrop hidden">
+      <div class="modal-window yt-modal-window">
+        <div class="modal-titlebar yt-modal-titlebar">
+          <span>▶️ เล่นเพลงจากลิงก์ YouTube (YouTube Link Player)</span>
+          <button class="modal-close" id="ytModalCloseBtn">✕</button>
+        </div>
+        <div class="modal-content yt-modal-content">
+          <label class="yt-input-label" for="ytUrlInput">วางลิงก์ YouTube หรือ YouTube Music ที่นี่:</label>
+          <div class="yt-input-row">
+            <input type="url" id="ytUrlInput" class="yt-url-input" placeholder="https://www.youtube.com/watch?v=... หรือ https://youtu.be/..." autocomplete="off" />
+            <button type="button" class="yt-paste-btn" id="ytPasteBtn" title="วางจากคลิปบอร์ด (Paste)">📋 วาง</button>
+          </div>
+          <div id="ytStatusMsg" class="yt-status-msg hidden"></div>
+          <div class="yt-modal-actions">
+            <button type="button" class="yt-btn yt-btn-play" id="ytPlayNowBtn">▶️ เล่นทันที (Play Now)</button>
+            <button type="button" class="yt-btn yt-btn-add" id="ytAddQueueBtn">➕ เพิ่มเข้าเพลย์ลิสต์</button>
+          </div>
+          <div class="yt-tip-box">
+            💡 <strong>ทิป:</strong> สามารถกด <kbd>Ctrl+V</kbd> (หรือ <kbd>Cmd+V</kbd>) บนหน้าเว็บเพื่อวางลิงก์และเล่นทันทีได้เลย!
+          </div>
+        </div>
+      </div>
+    </div>
+
   </div>
 
-  <!-- Audio Element (Configured for background and inline playback on iOS / mobile) -->
-  <audio id="audioElement" preload="auto" playsinline webkit-playsinline crossorigin="anonymous"></audio>
+  <!-- Hidden YouTube Audio Player Bridge -->
+  <div id="ytPlayerContainer" class="yt-hidden-player" aria-hidden="true">
+    <div id="ytPlayerFrame"></div>
+  </div>
+
+  <!-- Audio Element (Configured for native iOS / Apple CarPlay & background playback) -->
+  <audio id="audioElement" preload="auto" playsinline webkit-playsinline></audio>
 
   <!-- Scripts -->
-  <script src="db.js?v=3.2"></script>
-  <script src="id3.js?v=3.2"></script>
-  <script src="audio-engine.js?v=3.2"></script>
-  <script src="app.js?v=3.2"></script>
+  <script src="db.js?v=3.3"></script>
+  <script src="id3.js?v=3.3"></script>
+  <script src="audio-engine.js?v=3.3"></script>
+  <script src="app.js?v=3.3"></script>
 </body>
 </html>

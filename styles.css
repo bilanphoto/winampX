@@ -3662,3 +3662,187 @@ body.skin-midnight .btn-tape.active {
   border-color: #00ff00;
   box-shadow: 0 0 5px rgba(0, 255, 0, 0.6);
 }
+
+/* ==========================================================================
+   6. YOUTUBE LINK PLAYER BUTTONS & MODAL
+   ========================================================================== */
+.deck-yt-btn {
+  height: 15px;
+  padding: 0 4px;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+  border: 1px solid #f87171;
+  color: #ffffff;
+  font-family: Arial, sans-serif;
+  font-size: 7px;
+  font-weight: 900;
+  letter-spacing: 0.3px;
+  line-height: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.25), 0 1px 2px rgba(0, 0, 0, 0.6);
+  transition: all 0.15s ease;
+}
+
+.deck-yt-btn:hover {
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+  border-color: #fca5a5;
+  box-shadow: 0 0 6px rgba(239, 68, 68, 0.7);
+  transform: translateY(-0.5px);
+}
+
+.deck-yt-btn:active {
+  transform: translateY(0.5px);
+}
+
+.walkman-yt-btn {
+  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%) !important;
+  border-color: #f87171 !important;
+  color: #ffffff !important;
+}
+
+.walkman-yt-btn:hover {
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%) !important;
+  box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
+}
+
+.yt-modal-window {
+  width: 340px;
+  max-width: 94vw;
+  background: #1e232d;
+  border: 2px solid #475569;
+  border-radius: 6px;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.85);
+}
+
+.yt-modal-titlebar {
+  background: linear-gradient(90deg, #991b1b 0%, #1e293b 100%);
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 11px;
+  padding: 6px 10px;
+}
+
+.yt-modal-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  color: #e2e8f0;
+  font-size: 11px;
+}
+
+.yt-input-label {
+  font-weight: bold;
+  color: #f8fafc;
+  font-size: 11px;
+}
+
+.yt-input-row {
+  display: flex;
+  gap: 6px;
+}
+
+.yt-url-input {
+  flex: 1;
+  background: #0f172a;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  color: #38bdf8;
+  padding: 7px 8px;
+  font-size: 11px;
+  font-family: monospace;
+  outline: none;
+}
+
+.yt-url-input:focus {
+  border-color: #ef4444;
+  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.25);
+}
+
+.yt-paste-btn {
+  background: #334155;
+  border: 1px solid #64748b;
+  border-radius: 4px;
+  color: #f8fafc;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 0 10px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.yt-paste-btn:hover {
+  background: #475569;
+}
+
+.yt-status-msg {
+  font-size: 10.5px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  background: rgba(15, 23, 42, 0.8);
+  border: 1px solid #334155;
+  color: #fbbf24;
+  word-break: break-word;
+}
+
+.yt-modal-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.yt-btn {
+  flex: 1;
+  padding: 8px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: bold;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+}
+
+.yt-btn-play {
+  background: linear-gradient(180deg, #dc2626 0%, #991b1b 100%);
+  border-color: #f87171;
+  color: #ffffff;
+}
+
+.yt-btn-play:hover {
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+}
+
+.yt-btn-add {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.yt-btn-add:hover {
+  background: linear-gradient(180deg, #0ea5e9 0%, #0284c7 100%);
+}
+
+.yt-tip-box {
+  font-size: 9.5px;
+  color: #94a3b8;
+  background: rgba(15, 23, 42, 0.5);
+  padding: 6px 8px;
+  border-radius: 4px;
+  border-left: 2px solid #ef4444;
+  line-height: 1.4;
+}
+
+/* Keep YouTube IFrame active for browser audio policy without cluttering UI */
+.yt-hidden-player {
+  position: fixed;
+  bottom: 0;
+  right: 0;
+  width: 200px;
+  height: 112px;
+  opacity: 0.001;
+  pointer-events: none;
+  z-index: -1;
+  overflow: hidden;
+}
