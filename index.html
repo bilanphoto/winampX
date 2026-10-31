@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=3.3">
+  <link rel="stylesheet" href="styles.css?v=3.4">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -386,7 +386,12 @@
               <button class="deck-counter-rst" id="deckCounterReset" title="Reset Counter">R</button>
             </div>
             <div class="deck-top-controls">
-              <button class="deck-yt-btn" id="btnDeckYoutube" title="วางลิงก์ YouTube เพื่อเล่นเพลง (Play YouTube Link)">▶ YT</button>
+              <button class="deck-yt-btn" id="btnDeckYoutube" title="วางลิงก์ YouTube เพื่อเล่นเพลง (Play YouTube Link)">
+                <svg viewBox="0 0 24 17" class="yt-logo-svg" aria-hidden="true">
+                  <path d="M23.5 2.7a3 3 0 0 0-2.1-2.1C19.5 0 12 0 12 0S4.5 0 2.6.6A3 3 0 0 0 .5 2.7C0 4.6 0 8.5 0 8.5s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z" fill="#ff0033"/>
+                  <polygon points="9.5,12.2 16,8.5 9.5,4.8" fill="#ffffff"/>
+                </svg>
+              </button>
               <button class="deck-photo-btn" id="btnUploadTapePhoto" title="เลือกรูปใส่บนม้วนเทป (Custom Tape Photo)">📷</button>
               <div class="deck-status-led" id="deckLed" title="Tape Motor Running"></div>
               <button class="deck-winamp-btn" id="btnCassetteToWinamp" title="สลับกลับไปสกิน Winamp (Switch to Winamp)">⚡</button>
@@ -585,7 +590,12 @@
             <span class="walkman-brand-logo">WINAMP <em>Walkman</em></span>
           </div>
           <div class="walkman-top-actions">
-            <button class="walkman-action-btn walkman-yt-btn" id="wmYoutubeBtn" title="วางลิงก์ YouTube (Play YouTube)">▶ YT</button>
+            <button class="walkman-action-btn walkman-yt-btn" id="wmYoutubeBtn" title="วางลิงก์ YouTube (Play YouTube)">
+              <svg viewBox="0 0 24 17" class="yt-logo-svg-wm" aria-hidden="true">
+                <path d="M23.5 2.7a3 3 0 0 0-2.1-2.1C19.5 0 12 0 12 0S4.5 0 2.6.6A3 3 0 0 0 .5 2.7C0 4.6 0 8.5 0 8.5s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z" fill="#ff0033"/>
+                <polygon points="9.5,12.2 16,8.5 9.5,4.8" fill="#ffffff"/>
+              </svg>
+            </button>
             <button class="walkman-action-btn" id="wmSoundFxBtn" title="Toggle Mechanical Sound FX">🔊 SFX: ON</button>
             <button class="walkman-action-btn" id="wmSideBtn" title="Flip Tape Side (Side A / B)">SIDE A</button>
             <button class="walkman-close-btn" id="wmCloseBtn" title="Back to Winamp Windows">✕</button>
@@ -786,9 +796,9 @@
   <audio id="audioElement" preload="auto" playsinline webkit-playsinline></audio>
 
   <!-- Scripts -->
-  <script src="db.js?v=3.3"></script>
-  <script src="id3.js?v=3.3"></script>
-  <script src="audio-engine.js?v=3.3"></script>
-  <script src="app.js?v=3.3"></script>
+  <script src="db.js?v=3.4"></script>
+  <script src="id3.js?v=3.4"></script>
+  <script src="audio-engine.js?v=3.4"></script>
+  <script src="app.js?v=3.4"></script>
 </body>
 </html>
