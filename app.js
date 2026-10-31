@@ -411,7 +411,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isCassetteSkin = document.body.classList.contains('skin-cassette');
 
     if (isCassetteSkin) {
-      // In Walkman Cassette mode: Winamp main and EQ are hidden
+      // In Walkman Cassette mode: Winamp main is hidden, EQ and Playlist can be toggled
       const padL = winContainer ? parseInt(getComputedStyle(winContainer).paddingLeft, 10) || 12 : 12;
       const padR = winContainer ? parseInt(getComputedStyle(winContainer).paddingRight, 10) || 12 : 12;
       const padT = winContainer ? parseInt(getComputedStyle(winContainer).paddingTop, 10) || 12 : 12;
@@ -420,15 +420,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       const availW = Math.max(260, window.innerWidth - padL - padR);
       const availH = Math.max(200, window.innerHeight - padT - padB);
 
+      const isEqVisible = !eqWindow.classList.contains('hidden');
       const isPlVisible = !plWindow.classList.contains('hidden');
       const csH = cassetteWindow.classList.contains('shaded') ? 14 : 232;
+      const eqH = isEqVisible ? (eqWindow.classList.contains('shaded') ? 14 : 116) : 0;
 
       if (isLandscape) {
         document.body.classList.remove('layout-portrait', 'layout-desktop');
         document.body.classList.add('layout-landscape');
 
         const baseW = isPlVisible ? 550 : 275;
-        const baseH = 232;
+        const leftColH = csH + eqH;
+        const baseH = Math.max(leftColH, isPlVisible ? 232 : leftColH);
 
         let scale = Math.min(availW / baseW, availH / baseH);
         scale = Math.max(0.6, Math.min(scale, 3.2));
@@ -440,10 +443,15 @@ document.addEventListener('DOMContentLoaded', async () => {
         cassetteWindow.style.left = '0px';
         cassetteWindow.style.top = '0px';
 
+        if (isEqVisible) {
+          eqWindow.style.left = '0px';
+          eqWindow.style.top = `${csH}px`;
+        }
+
         if (isPlVisible) {
           plWindow.style.left = '275px';
           plWindow.style.top = '0px';
-          plWindow.style.height = '232px';
+          plWindow.style.height = `${baseH}px`;
         }
       } else {
         document.body.classList.remove('layout-landscape', 'layout-desktop');
@@ -452,7 +460,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         let scale = availW / 275;
         scale = Math.min(scale, 2.2);
 
-        const minReqH = csH + (isPlVisible ? 160 : 0);
+        const minReqH = csH + eqH + (isPlVisible ? 160 : 0);
         if (minReqH * scale > availH && availH > 200) {
           const heightScale = availH / minReqH;
           if (heightScale < scale) scale = Math.max(0.65, heightScale);
@@ -465,14 +473,21 @@ document.addEventListener('DOMContentLoaded', async () => {
         cassetteWindow.style.left = '0px';
         cassetteWindow.style.top = '0px';
 
-        let totalH = csH;
+        let currentTop = csH;
+        if (isEqVisible) {
+          eqWindow.style.left = '0px';
+          eqWindow.style.top = `${currentTop}px`;
+          currentTop += eqH;
+        }
+
+        let totalH = currentTop;
         if (isPlVisible) {
           plWindow.style.left = '0px';
-          plWindow.style.top = `${csH}px`;
-          const availPlH = (availH / scale) - csH;
+          plWindow.style.top = `${currentTop}px`;
+          const availPlH = (availH / scale) - currentTop;
           const targetPlH = Math.max(160, Math.floor(availPlH));
           plWindow.style.height = `${targetPlH}px`;
-          totalH = csH + targetPlH;
+          totalH = currentTop + targetPlH;
         }
 
         document.documentElement.style.setProperty('--ws-height', `${totalH}px`);
@@ -1499,6 +1514,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     if (cmenuTapeFlip) cmenuTapeFlip.addEventListener('click', () => { toggleTapeSide(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuSoundFx) cmenuSoundFx.addEventListener('click', () => { toggleCassetteSoundFx(); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    const cmenuToggleEQ = document.getElementById('cmenuToggleEQ');
+    const btnCassetteToggleEQ = document.getElementById('btnCassetteToggleEQ');
+    function toggleCassetteEQ() {
+      eqWindow.classList.toggle('hidden');
+      const isVisible = !eqWindow.classList.contains('hidden');
+      if (btnToggleEQ) btnToggleEQ.classList.toggle('active', isVisible);
+      if (btnCassetteToggleEQ) btnCassetteToggleEQ.classList.toggle('active', isVisible);
+      if (isVisible) {
+        bringToFront(eqWindow);
+        drawEQCurve();
+      }
+      updateResponsiveLayout();
+      saveWindowPositions();
+    }
+    if (cmenuToggleEQ) {
+      cmenuToggleEQ.addEventListener('click', () => {
+        toggleCassetteEQ();
+        if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden');
+      });
+    }
+    if (btnCassetteToggleEQ) {
+      btnCassetteToggleEQ.addEventListener('click', toggleCassetteEQ);
+    }
+
     if (cmenuTogglePL) {
       cmenuTogglePL.addEventListener('click', () => {
         plWindow.classList.toggle('hidden');
@@ -2088,6 +2127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function setupEQFaders() {
     function updateFader(track, clientY) {
+      engine.ensureRunning();
       const bandAttr = track.getAttribute('data-band');
       const thumb = track.querySelector('.eq-fader-thumb');
       const rect = track.getBoundingClientRect();
@@ -2213,6 +2253,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupEQFaders();
 
   eqOnBtn.addEventListener('click', () => {
+    engine.ensureRunning();
     state.eqEnabled = !state.eqEnabled;
     eqOnBtn.classList.toggle('active', state.eqEnabled);
     engine.setEqEnabled(state.eqEnabled);
@@ -2253,6 +2294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   function applyPresetValues(vals) {
+    engine.initAudioGraph();
     state.bands = [...vals];
     vals.forEach((db, idx) => {
       engine.setBandGain(idx, db);
@@ -2312,17 +2354,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       div.addEventListener('click', (e) => {
         if (e.shiftKey) {
           state.selectedIndices.add(idx);
+          renderPlaylist();
         } else if (e.ctrlKey || e.metaKey) {
           if (state.selectedIndices.has(idx)) {
             state.selectedIndices.delete(idx);
           } else {
             state.selectedIndices.add(idx);
           }
+          renderPlaylist();
         } else {
           state.selectedIndices.clear();
           state.selectedIndices.add(idx);
+          playTrackIndex(idx);
         }
-        renderPlaylist();
       });
 
       div.addEventListener('dblclick', () => {
@@ -3137,17 +3181,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       return false;
     }
 
-    showYtStatus('⏳ กำลังดึงข้อมูลเพลงจาก YouTube...');
-    showToast('⏳ กำลังโหลดข้อมูลเพลงจาก YouTube...');
-
-    // Start warming up YT IFrame Player right away
-    engine.initYoutubePlayer().catch(() => {});
-
-    const meta = await fetchYoutubeMetadata(videoId);
     const trackObj = {
       id: `yt_${videoId}_${Date.now()}`,
-      title: `▶️ ${meta.title}`,
-      artist: meta.artist,
+      title: `▶️ YouTube (${videoId})`,
+      artist: 'YouTube',
       album: 'YouTube Stream',
       duration: 0,
       bitrate: 192,
@@ -3155,21 +3192,39 @@ document.addEventListener('DOMContentLoaded', async () => {
       channels: 2,
       youtubeId: videoId,
       youtubeUrl: `https://www.youtube.com/watch?v=${videoId}`,
-      thumbnail: meta.thumbnail,
+      thumbnail: `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
       order: state.playlist.length
     };
 
-    await window.winampDB.saveTrack(trackObj);
     state.playlist.push(trackObj);
+    const newIdx = state.playlist.length - 1;
     renderPlaylist();
-
     closeYoutubeModal();
-    showToast(`▶️ เพิ่มเพลง YouTube: ${meta.title}`);
 
+    // Trigger playback synchronously inside user click gesture BEFORE async metadata fetch!
     if (playImmediately || state.currentIndex === -1) {
-      const newIdx = state.playlist.length - 1;
-      await playTrackIndex(newIdx);
+      playTrackIndex(newIdx);
     }
+
+    // Fetch real title & channel name in background and update playlist & cassette label
+    fetchYoutubeMetadata(videoId).then(async (meta) => {
+      if (meta && meta.title) {
+        trackObj.title = `▶️ ${meta.title}`;
+        trackObj.artist = meta.artist || 'YouTube';
+        trackObj.thumbnail = meta.thumbnail || trackObj.thumbnail;
+      }
+      await window.winampDB.saveTrack(trackObj);
+      renderPlaylist();
+      if (state.currentIndex === newIdx) {
+        updateCassetteLabel(trackObj);
+        updateMediaSession(trackObj);
+        titleMarquee.textContent = `${newIdx + 1}. ${trackObj.artist ? `${trackObj.artist} - ` : ''}${trackObj.title}`;
+      }
+      showToast(`▶️ ${trackObj.title}`);
+    }).catch(() => {
+      window.winampDB.saveTrack(trackObj).catch(() => {});
+    });
+
     return true;
   }
 
@@ -3315,6 +3370,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   await restoreSettings();
   await restoreWindowPositions();
   await loadStoredTracks();
+
+  // Pre-warm YouTube IFrame API on startup so the first YouTube link plays instantaneously
+  if (navigator.onLine) {
+    engine.initYoutubePlayer().catch(() => {});
+  }
 
   // Request Persistent Storage so browser never evicts cached songs or offline app shell
   if (navigator.storage && navigator.storage.persist) {

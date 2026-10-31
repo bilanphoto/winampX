@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=3.4">
+  <link rel="stylesheet" href="styles.css?v=3.5">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -363,6 +363,7 @@
               <div class="menu-item" id="cmenuTapeFlip">🔄 พลิกหน้าเทป (Side A / Side B)</div>
               <div class="menu-item" id="cmenuSoundFx">🔊 เสียงกลไกเทป (Sound FX: เปิด)</div>
               <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuToggleEQ">🎚 เปิด/ปิด อีควอไลเซอร์ (Equalizer)</div>
               <div class="menu-item" id="cmenuTogglePL">📜 เปิด/ปิด เพลย์ลิสต์ (Playlist)</div>
               <div class="menu-item" id="cmenuOpenWalkman">📻 ขยายเป็น Walkman เต็มจอ</div>
               <div class="menu-item" id="cmenuClose">⚡ สลับกลับเป็น Winamp</div>
@@ -517,8 +518,9 @@
               </button>
             </div>
 
-            <!-- Playlist and Walkman expand buttons -->
+            <!-- Equalizer, Playlist and Walkman expand buttons -->
             <div class="deck-extra-actions">
+              <button class="deck-action-icon-btn" id="btnCassetteToggleEQ" title="เปิด/ปิด Equalizer (EQ)">EQ</button>
               <button class="deck-action-icon-btn active" id="btnCassetteTogglePL" title="Toggle Playlist Drawer">
                 <svg viewBox="0 0 24 24" class="btn-icon-svg">
                   <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
@@ -793,12 +795,12 @@
   </div>
 
   <!-- Audio Element (Configured for native iOS / Apple CarPlay & background playback) -->
-  <audio id="audioElement" preload="auto" playsinline webkit-playsinline></audio>
+  <audio id="audioElement" preload="auto" playsinline webkit-playsinline crossorigin="anonymous"></audio>
 
   <!-- Scripts -->
-  <script src="db.js?v=3.4"></script>
-  <script src="id3.js?v=3.4"></script>
-  <script src="audio-engine.js?v=3.4"></script>
-  <script src="app.js?v=3.4"></script>
+  <script src="db.js?v=3.5"></script>
+  <script src="id3.js?v=3.5"></script>
+  <script src="audio-engine.js?v=3.5"></script>
+  <script src="app.js?v=3.5"></script>
 </body>
 </html>

@@ -2913,6 +2913,9 @@ body.skin-midnight .pl-resize-handle {
   color: #94a3b8;
   width: 20px;
   height: 19px;
+  font-family: Arial, sans-serif;
+  font-size: 7.5px;
+  font-weight: 900;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2950,8 +2953,7 @@ body.skin-cassette {
   background: #090d16;
 }
 
-body.skin-cassette #mainWindow,
-body.skin-cassette #eqWindow {
+body.skin-cassette #mainWindow {
   display: none !important;
 }
 
@@ -3845,15 +3847,15 @@ body.skin-midnight .btn-tape.active {
   line-height: 1.4;
 }
 
-/* Keep YouTube IFrame active for browser audio policy without cluttering UI */
+/* Keep YouTube IFrame active in foreground compositing layer so browser never throttles or mutes it */
 .yt-hidden-player {
   position: fixed;
-  bottom: 0;
-  right: 0;
+  bottom: 2px;
+  right: 2px;
   width: 200px;
   height: 112px;
-  opacity: 0.001;
+  opacity: 0.02;
   pointer-events: none;
-  z-index: -1;
+  z-index: 1;
   overflow: hidden;
 }
