@@ -1910,6 +1910,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   audioElement.addEventListener('timeupdate', () => {
+    if (engine.isSwappingEqBuffer) return;
     if (!state.isDraggingSeek) {
       const cur = engine.getCurrentTime();
       const dur = engine.getDuration();
@@ -1943,6 +1944,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   audioElement.addEventListener('pause', () => {
+    if (engine.isSwappingEqBuffer) return;
     const cur = engine.getCurrentTime();
     const dur = engine.getDuration();
     if (cur > 0 && (!dur || cur < dur - 0.2)) {
@@ -1958,6 +1960,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   audioElement.addEventListener('error', (e) => {
+    if (engine.isSwappingEqBuffer) return;
     console.error('AudioElement error:', audioElement.error);
     state.isPlaying = false;
     state.isPaused = false;
@@ -1967,6 +1970,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   audioElement.addEventListener('ended', () => {
+    if (engine.isSwappingEqBuffer) return;
     handleTrackEnded();
   });
 
@@ -3409,7 +3413,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    navigator.serviceWorker.register('./sw.js?v=3.7', { scope: './', updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=3.8', { scope: './', updateViaCache: 'none' })
       .then((reg) => {
         if (navigator.onLine) {
           reg.update().catch(() => {});
