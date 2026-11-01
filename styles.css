@@ -3859,3 +3859,20 @@ body.skin-midnight .btn-tape.active {
   z-index: 1;
   overflow: hidden;
 }
+
+/* Visible Version Badge */
+.app-ver-badge {
+  display: inline-block;
+  font-family: monospace;
+  font-size: 8.5px;
+  font-weight: 700;
+  color: #fde047;
+  background: rgba(15, 23, 42, 0.75);
+  border: 1px solid rgba(250, 204, 21, 0.55);
+  border-radius: 3px;
+  padding: 0 3.5px;
+  margin-left: 3px;
+  line-height: 1.25;
+  letter-spacing: 0.3px;
+  vertical-align: middle;
+}

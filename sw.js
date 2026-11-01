@@ -4,21 +4,21 @@
  * so the player opens and plays music 100% offline without an internet connection.
  */
 
-const CACHE_NAME = 'winamp-walkman-offline-v3.6';
+const CACHE_NAME = 'winamp-walkman-offline-v3.7';
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './styles.css',
-  './styles.css?v=3.6',
+  './styles.css?v=3.7',
   './app.js',
-  './app.js?v=3.6',
+  './app.js?v=3.7',
   './audio-engine.js',
-  './audio-engine.js?v=3.6',
+  './audio-engine.js?v=3.7',
   './db.js',
-  './db.js?v=3.6',
+  './db.js?v=3.7',
   './id3.js',
-  './id3.js?v=3.6',
+  './id3.js?v=3.7',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -101,33 +101,40 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Handle Page Navigation (opening the GitHub link directly)
-  if (request.mode === 'navigate') {
+  // Handle Page Navigation & Core Code (HTML / JS / CSS):
+  // When online, fetch fresh copy first so updates apply immediately on 1st refresh;
+  // when offline, serve instantaneously from Cache!
+  const isCodeAsset =
+    request.mode === 'navigate' ||
+    reqUrl.pathname.endsWith('.html') ||
+    reqUrl.pathname.endsWith('.js') ||
+    reqUrl.pathname.endsWith('.css') ||
+    reqUrl.pathname.endsWith('/');
+
+  if (isCodeAsset) {
     event.respondWith(
       (async () => {
         const cache = await caches.open(CACHE_NAME);
-        // Try serving cached index.html immediately for instant offline load,
-        // while also updating cache in background if online
-        const cachedPage = (await cache.match('./index.html')) || (await cache.match('./')) || (await cache.match(request, { ignoreSearch: true }));
-
-        const networkFetch = fetch(request)
-          .then((networkResponse) => {
-            if (networkResponse && networkResponse.ok) {
+        try {
+          const networkResponse = await fetch(request, { cache: 'no-cache' });
+          if (networkResponse && networkResponse.ok) {
+            cache.put(request, networkResponse.clone());
+            if (request.mode === 'navigate') {
               cache.put('./index.html', networkResponse.clone());
               cache.put('./', networkResponse.clone());
             }
             return networkResponse;
-          })
-          .catch(() => null);
-
-        if (cachedPage) {
-          // Trigger background update without blocking offline startup
-          event.waitUntil(networkFetch);
-          return cachedPage;
+          }
+        } catch (err) {
+          // Offline — fall through to cache
         }
 
-        const freshPage = await networkFetch;
-        if (freshPage) return freshPage;
+        const cached =
+          (await cache.match(request)) ||
+          (await cache.match(request, { ignoreSearch: true })) ||
+          (request.mode === 'navigate' ? (await cache.match('./index.html')) || (await cache.match('./')) : null);
+
+        if (cached) return cached;
 
         return new Response('Offline - Please connect to the internet once to initialize the player.', {
           status: 503,

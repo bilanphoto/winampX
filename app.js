@@ -3401,8 +3401,19 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // Register Service Worker for 100% Offline Support after first visit
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js', { scope: './' })
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+
+    navigator.serviceWorker.register('./sw.js?v=3.7', { scope: './', updateViaCache: 'none' })
       .then((reg) => {
+        if (navigator.onLine) {
+          reg.update().catch(() => {});
+        }
         reg.addEventListener('updatefound', () => {
           const newWorker = reg.installing;
           if (!newWorker) return;
