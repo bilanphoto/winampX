@@ -1353,20 +1353,31 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const rEmptySq = 0.196; // 0.443^2
     const areaDelta = 0.804; // 1.0 - 0.196
-    const leftScale = Math.sqrt(rEmptySq + areaDelta * (1 - p));
-    const rightScale = Math.sqrt(rEmptySq + areaDelta * p);
+    const leftScaleStr = Math.sqrt(rEmptySq + areaDelta * (1 - p)).toFixed(3);
+    const rightScaleStr = Math.sqrt(rEmptySq + areaDelta * p).toFixed(3);
 
-    if (tapePackLeft) tapePackLeft.style.transform = `translate(-50%, -50%) scale(${leftScale.toFixed(3)})`;
-    if (tapePackRight) tapePackRight.style.transform = `translate(-50%, -50%) scale(${rightScale.toFixed(3)})`;
-    if (wmSpoolLeft) wmSpoolLeft.style.transform = `translate(-50%, -50%) scale(${leftScale.toFixed(3)})`;
-    if (wmSpoolRight) wmSpoolRight.style.transform = `translate(-50%, -50%) scale(${rightScale.toFixed(3)})`;
+    if (cassetteState.lastLeftScale !== leftScaleStr) {
+      cassetteState.lastLeftScale = leftScaleStr;
+      const leftTransform = `translate(-50%, -50%) scale(${leftScaleStr})`;
+      if (tapePackLeft) tapePackLeft.style.transform = leftTransform;
+      if (wmSpoolLeft) wmSpoolLeft.style.transform = leftTransform;
+    }
+    if (cassetteState.lastRightScale !== rightScaleStr) {
+      cassetteState.lastRightScale = rightScaleStr;
+      const rightTransform = `translate(-50%, -50%) scale(${rightScaleStr})`;
+      if (tapePackRight) tapePackRight.style.transform = rightTransform;
+      if (wmSpoolRight) wmSpoolRight.style.transform = rightTransform;
+    }
 
     // Tape mechanical counter digits (000-999)
     const rawVal = Math.floor(cur * 0.6) + cassetteState.counterOffset;
     const countVal = ((rawVal % 1000) + 1000) % 1000;
     const countStr = String(countVal).padStart(3, '0');
-    if (deckCounter) deckCounter.textContent = countStr;
-    if (wmCounter) wmCounter.textContent = countStr;
+    if (cassetteState.lastCountStr !== countStr) {
+      cassetteState.lastCountStr = countStr;
+      if (deckCounter) deckCounter.textContent = countStr;
+      if (wmCounter) wmCounter.textContent = countStr;
+    }
 
     // Physical button states
     if (mechPlay) mechPlay.classList.toggle('active', isPlaying);
@@ -1772,9 +1783,9 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.addEventListener('mouseup', onUp);
   });
 
-  function updateBalanceUI(val) {
+  function updateBalanceUI(val, userInitiated = false) {
     state.balance = val;
-    engine.setBalance(val);
+    engine.setBalance(val, userInitiated);
     const norm = (val + 1) / 2;
     const frame = Math.round(norm * 27);
     balTrackBg.style.backgroundPositionY = `-${frame * 15}px`;
@@ -1788,7 +1799,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     pos = Math.max(0, Math.min(1, pos));
     if (Math.abs(pos - 0.5) < 0.08) pos = 0.5;
     const panVal = pos * 2 - 1;
-    updateBalanceUI(panVal);
+    updateBalanceUI(panVal, true);
   }
 
   balTrack.addEventListener('mousedown', (e) => {
@@ -1894,6 +1905,10 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateMediaSessionPosition();
   });
 
+  audioElement.addEventListener('seeked', () => {
+    updateMediaSessionPosition();
+  });
+
   audioElement.addEventListener('timeupdate', () => {
     if (!state.isDraggingSeek) {
       const cur = engine.getCurrentTime();
@@ -1911,12 +1926,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const percent = Math.min(100, Math.max(0, (cur / dur) * 100));
         seekThumb.style.left = `${percent}%`;
-
-        const curSec = Math.floor(cur);
-        if (curSec !== state.lastReportedSec) {
-          state.lastReportedSec = curSec;
-          updateMediaSessionPosition();
-        }
       }
     }
     updateCassetteUI();
@@ -1999,6 +2008,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function renderVisualizer() {
     requestAnimationFrame(renderVisualizer);
+
+    if (document.hidden || document.body.classList.contains('skin-cassette') || mainWindow.classList.contains('hidden')) {
+      return;
+    }
 
     visCtx.clearRect(0, 0, visCanvas.width, visCanvas.height);
 
@@ -2127,7 +2140,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   function setupEQFaders() {
     function updateFader(track, clientY) {
-      engine.ensureRunning();
+      engine.ensureRunning(true);
       const bandAttr = track.getAttribute('data-band');
       const thumb = track.querySelector('.eq-fader-thumb');
       const rect = track.getBoundingClientRect();
@@ -2141,14 +2154,14 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (bandAttr === 'preamp') {
         state.preamp = dbVal;
-        engine.setPreamp(dbVal);
+        engine.setPreamp(dbVal, true);
         window.winampDB.setSetting('eq_preamp', dbVal);
       } else {
         const freq = parseInt(bandAttr, 10);
         const bandIdx = engine.eqFrequencies.indexOf(freq);
         if (bandIdx !== -1) {
           state.bands[bandIdx] = dbVal;
-          engine.setBandGain(bandIdx, dbVal);
+          engine.setBandGain(bandIdx, dbVal, true);
           drawEQCurve();
           window.winampDB.setSetting('eq_bands', state.bands);
         }
@@ -2253,10 +2266,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   setupEQFaders();
 
   eqOnBtn.addEventListener('click', () => {
-    engine.ensureRunning();
     state.eqEnabled = !state.eqEnabled;
     eqOnBtn.classList.toggle('active', state.eqEnabled);
-    engine.setEqEnabled(state.eqEnabled);
+    engine.setEqEnabled(state.eqEnabled, true);
+    if (state.eqEnabled) engine.ensureRunning();
     drawEQCurve();
     window.winampDB.setSetting('eq_enabled', state.eqEnabled);
   });
@@ -2281,7 +2294,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     item.addEventListener('click', () => {
       const presetKey = item.getAttribute('data-preset');
       if (presetKey && engine.presets[presetKey]) {
-        applyPresetValues(engine.presets[presetKey]);
+        applyPresetValues(engine.presets[presetKey], true);
         showToast(`EQ Preset: ${item.textContent}`);
       }
       presetsMenu.classList.add('hidden');
@@ -2289,15 +2302,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   btnResetEQ.addEventListener('click', () => {
-    applyPresetValues([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    applyPresetValues([0, 0, 0, 0, 0, 0, 0, 0, 0, 0], true);
     showToast('EQ reset to Flat');
   });
 
-  function applyPresetValues(vals) {
-    engine.initAudioGraph();
+  function applyPresetValues(vals, userInitiated = false) {
     state.bands = [...vals];
     vals.forEach((db, idx) => {
-      engine.setBandGain(idx, db);
+      engine.setBandGain(idx, db, false);
       const freq = engine.eqFrequencies[idx];
       const track = document.querySelector(`.eq-fader-track[data-band="${freq}"]`);
       if (track) {
@@ -2306,6 +2318,12 @@ document.addEventListener('DOMContentLoaded', async () => {
         thumb.style.bottom = `${ratio * 100}%`;
       }
     });
+    if (userInitiated) {
+      if (engine.hasActiveDsp()) {
+        engine.ensureRunning(true);
+      }
+      engine.rewireGraph();
+    }
     drawEQCurve();
     window.winampDB.setSetting('eq_bands', state.bands);
   }
