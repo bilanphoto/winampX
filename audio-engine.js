@@ -76,213 +76,112 @@ class WinampAudioEngine {
     return hasEq || Math.abs(this.balanceValue) > 0.05;
   }
 
-  // No-op: We NEVER call createMediaElementSource(this.audio) so <audio> stays 100% on the
-  // OS Native Hardware Audio Pipeline (zero Bluetooth A2DP stuttering!).
-  // Instead, 10-band EQ & Preamp are rendered in RAM via OfflineAudioContext!
-  initAudioGraph() {
-    this.isInitialized = true;
-  }
-
   rewireGraph() {
-    this._scheduleOfflineEqUpdate(120);
+    // Never disconnect nodes on a live MediaElementAudioSourceNode; gains are updated in-place in real time (0ms latency)
   }
 
-  async ensureRunning() {
-    return;
-  }
-
-  // Decode the current MP3 ArrayBuffer in RAM using OfflineAudioContext (never touches Bluetooth hardware)
-  async _ensureDecodedBuffer(loadId) {
-    if (this._decodedBuffer && this._decodedLoadId === loadId) {
-      return this._decodedBuffer;
-    }
-    if (this._decodePromise && this._decodePromiseLoadId === loadId) {
-      return this._decodePromise;
-    }
-    if (!this._rawArrayBuffer) return null;
-
-    const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-    if (!OfflineCtx) return null;
-
-    this._decodePromiseLoadId = loadId;
-    this._decodePromise = (async () => {
-      try {
-        const tempCtx = new OfflineCtx(2, 1, 44100);
-        const bufCopy = this._rawArrayBuffer.slice(0);
-        const decoded = await new Promise((resolve, reject) => {
-          const p = tempCtx.decodeAudioData(bufCopy, resolve, reject);
-          if (p && typeof p.then === 'function') {
-            p.then(resolve).catch(reject);
-          }
-        });
-        if (loadId === this._trackLoadId) {
-          this._decodedBuffer = decoded;
-          this._decodedLoadId = loadId;
-        }
-        return decoded;
-      } catch (e) {
-        console.warn('Offline decodeAudioData failed:', e);
-        return null;
-      } finally {
-        if (this._decodePromiseLoadId === loadId) {
-          this._decodePromise = null;
-        }
-      }
-    })();
-
-    return this._decodePromise;
-  }
-
-  // Schedule a debounced OfflineAudioContext EQ render & seamless native <audio> buffer swap
-  _scheduleOfflineEqUpdate(delayMs = 160) {
-    if (this.activeMode !== 'audio' || !this._rawBlob) return;
-    if (this._eqUpdateTimer) {
-      clearTimeout(this._eqUpdateTimer);
-    }
-    const targetLoadId = this._trackLoadId;
-    this._eqRenderSeq = (this._eqRenderSeq || 0) + 1;
-    const renderSeq = this._eqRenderSeq;
-
-    this._eqUpdateTimer = setTimeout(() => {
-      this._eqUpdateTimer = null;
-      this._applyOfflineEqToCurrentTrack(targetLoadId, renderSeq);
-    }, delayMs);
-  }
-
-  async _applyOfflineEqToCurrentTrack(loadId, renderSeq) {
-    if (loadId !== this._trackLoadId || this.activeMode !== 'audio' || !this._rawBlob) return;
-
-    // If EQ is turned OFF or all sliders are Flat (0 dB), swap back to raw RAM MP3 blob
-    if (!this.hasActiveDsp()) {
-      if (this._isUsingEqBlob && this._rawBlob) {
-        const rawUrl = URL.createObjectURL(this._rawBlob);
-        this._isUsingEqBlob = false;
-        await this._swapAudioSrcPreservingState(rawUrl, loadId);
-      }
-      return;
-    }
-
-    const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
-    if (!OfflineCtx) return;
-
-    const audioBuffer = await this._ensureDecodedBuffer(loadId);
-    if (!audioBuffer || loadId !== this._trackLoadId || renderSeq !== this._eqRenderSeq) return;
+  // Initialize Real-Time 10-Band Web Audio EQ Graph once upon first playback
+  initAudioGraph() {
+    if (this.isInitialized) return;
 
     try {
-      const numChannels = Math.min(2, audioBuffer.numberOfChannels || 1);
-      const sampleRate = audioBuffer.sampleRate || 44100;
-      const length = audioBuffer.length;
+      const oldBg = document.getElementById('winampBackgroundStream');
+      if (oldBg) oldBg.remove();
 
-      const offlineCtx = new OfflineCtx(numChannels, length, sampleRate);
-      const sourceNode = offlineCtx.createBufferSource();
-      sourceNode.buffer = audioBuffer;
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (!AudioCtx) return;
 
-      let currentNode = sourceNode;
+      // Standard hardware buffer & sample rate (avoid latencyHint: 'playback' which causes Bluetooth A2DP frame mismatches)
+      this.ctx = new AudioCtx();
 
-      // Preamp Gain
-      if (this.eqEnabled && Math.abs(this.preampValue) > 0.05) {
-        const preampNode = offlineCtx.createGain();
-        preampNode.gain.value = Math.pow(10, this.preampValue / 20);
-        currentNode.connect(preampNode);
-        currentNode = preampNode;
+      if ('audioSession' in navigator) {
+        try {
+          navigator.audioSession.type = 'playback';
+        } catch (e) {}
       }
 
-      // 10-Band Peaking EQ Filters (only connect bands with non-zero gain for maximum speed)
-      if (this.eqEnabled) {
-        for (let idx = 0; idx < this.eqFrequencies.length; idx++) {
-          const gainDb = this.eqGains[idx] || 0;
-          if (Math.abs(gainDb) > 0.05) {
-            const filter = offlineCtx.createBiquadFilter();
-            filter.type = 'peaking';
-            filter.frequency.value = this.eqFrequencies[idx];
-            filter.Q.value = 1.4;
-            filter.gain.value = gainDb;
-            currentNode.connect(filter);
-            currentNode = filter;
-          }
-        }
+      // Create Web Audio nodes for 10-band Equalizer, Preamp, Stereo Panner & Master Gain
+      // (No AnalyserNode in series to prevent 60fps audio-thread lock contention over Bluetooth)
+      this.source = this.ctx.createMediaElementSource(this.audio);
+      this.preampGain = this.ctx.createGain();
+      this.panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
+      this.masterGain = this.ctx.createGain();
+
+      // Apply current Preamp, Volume & Balance immediately
+      const initialPreamp = this.eqEnabled ? Math.pow(10, this.preampValue / 20) : 1.0;
+      this.preampGain.gain.value = initialPreamp;
+
+      this.audio.volume = 1.0;
+      this.masterGain.gain.value = this.volumeValue;
+
+      if (this.panner) {
+        this.panner.pan.value = this.balanceValue;
       }
 
-      // Stereo Balance Panner
-      if (Math.abs(this.balanceValue) > 0.05 && offlineCtx.createStereoPanner) {
-        const panner = offlineCtx.createStereoPanner();
-        panner.pan.value = this.balanceValue;
-        currentNode.connect(panner);
-        currentNode = panner;
-      }
-
-      currentNode.connect(offlineCtx.destination);
-      sourceNode.start(0);
-
-      const renderedBuffer = await offlineCtx.startRendering();
-      if (loadId !== this._trackLoadId || renderSeq !== this._eqRenderSeq || this.activeMode !== 'audio') {
-        return;
-      }
-
-      const wavBlob = WinampAudioEngine.encodeAudioBufferWAV(renderedBuffer);
-      const wavUrl = URL.createObjectURL(wavBlob);
-      this._isUsingEqBlob = true;
-      await this._swapAudioSrcPreservingState(wavUrl, loadId);
-    } catch (e) {
-      console.warn('Offline EQ render error:', e);
-    }
-  }
-
-  async _swapAudioSrcPreservingState(newBlobUrl, loadId) {
-    if (loadId !== this._trackLoadId || this.activeMode !== 'audio') {
-      try { URL.revokeObjectURL(newBlobUrl); } catch (e) {}
-      return;
-    }
-
-    const wasPlaying = !this.audio.paused || Boolean(this._wantPlaying);
-    const savedTime = this.audio.currentTime || 0;
-    const savedRate = this.audio.playbackRate || 1.0;
-
-    this.isSwappingEqBuffer = true;
-    const oldBlobUrl = this._currentBlobUrl;
-    this._currentBlobUrl = newBlobUrl;
-
-    try {
-      this.audio.src = newBlobUrl;
-      this.audio.volume = this.volumeValue;
-      this.audio.playbackRate = savedRate;
-
-      await new Promise((resolve) => {
-        let settled = false;
-        const done = () => {
-          if (settled) return;
-          settled = true;
-          this.audio.removeEventListener('loadedmetadata', done);
-          this.audio.removeEventListener('canplay', done);
-          this.audio.removeEventListener('error', done);
-          resolve();
-        };
-        this.audio.addEventListener('loadedmetadata', done, { once: true });
-        this.audio.addEventListener('canplay', done, { once: true });
-        this.audio.addEventListener('error', done, { once: true });
-        setTimeout(done, 600);
-        this.audio.load();
+      // Create 10 EQ Peaking Filters and initialize with saved eqGains
+      this.eqFilters = this.eqFrequencies.map((freq, idx) => {
+        const filter = this.ctx.createBiquadFilter();
+        filter.type = 'peaking';
+        filter.frequency.value = freq;
+        filter.Q.value = 1.4;
+        filter.gain.value = this.eqEnabled ? (this.eqGains[idx] || 0) : 0;
+        return filter;
       });
 
-      if (loadId === this._trackLoadId && this.activeMode === 'audio') {
-        if (savedTime > 0 && isFinite(savedTime)) {
-          try {
-            this.audio.currentTime = savedTime;
-          } catch (e) {}
-        }
-        if (wasPlaying) {
-          try {
-            await this.audio.play();
-          } catch (e) {}
-        }
+      // Permanent chain (never disconnected): Source -> Preamp -> 10 EQ Filters -> Panner -> Master -> Destination
+      let currentNode = this.source;
+      currentNode.connect(this.preampGain);
+      currentNode = this.preampGain;
+
+      for (const filter of this.eqFilters) {
+        currentNode.connect(filter);
+        currentNode = filter;
       }
-    } finally {
-      this.isSwappingEqBuffer = false;
-      if (oldBlobUrl && oldBlobUrl !== newBlobUrl) {
-        setTimeout(() => {
-          try { URL.revokeObjectURL(oldBlobUrl); } catch (e) {}
-        }, 1000);
+
+      if (this.panner) {
+        currentNode.connect(this.panner);
+        currentNode = this.panner;
       }
+
+      currentNode.connect(this.masterGain);
+      this.masterGain.connect(this.ctx.destination);
+
+      // Automatically recover AudioContext from CarPlay / Bluetooth / lock-screen interruptions
+      if (this.ctx) {
+        this.ctx.addEventListener('statechange', () => {
+          if (!this.audio.paused && this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+            this.ctx.resume().catch(() => {});
+          }
+        });
+      }
+
+      this.audio.addEventListener('play', () => {
+        if (this.ctx && this.ctx.state !== 'running') {
+          this.ctx.resume().catch(() => {});
+        }
+      });
+
+      const resumeFn = () => {
+        if (!this.audio.paused && this.ctx && this.ctx.state !== 'running') {
+          this.ctx.resume().catch(() => {});
+        }
+      };
+      document.addEventListener('visibilitychange', resumeFn);
+      window.addEventListener('pageshow', resumeFn);
+
+      this.isInitialized = true;
+    } catch (e) {
+      console.warn('Web Audio API could not be initialized yet:', e);
+    }
+  }
+
+  // Resume context if suspended or interrupted
+  async ensureRunning() {
+    this.initAudioGraph();
+    if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+      try {
+        await this.ctx.resume();
+      } catch (e) {}
     }
   }
 
@@ -324,7 +223,15 @@ class WinampAudioEngine {
   setVolume(val) {
     const clamped = Math.max(0, Math.min(1, val));
     this.volumeValue = clamped;
-    this.audio.volume = clamped;
+    if (this.isInitialized && this.masterGain && this.ctx) {
+      this.audio.volume = 1.0;
+      this.masterGain.gain.value = clamped;
+      try {
+        this.masterGain.gain.setTargetAtTime(clamped, this.ctx.currentTime, 0.015);
+      } catch (e) {}
+    } else {
+      this.audio.volume = clamped;
+    }
     if (this.ytPlayer && this.ytReady && typeof this.ytPlayer.setVolume === 'function') {
       try {
         this.ytPlayer.setVolume(Math.round(clamped * 100));
@@ -332,38 +239,56 @@ class WinampAudioEngine {
     }
   }
 
-  // Balance (-1.0 Left to +1.0 Right)
-  setBalance(val, userInitiated = false) {
+  // Balance (-1.0 Left to +1.0 Right) - Instant 0ms real-time response
+  setBalance(val) {
     const clamped = Math.max(-1, Math.min(1, val));
     this.balanceValue = clamped;
-    if (userInitiated) {
-      this._scheduleOfflineEqUpdate(160);
+    if (this.panner && this.ctx) {
+      this.panner.pan.value = clamped;
+      try {
+        this.panner.pan.setTargetAtTime(clamped, this.ctx.currentTime, 0.015);
+      } catch (e) {}
     }
   }
 
-  // Preamp Gain (-12dB to +12dB)
-  setPreamp(db, userInitiated = false) {
+  // Preamp Gain (-12dB to +12dB) - Instant 0ms real-time response
+  setPreamp(db) {
     this.preampValue = db;
-    if (userInitiated) {
-      this._scheduleOfflineEqUpdate(160);
+    if (this.preampGain && this.ctx) {
+      const gainVal = this.eqEnabled ? Math.pow(10, db / 20) : 1.0;
+      this.preampGain.gain.value = gainVal;
+      try {
+        this.preampGain.gain.setTargetAtTime(gainVal, this.ctx.currentTime, 0.015);
+      } catch (e) {}
     }
   }
 
-  // Individual Band Gain (index 0 to 9, -12dB to +12dB)
-  setBandGain(index, db, userInitiated = false) {
+  // Individual Band Gain (index 0 to 9, -12dB to +12dB) - Instant 0ms real-time response
+  setBandGain(index, db) {
     if (index >= 0 && index < this.eqGains.length) {
       this.eqGains[index] = db;
-      if (userInitiated) {
-        this._scheduleOfflineEqUpdate(160);
+      if (this.eqFilters[index] && this.ctx) {
+        const targetDb = this.eqEnabled ? db : 0;
+        this.eqFilters[index].gain.value = targetDb;
+        try {
+          this.eqFilters[index].gain.setTargetAtTime(targetDb, this.ctx.currentTime, 0.015);
+        } catch (e) {}
       }
     }
   }
 
-  // Enable / Disable Equalizer
-  setEqEnabled(enabled, userInitiated = false) {
+  // Enable / Disable Equalizer - Instant 0ms real-time response
+  setEqEnabled(enabled) {
     this.eqEnabled = enabled;
-    if (userInitiated) {
-      this._scheduleOfflineEqUpdate(80);
+    if (this.ctx) {
+      this.setPreamp(this.preampValue);
+      this.eqFilters.forEach((filter, idx) => {
+        const targetDb = this.eqEnabled ? this.eqGains[idx] : 0;
+        filter.gain.value = targetDb;
+        try {
+          filter.gain.setTargetAtTime(targetDb, this.ctx.currentTime, 0.015);
+        } catch (e) {}
+      });
     }
   }
 
@@ -623,7 +548,7 @@ class WinampAudioEngine {
     }
   }
 
-  // Load standard audio file (Blob / File / URL) on 100% Native Hardware Audio Pipeline
+  // Load standard audio file (Blob / File / URL) through the real-time 10-band EQ
   async loadTrack(source) {
     if (this.activeMode === 'youtube') {
       this.activeMode = 'audio';
@@ -634,62 +559,28 @@ class WinampAudioEngine {
       }
     }
 
+    this.initAudioGraph();
+    if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+      this.ctx.resume().catch(() => {});
+    }
+
     if ('audioSession' in navigator) {
       try {
         navigator.audioSession.type = 'playback';
       } catch (e) {}
     }
 
-    if (this._eqUpdateTimer) {
-      clearTimeout(this._eqUpdateTimer);
-      this._eqUpdateTimer = null;
-    }
-
-    this._trackLoadId = (this._trackLoadId || 0) + 1;
-    const loadId = this._trackLoadId;
-    this._decodedBuffer = null;
-    this._decodePromise = null;
-    this._rawArrayBuffer = null;
-    this._rawBlob = null;
-    this._isUsingEqBlob = false;
-
     let srcUrl = '';
     if (source instanceof Blob || source instanceof File) {
       if (this._currentBlobUrl) {
         try { URL.revokeObjectURL(this._currentBlobUrl); } catch (e) {}
       }
-      // Set blob URL synchronously first so auto-advancing on 'ended' starts immediately in the same tick
-      this._rawBlob = source;
       this._currentBlobUrl = URL.createObjectURL(source);
       srcUrl = this._currentBlobUrl;
-
-      this.audio.volume = this.volumeValue;
-      this.audio.src = srcUrl;
-      this.audio.load();
-
-      // Load contiguous RAM ArrayBuffer in background for smooth playback & OfflineAudioContext EQ
-      if (typeof source.arrayBuffer === 'function') {
-        source.arrayBuffer().then((ramBuffer) => {
-          if (this._trackLoadId !== loadId) return;
-          this._rawArrayBuffer = ramBuffer;
-          this._rawBlob = new Blob([ramBuffer], { type: source.type || 'audio/mpeg' });
-          if (this.hasActiveDsp()) {
-            this._scheduleOfflineEqUpdate(40);
-          } else {
-            setTimeout(() => {
-              if (this._trackLoadId === loadId) {
-                this._ensureDecodedBuffer(loadId);
-              }
-            }, 250);
-          }
-        }).catch(() => {});
-      }
-      return;
     } else if (typeof source === 'string') {
       srcUrl = source;
     }
 
-    this.audio.volume = this.volumeValue;
     this.audio.src = srcUrl;
     this.audio.load();
   }
@@ -720,7 +611,11 @@ class WinampAudioEngine {
       return;
     }
 
-    this.audio.volume = this.volumeValue;
+    this.initAudioGraph();
+    if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
+      this.ctx.resume().catch(() => {});
+    }
+
     return this.audio.play();
   }
 

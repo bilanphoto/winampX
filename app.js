@@ -3420,7 +3420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    navigator.serviceWorker.register('./sw.js?v=3.9', { scope: './', updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=4.0', { scope: './', updateViaCache: 'none' })
       .then((reg) => {
         if (navigator.onLine) {
           reg.update().catch(() => {});
