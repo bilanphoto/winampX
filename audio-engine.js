@@ -658,20 +658,33 @@ class WinampAudioEngine {
       if (this._currentBlobUrl) {
         try { URL.revokeObjectURL(this._currentBlobUrl); } catch (e) {}
       }
-      // Pre-buffer entire MP3/audio file into contiguous RAM so IndexedDB disk reads never stall Bluetooth A2DP playback
-      let memoryBlob = source;
-      if (typeof source.arrayBuffer === 'function') {
-        try {
-          const ramBuffer = await source.arrayBuffer();
-          this._rawArrayBuffer = ramBuffer;
-          memoryBlob = new Blob([ramBuffer], { type: source.type || 'audio/mpeg' });
-        } catch (e) {
-          memoryBlob = source;
-        }
-      }
-      this._rawBlob = memoryBlob;
-      this._currentBlobUrl = URL.createObjectURL(memoryBlob);
+      // Set blob URL synchronously first so auto-advancing on 'ended' starts immediately in the same tick
+      this._rawBlob = source;
+      this._currentBlobUrl = URL.createObjectURL(source);
       srcUrl = this._currentBlobUrl;
+
+      this.audio.volume = this.volumeValue;
+      this.audio.src = srcUrl;
+      this.audio.load();
+
+      // Load contiguous RAM ArrayBuffer in background for smooth playback & OfflineAudioContext EQ
+      if (typeof source.arrayBuffer === 'function') {
+        source.arrayBuffer().then((ramBuffer) => {
+          if (this._trackLoadId !== loadId) return;
+          this._rawArrayBuffer = ramBuffer;
+          this._rawBlob = new Blob([ramBuffer], { type: source.type || 'audio/mpeg' });
+          if (this.hasActiveDsp()) {
+            this._scheduleOfflineEqUpdate(40);
+          } else {
+            setTimeout(() => {
+              if (this._trackLoadId === loadId) {
+                this._ensureDecodedBuffer(loadId);
+              }
+            }, 250);
+          }
+        }).catch(() => {});
+      }
+      return;
     } else if (typeof source === 'string') {
       srcUrl = source;
     }
@@ -679,19 +692,6 @@ class WinampAudioEngine {
     this.audio.volume = this.volumeValue;
     this.audio.src = srcUrl;
     this.audio.load();
-
-    if (this._rawArrayBuffer) {
-      if (this.hasActiveDsp()) {
-        this._scheduleOfflineEqUpdate(50);
-      } else {
-        // Pre-decode silently in background so moving any EQ slider later is super fast
-        setTimeout(() => {
-          if (this._trackLoadId === loadId) {
-            this._ensureDecodedBuffer(loadId);
-          }
-        }, 250);
-      }
-    }
   }
 
   async play() {

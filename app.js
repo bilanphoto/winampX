@@ -1974,15 +1974,22 @@ document.addEventListener('DOMContentLoaded', async () => {
     handleTrackEnded();
   });
 
+  let isHandlingTrackEnd = false;
   function handleTrackEnded() {
-    if (state.repeat === 'single') {
-      engine.seek(0);
-      engine.play();
-    } else if (state.shuffle) {
+    if (isHandlingTrackEnd) return;
+    isHandlingTrackEnd = true;
+    setTimeout(() => { isHandlingTrackEnd = false; }, 400);
+
+    if (state.playlist.length === 0) {
+      setStoppedState();
+      return;
+    }
+
+    if (state.shuffle && state.playlist.length > 1) {
       playRandomTrack();
     } else if (state.currentIndex < state.playlist.length - 1) {
       playTrackIndex(state.currentIndex + 1);
-    } else if (state.repeat === 'all' && state.playlist.length > 0) {
+    } else if (state.repeat !== 'off' && state.playlist.length > 0) {
       playTrackIndex(0);
     } else {
       setStoppedState();
@@ -2695,18 +2702,14 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   btnRepeat.addEventListener('click', () => {
-    if (state.repeat === 'all') {
-      state.repeat = 'single';
-      btnRepeat.classList.add('active');
-      showToast('Repeat: Track');
-    } else if (state.repeat === 'single') {
+    if (state.repeat !== 'off') {
       state.repeat = 'off';
       btnRepeat.classList.remove('active');
-      showToast('Repeat: OFF');
+      showToast('Repeat Playlist: OFF');
     } else {
       state.repeat = 'all';
       btnRepeat.classList.add('active');
-      showToast('Repeat: ALL');
+      showToast('Repeat Playlist: ON');
     }
     window.winampDB.setSetting('repeat', state.repeat);
   });
@@ -3077,7 +3080,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.shuffle = shuff;
     btnShuffle.classList.toggle('active', shuff);
 
-    const rep = await window.winampDB.getSetting('repeat', 'all');
+    let rep = await window.winampDB.getSetting('repeat', 'all');
+    if (rep === 'single') {
+      rep = 'all';
+      window.winampDB.setSetting('repeat', 'all');
+    }
     state.repeat = rep;
     btnRepeat.classList.toggle('active', rep !== 'off');
 
@@ -3413,7 +3420,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       }
     });
 
-    navigator.serviceWorker.register('./sw.js?v=3.8', { scope: './', updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js?v=3.9', { scope: './', updateViaCache: 'none' })
       .then((reg) => {
         if (navigator.onLine) {
           reg.update().catch(() => {});
