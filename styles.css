@@ -3014,6 +3014,350 @@ body.skin-cassette .pl-cur-time-box {
   text-shadow: 0 0 3px rgba(0, 255, 0, 0.6);
 }
 
+/* ==========================================================================
+   CASSETTE SKIN: EQUALIZER & PLAYLIST WINDOWS + ACTIVE TRACK HIGHLIGHT
+   ========================================================================== */
+body.skin-cassette .wa-window {
+  border: 1px solid #334155;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.95);
+}
+
+body.skin-cassette .winamp-eq {
+  background: linear-gradient(180deg, #2b3240 0%, #1e232d 45%, #151921 100%);
+  border: 1px solid #475569;
+}
+
+/* Cassette Titlebars for EQ, Playlist & Deck */
+body.skin-cassette .wa-titlebar,
+body.skin-cassette .pl-top-bar {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 50%, #0f172a 100%);
+  border-top: 1px solid #64748b;
+  border-bottom: 1px solid #090d16;
+  position: relative;
+}
+
+body.skin-cassette .wa-titlebar-title-drag,
+body.skin-cassette .pl-top-bar::after {
+  content: 'WALKMAN PLAYLIST';
+  display: block;
+  flex: 1;
+  text-align: center;
+  font-size: 8.5px;
+  font-weight: 900;
+  letter-spacing: 1.5px;
+  color: #e2e8f0;
+  text-shadow: 0 1px 2px #000;
+  z-index: 2;
+}
+
+body.skin-cassette .pl-top-bar::after {
+  line-height: 20px;
+}
+
+body.skin-cassette .wa-titlebar-menu {
+  background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+  border: 1px solid #38bdf8;
+  border-radius: 2px;
+}
+
+body.skin-cassette .wa-titlebar-menu::after {
+  content: '⚡';
+  color: #fde047;
+  font-size: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 9px;
+}
+
+body.skin-cassette .win-btn {
+  background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
+  border: 1px solid #64748b;
+  border-radius: 2px;
+  margin-left: 2px;
+  position: relative;
+}
+
+body.skin-cassette .win-btn:hover {
+  border-color: #38bdf8;
+  background: #0284c7;
+}
+
+body.skin-cassette .win-btn-shade::after {
+  content: '–';
+  color: #f8fafc;
+  font-size: 8px;
+  font-weight: bold;
+  line-height: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+body.skin-cassette .win-btn-close::after {
+  content: '×';
+  color: #f8fafc;
+  font-size: 9px;
+  font-weight: bold;
+  line-height: 7px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Cassette Equalizer Top Controls (ON, AUTO, PRESETS) */
+body.skin-cassette .eq-toggle-btn,
+body.skin-cassette .eq-presets-btn {
+  background: linear-gradient(180deg, #334155 0%, #1e293b 100%);
+  border: 1px solid #64748b;
+  border-radius: 2px;
+  color: #cbd5e1;
+  font-size: 7px;
+  font-weight: 800;
+  font-family: Arial, sans-serif;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  padding: 0;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 1px 2px rgba(0, 0, 0, 0.6);
+}
+
+body.skin-cassette .eq-toggle-btn:hover,
+body.skin-cassette .eq-presets-btn:hover {
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+body.skin-cassette .eq-toggle-btn.active {
+  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
+  color: #fde047;
+  border-color: #38bdf8;
+  box-shadow: 0 0 6px rgba(56, 189, 248, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  text-shadow: 0 0 3px rgba(253, 224, 71, 0.7);
+}
+
+body.skin-cassette .eq-on-btn::after      { content: 'ON'; }
+body.skin-cassette .eq-auto-btn::after    { content: 'AUTO'; }
+body.skin-cassette .eq-presets-btn::after { content: 'PRESETS'; }
+
+body.skin-cassette .eq-curve-display {
+  background: #070b12;
+  border: 1px solid #334155;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 4px rgba(0, 0, 0, 0.9);
+}
+
+/* Cassette EQ dB Scale Marks (+12dB / 0dB / -12dB) & Center 0dB Line */
+body.skin-cassette .eq-sliders-container::before {
+  content: '+12\A 0dB\A -12';
+  white-space: pre;
+  position: absolute;
+  left: 42px;
+  top: 14px;
+  height: 52px;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 6.5px;
+  line-height: 22px;
+  color: #94a3b8;
+  text-align: right;
+  pointer-events: none;
+}
+
+body.skin-cassette .eq-sliders-container::after {
+  content: '';
+  position: absolute;
+  left: 74px;
+  right: 16px;
+  top: 40px;
+  height: 1px;
+  background: rgba(56, 189, 248, 0.22);
+  pointer-events: none;
+}
+
+/* Cassette EQ Faders: Illuminated Walkman Slot Rails & Metallic Sliders */
+body.skin-cassette .eq-fader-track {
+  background: transparent;
+  border: none;
+  height: 54px;
+  top: 12px;
+}
+
+body.skin-cassette .eq-fader-track::before {
+  content: '';
+  position: absolute;
+  left: 7px;
+  top: 2px;
+  bottom: 2px;
+  width: 4px;
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 50%, #facc15 100%);
+  border: 1px solid #0f172a;
+  border-radius: 2px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8), 0 0 3px rgba(56, 189, 248, 0.35);
+  pointer-events: none;
+}
+
+/* Frequency Band Labels Underneath Each Slider in Cassette / Modern / Midnight */
+body.skin-cassette .eq-fader-track::after,
+body.skin-modern .eq-fader-track::after,
+body.skin-midnight .eq-fader-track::after {
+  position: absolute;
+  left: -4px;
+  right: -4px;
+  bottom: -11px;
+  text-align: center;
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 5.5px;
+  font-weight: 800;
+  color: #cbd5e1;
+  letter-spacing: -0.2px;
+  pointer-events: none;
+  text-shadow: 0 1px 1px #000;
+}
+
+body.skin-cassette #faderTrackPreamp::after,
+body.skin-modern #faderTrackPreamp::after,
+body.skin-midnight #faderTrackPreamp::after { content: 'PRE'; color: #fde047; }
+body.skin-cassette #faderTrack60::after,
+body.skin-modern #faderTrack60::after,
+body.skin-midnight #faderTrack60::after     { content: '60'; }
+body.skin-cassette #faderTrack170::after,
+body.skin-modern #faderTrack170::after,
+body.skin-midnight #faderTrack170::after    { content: '170'; }
+body.skin-cassette #faderTrack310::after,
+body.skin-modern #faderTrack310::after,
+body.skin-midnight #faderTrack310::after    { content: '310'; }
+body.skin-cassette #faderTrack600::after,
+body.skin-modern #faderTrack600::after,
+body.skin-midnight #faderTrack600::after    { content: '600'; }
+body.skin-cassette #faderTrack1000::after,
+body.skin-modern #faderTrack1000::after,
+body.skin-midnight #faderTrack1000::after   { content: '1K'; }
+body.skin-cassette #faderTrack3000::after,
+body.skin-modern #faderTrack3000::after,
+body.skin-midnight #faderTrack3000::after   { content: '3K'; }
+body.skin-cassette #faderTrack6000::after,
+body.skin-modern #faderTrack6000::after,
+body.skin-midnight #faderTrack6000::after   { content: '6K'; }
+body.skin-cassette #faderTrack12000::after,
+body.skin-modern #faderTrack12000::after,
+body.skin-midnight #faderTrack12000::after  { content: '12K'; }
+body.skin-cassette #faderTrack14000::after,
+body.skin-modern #faderTrack14000::after,
+body.skin-midnight #faderTrack14000::after  { content: '14K'; }
+body.skin-cassette #faderTrack16000::after,
+body.skin-modern #faderTrack16000::after,
+body.skin-midnight #faderTrack16000::after  { content: '16K'; }
+
+body.skin-cassette .eq-fader-thumb {
+  left: 2px;
+  background: linear-gradient(180deg, #f8fafc 0%, #cbd5e1 48%, #64748b 52%, #94a3b8 100%);
+  border: 1px solid #0f172a;
+  border-radius: 2px;
+  width: 14px;
+  height: 9px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.85), inset 0 1px 0 #ffffff;
+}
+
+/* Cassette Playlist Window Container & Scrollbar */
+body.skin-cassette .winamp-pl {
+  background: #1e232d;
+}
+
+body.skin-cassette .pl-border-left {
+  background: #171b23;
+  border-right: 1px solid #2b3240;
+}
+
+body.skin-cassette .pl-border-right {
+  background: #171b23;
+  border-left: 1px solid #2b3240;
+}
+
+body.skin-cassette .pl-scrollbar-track {
+  background: #0b0f17;
+  border: 1px solid #2b3240;
+  border-radius: 2px;
+}
+
+body.skin-cassette .pl-scrollbar-thumb {
+  background: linear-gradient(180deg, #38bdf8 0%, #0284c7 100%);
+  border: 1px solid #bae6fd;
+  border-radius: 2px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.7);
+}
+
+body.skin-cassette .pl-scrollbar-thumb:active,
+body.skin-cassette .pl-scrollbar-thumb.active {
+  background: linear-gradient(180deg, #fde047 0%, #eab308 100%);
+  border-color: #fef08a;
+}
+
+body.skin-cassette .pl-screen {
+  background: #070a10;
+  border: 1px solid #1e293b;
+}
+
+body.skin-cassette .pl-scrollable {
+  color: #94a3b8;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 7.2px;
+  line-height: 9.5px;
+}
+
+body.skin-cassette .pl-item {
+  border-radius: 2px;
+  padding: 1px 4px;
+  transition: background 0.12s ease, color 0.12s ease;
+}
+
+body.skin-cassette .pl-item:hover {
+  background: rgba(56, 189, 248, 0.12);
+  color: #e2e8f0;
+}
+
+body.skin-cassette .pl-item.selected {
+  background: rgba(30, 58, 138, 0.65);
+  color: #ffffff;
+}
+
+/* Vivid Highlight for Currently Playing Song in Cassette & All Skins */
+body.skin-cassette .pl-item.current-track {
+  background: linear-gradient(90deg, rgba(2, 132, 199, 0.45) 0%, rgba(250, 204, 21, 0.18) 100%);
+  border-left: 3px solid #fde047;
+  color: #fde047;
+  font-weight: 700;
+  box-shadow: inset 0 0 8px rgba(56, 189, 248, 0.25);
+}
+
+body.skin-cassette .pl-item.current-track .pl-item-num {
+  color: #38bdf8;
+  opacity: 1;
+}
+
+body.skin-cassette .pl-item.current-track .pl-item-num::before {
+  content: '▶ ';
+  color: #fde047;
+  text-shadow: 0 0 4px rgba(253, 224, 71, 0.9);
+}
+
+body.skin-cassette .pl-item.current-track .pl-item-title {
+  color: #fde047;
+  text-shadow: 0 0 5px rgba(253, 224, 71, 0.55);
+}
+
+body.skin-cassette .pl-item.current-track .pl-item-time {
+  color: #38bdf8;
+  text-shadow: 0 0 4px rgba(56, 189, 248, 0.7);
+  font-weight: 700;
+}
+
+body.skin-cassette .pl-resize-handle {
+  background: radial-gradient(circle at 100% 100%, #38bdf8 2px, transparent 3px) no-repeat;
+  background-size: 8px 8px;
+  background-position: right bottom;
+}
+
 
 
 /* ==========================================================================
