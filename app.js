@@ -3410,18 +3410,103 @@ document.addEventListener('DOMContentLoaded', async () => {
     navigator.storage.persist().catch(() => {});
   }
 
-  // Register Service Worker for 100% Offline Support after first visit
+  // =========================================================================
+  // AUTO VERSION CHECKER & AUTOMATIC UPDATER
+  // =========================================================================
+  const badgeElem = document.querySelector('.app-ver-badge');
+  const CURRENT_APP_VERSION = badgeElem ? badgeElem.textContent.trim() : 'v4.4';
+  let isAutoUpdating = false;
+  let swRegInstance = null;
+
+  async function triggerSeamlessUpdate(newVerLabel) {
+    if (isAutoUpdating) return;
+    isAutoUpdating = true;
+    showToast(`🚀 พบเวอร์ชันใหม่ (${newVerLabel || 'Update'}) กำลังอัปเดตอัตโนมัติ...`);
+
+    try {
+      if ('caches' in window) {
+        const keys = await caches.keys();
+        await Promise.all(keys.map(k => caches.delete(k)));
+      }
+      if ('serviceWorker' in navigator) {
+        const regs = await navigator.serviceWorker.getRegistrations();
+        await Promise.all(regs.map(r => r.unregister()));
+      }
+    } catch (e) {}
+
+    setTimeout(() => {
+      const url = new URL(window.location.href);
+      url.searchParams.set('_v', Date.now().toString());
+      window.location.replace(url.toString());
+    }, 600);
+  }
+
+  async function checkForNewVersionAndAutoUpdate(manual = false) {
+    if (isAutoUpdating || !navigator.onLine) {
+      if (manual && !navigator.onLine) {
+        showToast('📴 ขณะนี้ออฟไลน์ ไม่สามารถเช็คเวอร์ชันใหม่ได้');
+      }
+      return;
+    }
+
+    if (manual) {
+      showToast(`🔍 กำลังเช็คเวอร์ชันใหม่ (ปัจจุบัน ${CURRENT_APP_VERSION})...`);
+    }
+
+    try {
+      if (swRegInstance) {
+        swRegInstance.update().catch(() => {});
+      }
+
+      // Fetch fresh index.html bypassing all browser & CDN caches
+      const res = await fetch(`./index.html?_check=${Date.now()}`, {
+        cache: 'no-store',
+        headers: {
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache'
+        }
+      });
+
+      if (!res.ok) return;
+      const html = await res.text();
+      const match = html.match(/class=["']app-ver-badge["'][^>]*>\s*(v[0-9.]+)\s*</i);
+      const remoteVersion = match ? match[1].trim() : null;
+
+      if (remoteVersion && remoteVersion !== CURRENT_APP_VERSION) {
+        await triggerSeamlessUpdate(remoteVersion);
+      } else if (manual) {
+        showToast(`✅ คุณใช้เวอร์ชันล่าสุดแล้ว (${CURRENT_APP_VERSION})`);
+      }
+    } catch (err) {
+      if (manual) {
+        showToast(`✅ เวอร์ชันปัจจุบัน: ${CURRENT_APP_VERSION}`);
+      }
+    }
+  }
+
+  // Click on any version badge to manually check for updates immediately
+  document.querySelectorAll('.app-ver-badge').forEach((badge) => {
+    badge.style.cursor = 'pointer';
+    badge.title = 'คลิกเพื่อเช็คอัปเดตเวอร์ชันใหม่ (Click to check for updates)';
+    badge.addEventListener('click', (e) => {
+      e.stopPropagation();
+      checkForNewVersionAndAutoUpdate(true);
+    });
+  });
+
+  // Register Service Worker for 100% Offline Support + Auto-Update
   if ('serviceWorker' in navigator) {
     let refreshing = false;
     navigator.serviceWorker.addEventListener('controllerchange', () => {
-      if (!refreshing) {
+      if (!refreshing && !isAutoUpdating) {
         refreshing = true;
         window.location.reload();
       }
     });
 
-    navigator.serviceWorker.register('./sw.js?v=4.0', { scope: './', updateViaCache: 'none' })
+    navigator.serviceWorker.register('./sw.js', { scope: './', updateViaCache: 'none' })
       .then((reg) => {
+        swRegInstance = reg;
         if (navigator.onLine) {
           reg.update().catch(() => {});
         }
@@ -3429,7 +3514,9 @@ document.addEventListener('DOMContentLoaded', async () => {
           const newWorker = reg.installing;
           if (!newWorker) return;
           newWorker.addEventListener('statechange', () => {
-            if (newWorker.state === 'activated' && !navigator.serviceWorker.controller) {
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              newWorker.postMessage({ type: 'SKIP_WAITING' });
+            } else if (newWorker.state === 'activated' && !navigator.serviceWorker.controller) {
               showToast('✅ บันทึกแอปลงเครื่องแล้ว ครั้งต่อไปเปิดเล่นได้โดยไม่ต้องต่อเน็ต!');
             }
           });
@@ -3439,6 +3526,20 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.warn('Service Worker registration failed:', err);
       });
   }
+
+  // Automatically check for new versions on startup, when returning to app, when back online, and every 60s
+  setTimeout(() => checkForNewVersionAndAutoUpdate(false), 1500);
+  setInterval(() => {
+    if (!document.hidden && navigator.onLine) {
+      checkForNewVersionAndAutoUpdate(false);
+    }
+  }, 60000);
+
+  document.addEventListener('visibilitychange', () => {
+    if (!document.hidden && navigator.onLine) {
+      checkForNewVersionAndAutoUpdate(false);
+    }
+  });
 
   // Offline / Online status notifications
   if (!navigator.onLine) {
@@ -3451,5 +3552,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
   window.addEventListener('online', () => {
     showToast('🌐 เชื่อมต่ออินเทอร์เน็ตแล้ว');
+    checkForNewVersionAndAutoUpdate(false);
   });
 });

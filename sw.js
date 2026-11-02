@@ -4,21 +4,21 @@
  * so the player opens and plays music 100% offline without an internet connection.
  */
 
-const CACHE_NAME = 'winamp-walkman-offline-v4.3';
+const CACHE_NAME = 'winamp-walkman-offline-v4.4';
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './styles.css',
-  './styles.css?v=4.3',
+  './styles.css?v=4.4',
   './app.js',
-  './app.js?v=4.3',
+  './app.js?v=4.4',
   './audio-engine.js',
-  './audio-engine.js?v=4.3',
+  './audio-engine.js?v=4.4',
   './db.js',
-  './db.js?v=4.3',
+  './db.js?v=4.4',
   './id3.js',
-  './id3.js?v=4.3',
+  './id3.js?v=4.4',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',
@@ -53,6 +53,12 @@ const PRECACHE_ASSETS = [
 ];
 
 // 1. Install Event: Pre-cache all core assets and activate immediately
+self.addEventListener('message', (event) => {
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    self.skipWaiting();
+  }
+});
+
 self.addEventListener('install', (event) => {
   self.skipWaiting();
   event.waitUntil(
