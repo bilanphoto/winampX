@@ -11,12 +11,14 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=4.5">
+  <link rel="stylesheet" href="styles.css?v=4.6">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
   <!-- Hidden File Input for Custom Cassette Tape Skin Artwork -->
   <input type="file" id="customTapeSkinInput" accept="image/*" style="display: none;" />
+  <!-- Hidden File Input for Custom iPod Album Cover Artwork -->
+  <input type="file" id="ipodCoverInput" accept="image/*" style="display: none;" />
   <!-- Desktop / Background container -->
   <div id="desktop">
     <!-- Hidden file inputs -->
@@ -42,6 +44,7 @@
               <div class="menu-item" id="menuSkinModern">🎨 Skin: Modern Silver Blue</div>
               <div class="menu-item" id="menuSkinMidnight">🎨 Skin: Midnight Gold</div>
               <div class="menu-item" id="menuSkinCassette">📼 Skin: Walkman Cassette Player</div>
+              <div class="menu-item" id="menuSkinIpod">📱 Skin: iPod touch (Apple iOS)</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuTogglePlay">⏯ Play / Pause (Space)</div>
               <div class="menu-item" id="menuStopTrack">⏹ Stop (V)</div>
@@ -62,7 +65,8 @@
               <div class="menu-item" id="menuShowHelp">⌨ Shortcuts & Help (F1)</div>
             </div>
           </div>
-          <div class="wa-titlebar-title-drag">WINAMP <span class="app-ver-badge">v4.5</span></div>
+          <div class="wa-titlebar-title-drag">WINAMP <span class="app-ver-badge">v4.6</span></div>
+          <button class="titlebar-ipod-btn" id="btnTitlebarIpod" title="สลับไปสกิน iPod touch (Switch to iPod touch)">📱 iPod</button>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
             <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
@@ -350,6 +354,7 @@
               <div class="menu-item" id="cmenuSkinModern">🎨 Winamp: Modern Silver Blue</div>
               <div class="menu-item" id="cmenuSkinMidnight">🎨 Winamp: Midnight Gold</div>
               <div class="menu-item active" id="cmenuSkinCassette">📼 Walkman Cassette Player</div>
+              <div class="menu-item" id="cmenuSkinIpod">📱 Skin: iPod touch (Apple iOS)</div>
               <div class="menu-separator"></div>
               <div class="menu-header">📼 CASSETTE TAPE</div>
               <div class="menu-separator"></div>
@@ -369,7 +374,7 @@
               <div class="menu-item" id="cmenuClose">⚡ สลับกลับเป็น Winamp</div>
             </div>
           </div>
-          <div class="wa-titlebar-title-drag">PORTABLE CASSETTE PLAYER <span class="app-ver-badge">v4.5</span></div>
+          <div class="wa-titlebar-title-drag">PORTABLE CASSETTE PLAYER <span class="app-ver-badge">v4.6</span></div>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-shade" id="cassetteShadeBtn" title="Window Shade"></button>
             <button class="win-btn win-btn-close" id="cassetteCloseBtn" title="Back to Winamp"></button>
@@ -380,7 +385,7 @@
         <div class="cassette-deck-body">
           <!-- Header bar with Model, Counter and LED -->
           <div class="deck-top-bar">
-            <div class="deck-model-tag">PORTABLE STEREO <span class="app-ver-badge">v4.5</span></div>
+            <div class="deck-model-tag">PORTABLE STEREO <span class="app-ver-badge">v4.6</span></div>
             <div class="deck-counter-wrap">
               <span class="deck-counter-label">TAPE</span>
               <span class="deck-counter-num" id="deckCounter">000</span>
@@ -395,6 +400,7 @@
               </button>
               <button class="deck-photo-btn" id="btnUploadTapePhoto" title="เลือกรูปใส่บนม้วนเทป (Custom Tape Photo)">📷</button>
               <div class="deck-status-led" id="deckLed" title="Tape Motor Running"></div>
+              <button class="deck-winamp-btn" id="btnDeckIpod" title="สลับไปสกิน iPod touch (Switch to iPod touch)">📱</button>
               <button class="deck-winamp-btn" id="btnCassetteToWinamp" title="สลับกลับไปสกิน Winamp (Switch to Winamp)">⚡</button>
             </div>
           </div>
@@ -538,6 +544,451 @@
         </div>
       </div>
 
+      <!-- ============================================== -->
+      <!-- 5. APPLE iPOD TOUCH SKIN (340 x 640)           -->
+      <!-- ============================================== -->
+      <div id="ipodWindow" class="ipod-device hidden" data-window="ipod">
+        <!-- Top Physical Sleep / Wake Power Button -->
+        <button class="ipod-sleep-btn" id="ipodSleepBtn" title="Sleep / Wake Lock Screen (ล็อกหน้าจอ iPod)"></button>
+
+        <!-- Polished Stainless Steel Outer Rim & Piano Black Glass Chassis -->
+        <div class="ipod-steel-frame">
+          <div class="ipod-glass-face">
+            <!-- Top Bezel: Ambient Light Sensor & Front Camera -->
+            <div class="ipod-top-bezel">
+              <div class="ipod-sensor-pill"></div>
+              <div class="ipod-camera-dot"></div>
+            </div>
+
+            <!-- 3.5-inch Multi-Touch Retina Display (320 x 480) -->
+            <div class="ipod-screen" id="ipodScreen">
+              <!-- 1. iOS Status Bar (20px) -->
+              <div class="ipod-statusbar" id="ipodStatusbar">
+                <div class="ipod-sb-left">
+                  <span class="ipod-carrier">iPod</span>
+                  <svg class="ipod-wifi-svg" viewBox="0 0 16 12" aria-hidden="true">
+                    <path d="M8 9.5a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6zm-3.2-2a4.6 4.6 0 0 1 6.4 0l1.1-1.1a6.2 6.2 0 0 0-8.6 0l1.1 1.1zm-2.4-2.4a8 8 0 0 1 11.2 0l1.1-1.1a9.6 9.6 0 0 0-13.4 0l1.1 1.1z" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="ipod-sb-center">
+                  <span id="ipodStatusTime">10:42 AM</span>
+                </div>
+                <div class="ipod-sb-right">
+                  <span class="ipod-sb-play" id="ipodStatusPlay">▶</span>
+                  <span class="app-ver-badge ipod-ver-badge">v4.6</span>
+                  <div class="ipod-battery" title="Battery 100%">
+                    <div class="ipod-battery-body">
+                      <div class="ipod-battery-fill"></div>
+                    </div>
+                    <div class="ipod-battery-tip"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. iOS Top Navigation Bar (44px) -->
+              <div class="ipod-navbar" id="ipodNavbar">
+                <button class="ipod-nav-btn ipod-nav-back" id="ipodNavLeftBtn" title="Songs / Playlists">
+                  <span class="ipod-back-arrow">◄</span>
+                  <span id="ipodNavLeftLabel">Songs</span>
+                </button>
+                <div class="ipod-nav-center" id="ipodNavCenter">
+                  <div class="ipod-nav-track-info" id="ipodNavTrackInfo">
+                    <div class="ipod-nav-artist" id="ipodNavArtist">Winamp</div>
+                    <div class="ipod-nav-title" id="ipodNavTitle">Now Playing</div>
+                    <div class="ipod-nav-album" id="ipodNavAlbum">iPod touch</div>
+                  </div>
+                  <div class="ipod-nav-view-title hidden" id="ipodNavViewTitle">Songs</div>
+                </div>
+                <button class="ipod-nav-btn ipod-nav-right" id="ipodNavRightBtn" title="Flip Album Tracklist / Options">
+                  <svg viewBox="0 0 20 20" class="ipod-flip-svg" id="ipodNavRightIcon">
+                    <rect x="2" y="3" width="16" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                    <line x1="5.5" y1="7" x2="14.5" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="5.5" y1="10" x2="14.5" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="5.5" y1="13" x2="11.5" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- 3. Main iOS Viewport Area -->
+              <div class="ipod-viewport" id="ipodViewport">
+
+                <!-- ========================================== -->
+                <!-- VIEW A: NOW PLAYING (3D Cover + Controls)  -->
+                <!-- ========================================== -->
+                <div class="ipod-view active" id="ipodViewNowPlaying" data-view="nowplaying">
+                  <!-- Top Translucent Scrubber Overlay -->
+                  <div class="ipod-scrubber-bar" id="ipodScrubberBar">
+                    <div class="ipod-scrubber-top">
+                      <button class="ipod-sub-btn" id="ipodRepeatBtn" title="Repeat Mode">
+                        <svg viewBox="0 0 20 20" class="ipod-sub-svg">
+                          <path d="M5 6h9v2.5l3.5-3.5L14 1.5V4H4a2 2 0 0 0-2 2v4h2V6zm10 8H6v-2.5L2.5 15 6 18.5V16h10a2 2 0 0 0 2-2v-4h-2v4z" fill="currentColor"/>
+                        </svg>
+                      </button>
+                      <span class="ipod-track-index" id="ipodTrackCount">1 of 8</span>
+                      <button class="ipod-sub-btn" id="ipodShuffleBtn" title="Shuffle Mode">
+                        <svg viewBox="0 0 20 20" class="ipod-sub-svg">
+                          <path d="M14 4h2.5L13 7.5 14.4 9 18 5.4V8h1.5V2.5H14V4zM2 5.5h3.2l8.3 9H16v2.5l3.5-3.5L16 10v2.5h-1.8l-8.3-9H2v2zm0 9h3.8l2.7-2.9-1.4-1.4L5 12.5H2v2z" fill="currentColor"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="ipod-scrubber-row">
+                      <span class="ipod-time-lbl" id="ipodTimeElapsed">0:00</span>
+                      <div class="ipod-seek-track" id="ipodSeekTrack" title="Drag to scrub song">
+                        <div class="ipod-seek-fill" id="ipodSeekFill" style="width: 0%;"></div>
+                        <div class="ipod-seek-thumb" id="ipodSeekThumb" style="left: 0%;"></div>
+                      </div>
+                      <span class="ipod-time-lbl ipod-time-rem" id="ipodTimeRemaining">-0:00</span>
+                    </div>
+                  </div>
+
+                  <!-- Center 3D Flippable Album Stage with Floor Reflection -->
+                  <div class="ipod-album-stage" id="ipodAlbumStage">
+                    <div class="ipod-flip-card" id="ipodFlipCard">
+                      <!-- FRONT: Glossy Album Cover + 3D Floor Reflection -->
+                      <div class="ipod-cover-face ipod-cover-front" id="ipodCoverFront" title="แตะเพื่อเปิด/ปิดแถบเวลา หรือดับเบิลคลิกเพื่อพลิกดูรายชื่อเพลงหลังอัลบั้ม">
+                        <div class="ipod-artwork-wrap">
+                          <canvas id="ipodArtworkCanvas" width="360" height="360" class="ipod-artwork-canvas"></canvas>
+                          <img id="ipodArtworkImg" class="ipod-artwork-img hidden" alt="Album Cover" crossorigin="anonymous" />
+                          <div class="ipod-artwork-gloss"></div>
+                          <!-- Mini EQ Spectrum Visualizer Badge on Cover -->
+                          <canvas id="ipodMiniVisCanvas" width="68" height="22" class="ipod-mini-vis"></canvas>
+                        </div>
+                        <!-- Authentic iPod touch 3D Floor Reflection -->
+                        <div class="ipod-artwork-reflection">
+                          <canvas id="ipodReflectCanvas" width="360" height="90" class="ipod-reflect-canvas"></canvas>
+                          <div class="ipod-reflect-fade"></div>
+                        </div>
+                      </div>
+
+                      <!-- BACK: On-Album Tracklist & 5-Star Rating -->
+                      <div class="ipod-cover-face ipod-cover-back" id="ipodCoverBack">
+                        <div class="ipod-back-header">
+                          <canvas id="ipodBackThumbCanvas" width="64" height="64" class="ipod-back-thumb"></canvas>
+                          <div class="ipod-back-meta">
+                            <div class="ipod-back-title" id="ipodBackTitle">Track Title</div>
+                            <div class="ipod-back-artist" id="ipodBackArtist">Artist</div>
+                            <div class="ipod-star-rating" id="ipodStarRating" title="Rate this song">
+                              <span class="ipod-star active" data-star="1">★</span>
+                              <span class="ipod-star active" data-star="2">★</span>
+                              <span class="ipod-star active" data-star="3">★</span>
+                              <span class="ipod-star active" data-star="4">★</span>
+                              <span class="ipod-star active" data-star="5">★</span>
+                            </div>
+                          </div>
+                          <button class="ipod-back-cover-btn" id="ipodBtnCustomCover" title="เปลี่ยนรูปปกอัลบั้ม (Upload Custom Cover)">📷</button>
+                        </div>
+                        <div class="ipod-back-tracklist" id="ipodBackTracklist"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Bottom Glossy Black Glass Transport & Volume Dock -->
+                  <div class="ipod-bottom-dock" id="ipodBottomDock">
+                    <div class="ipod-dock-transport">
+                      <!-- Previous / Rewind -->
+                      <button class="ipod-trans-btn" id="ipodPrevBtn" title="Previous / Hold to Rewind">
+                        <svg viewBox="0 0 32 22" class="ipod-trans-svg">
+                          <rect x="2" y="3" width="3.2" height="16" rx="0.8" fill="currentColor"/>
+                          <polygon points="17,3 5.5,11 17,19" fill="currentColor"/>
+                          <polygon points="29,3 17.5,11 29,19" fill="currentColor"/>
+                        </svg>
+                      </button>
+
+                      <!-- Play / Pause -->
+                      <button class="ipod-trans-btn ipod-play-btn" id="ipodPlayPauseBtn" title="Play / Pause">
+                        <svg viewBox="0 0 26 24" class="ipod-trans-svg" id="ipodPlaySvg">
+                          <polygon points="5,2 23,12 5,22" fill="currentColor"/>
+                        </svg>
+                        <svg viewBox="0 0 26 24" class="ipod-trans-svg hidden" id="ipodPauseSvg">
+                          <rect x="5" y="3" width="5.5" height="18" rx="1.2" fill="currentColor"/>
+                          <rect x="15.5" y="3" width="5.5" height="18" rx="1.2" fill="currentColor"/>
+                        </svg>
+                      </button>
+
+                      <!-- Next / Fast-Forward -->
+                      <button class="ipod-trans-btn" id="ipodNextBtn" title="Next / Hold to Fast-Forward">
+                        <svg viewBox="0 0 32 22" class="ipod-trans-svg">
+                          <polygon points="3,3 14.5,11 3,19" fill="currentColor"/>
+                          <polygon points="15,3 26.5,11 15,19" fill="currentColor"/>
+                          <rect x="26.8" y="3" width="3.2" height="16" rx="0.8" fill="currentColor"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <!-- Iconic iOS Brushed Aluminum Volume Slider -->
+                    <div class="ipod-volume-row">
+                      <svg viewBox="0 0 16 16" class="ipod-vol-icon">
+                        <path d="M2 6h3l4-3.5v11L5 10H2V6z" fill="currentColor"/>
+                      </svg>
+                      <div class="ipod-vol-track" id="ipodVolTrack" title="Volume">
+                        <div class="ipod-vol-fill" id="ipodVolFill" style="width: 80%;"></div>
+                        <div class="ipod-vol-thumb" id="ipodVolThumb" style="left: 80%;"></div>
+                      </div>
+                      <svg viewBox="0 0 20 16" class="ipod-vol-icon">
+                        <path d="M2 6h3l4-3.5v11L5 10H2V6zm10.5-1.5a4.5 4.5 0 0 1 0 7l-1.1-1.1a3 3 0 0 0 0-4.8l1.1-1.1zm2.3-2.3a7.8 7.8 0 0 1 0 11.6l-1.1-1.1a6.2 6.2 0 0 0 0-9.4l1.1-1.1z" fill="currentColor"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- VIEW B: SONGS / PLAYLIST (UITableView)     -->
+                <!-- ========================================== -->
+                <div class="ipod-view" id="ipodViewSongs" data-view="songs">
+                  <div class="ipod-search-toolbar">
+                    <div class="ipod-search-box">
+                      <span class="ipod-search-icon">🔍</span>
+                      <input type="text" id="ipodSearchInput" class="ipod-search-input" placeholder="Search Songs, Artists..." autocomplete="off" />
+                    </div>
+                    <div class="ipod-playlist-actions">
+                      <button class="ipod-pill-btn ipod-pill-blue" id="ipodBtnAddMp3" title="Add MP3 / Audio Files">+ MP3</button>
+                      <button class="ipod-pill-btn ipod-pill-red" id="ipodBtnAddYt" title="Add YouTube Link">▶️ YouTube</button>
+                      <button class="ipod-pill-btn" id="ipodBtnLoadDemo" title="Load Demo Tracks">🎵 Demo</button>
+                      <button class="ipod-pill-btn ipod-pill-gray" id="ipodBtnClearPl" title="Clear Playlist">🗑 Clear</button>
+                    </div>
+                  </div>
+                  <div class="ipod-table-scroll" id="ipodSongsList"></div>
+                  <div class="ipod-table-footer" id="ipodSongsFooter">8 Songs</div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- VIEW C: EQUALIZER (10-Band + iOS Presets)  -->
+                <!-- ========================================== -->
+                <div class="ipod-view" id="ipodViewEQ" data-view="eq">
+                  <div class="ipod-eq-header-card">
+                    <div class="ipod-eq-switch-row">
+                      <span class="ipod-eq-lbl">Equalizer DSP</span>
+                      <div class="ipod-eq-top-btns">
+                        <button class="ipod-eq-reset-btn" id="ipodEqResetBtn">Flat (0dB)</button>
+                        <button class="ipod-ios-switch active" id="ipodEqToggleBtn" title="Toggle Equalizer ON/OFF">
+                          <span class="ipod-switch-on">ON</span>
+                          <span class="ipod-switch-off">OFF</span>
+                          <span class="ipod-switch-thumb"></span>
+                        </button>
+                      </div>
+                    </div>
+                    <!-- Live EQ Curve + 10-Band Touch Sliders -->
+                    <canvas id="ipodEqCanvas" width="288" height="40" class="ipod-eq-canvas"></canvas>
+                    <div class="ipod-eq-sliders" id="ipodEqSliders">
+                      <div class="ipod-eq-col" data-ipod-band="preamp">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq pre">PRE</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="0">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">60</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="1">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">170</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="2">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">310</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="3">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">600</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="4">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">1K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="5">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">3K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="6">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">6K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="7">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">12K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="8">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">14K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="9">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">16K</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- iOS Grouped Table of EQ Presets -->
+                  <div class="ipod-eq-presets-title">iPod EQ Presets</div>
+                  <div class="ipod-eq-preset-list" id="ipodEqPresetList">
+                    <div class="ipod-preset-row active" data-ipod-preset="flat"><span>Flat (Default)</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="fullbass"><span>Bass Booster</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="fullbasstreble"><span>Bass &amp; Treble Booster</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="rock"><span>Rock</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="pop"><span>Pop</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="dance"><span>Dance</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="techno"><span>Electronic / Techno</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="vocal"><span>Vocal Booster</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="softrock"><span>Acoustic / Soft Rock</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="classical"><span>Classical</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="club"><span>Club</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="live"><span>Live</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="party"><span>Party</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="reggae"><span>Reggae</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="fulltreble"><span>Treble Booster</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="laptopspeakers"><span>Small Speakers</span><span class="ipod-check">✓</span></div>
+                  </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- VIEW D: iOS SPRINGBOARD HOME SCREEN        -->
+                <!-- ========================================== -->
+                <div class="ipod-view" id="ipodViewHome" data-view="home">
+                  <div class="ipod-springboard-grid">
+                    <button class="ipod-app-icon" data-ipod-app="nowplaying">
+                      <div class="ipod-squircle app-music"><span>🎵</span></div>
+                      <span class="ipod-app-label">Now Playing</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="songs">
+                      <div class="ipod-squircle app-songs"><span>🎶</span></div>
+                      <span class="ipod-app-label">Songs</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="eq">
+                      <div class="ipod-squircle app-eq"><span>🎚</span></div>
+                      <span class="ipod-app-label">Equalizer</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="youtube">
+                      <div class="ipod-squircle app-yt"><span>▶️</span></div>
+                      <span class="ipod-app-label">YouTube</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="addmp3">
+                      <div class="ipod-squircle app-files"><span>📂</span></div>
+                      <span class="ipod-app-label">Add MP3</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="coverart">
+                      <div class="ipod-squircle app-photos"><span>🌻</span></div>
+                      <span class="ipod-app-label">Cover Art</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="resetcover">
+                      <div class="ipod-squircle app-reset"><span>🔄</span></div>
+                      <span class="ipod-app-label">Auto Cover</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="lock">
+                      <div class="ipod-squircle app-lock"><span>🔒</span></div>
+                      <span class="ipod-app-label">Lock Screen</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="skin-cassette">
+                      <div class="ipod-squircle app-walkman"><span>📼</span></div>
+                      <span class="ipod-app-label">Walkman</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="skin-midnight">
+                      <div class="ipod-squircle app-midnight"><span>⚡</span></div>
+                      <span class="ipod-app-label">Midnight</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="skin-modern">
+                      <div class="ipod-squircle app-modern"><span>💎</span></div>
+                      <span class="ipod-app-label">Modern</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="skin-classic">
+                      <div class="ipod-squircle app-classic"><span>🎛</span></div>
+                      <span class="ipod-app-label">Winamp 2.91</span>
+                    </button>
+                  </div>
+
+                  <div class="ipod-page-dots">
+                    <span class="ipod-dot active"></span>
+                    <span class="ipod-dot"></span>
+                  </div>
+
+                  <!-- Reflective 3D Glass iOS Dock -->
+                  <div class="ipod-springboard-dock">
+                    <div class="ipod-dock-glass"></div>
+                    <button class="ipod-app-icon" data-ipod-app="nowplaying">
+                      <div class="ipod-squircle app-music"><span>🎵</span></div>
+                      <span class="ipod-app-label">Music</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="songs">
+                      <div class="ipod-squircle app-songs"><span>🎶</span></div>
+                      <span class="ipod-app-label">Playlists</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="eq">
+                      <div class="ipod-squircle app-eq"><span>🎚</span></div>
+                      <span class="ipod-app-label">EQ</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="youtube">
+                      <div class="ipod-squircle app-yt"><span>▶️</span></div>
+                      <span class="ipod-app-label">YouTube</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- OVERLAY: iOS "SLIDE TO UNLOCK" LOCK SCREEN -->
+                <!-- ========================================== -->
+                <div class="ipod-lock-overlay hidden" id="ipodLockOverlay">
+                  <div class="ipod-lock-header">
+                    <div class="ipod-lock-time" id="ipodLockTime">10:42</div>
+                    <div class="ipod-lock-date" id="ipodLockDate">Sunday, November 2</div>
+                    <div class="ipod-lock-nowplaying">
+                      <div class="ipod-lock-song" id="ipodLockSong">No Song Playing</div>
+                      <div class="ipod-lock-artist" id="ipodLockArtist">iPod touch</div>
+                      <div class="ipod-lock-controls">
+                        <button class="ipod-lock-btn" id="ipodLockPrev">⏮</button>
+                        <button class="ipod-lock-btn" id="ipodLockPlay">⏯</button>
+                        <button class="ipod-lock-btn" id="ipodLockNext">⏭</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ipod-lock-center">
+                    <canvas id="ipodLockCoverCanvas" width="180" height="180" class="ipod-lock-cover"></canvas>
+                  </div>
+                  <div class="ipod-unlock-bar">
+                    <div class="ipod-unlock-track" id="ipodUnlockTrack">
+                      <div class="ipod-unlock-text">slide to unlock</div>
+                      <div class="ipod-unlock-thumb" id="ipodUnlockThumb">
+                        <svg viewBox="0 0 24 20" class="ipod-unlock-arrow">
+                          <path d="M4 8h10V4l7 6-7 6v-4H4V8z" fill="currentColor"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- 4. Persistent Bottom iOS Tab Bar (49px) -->
+              <div class="ipod-tabbar" id="ipodTabBar">
+                <button class="ipod-tab-btn active" data-ipod-tab="nowplaying">
+                  <span class="ipod-tab-icon">🎵</span>
+                  <span class="ipod-tab-lbl">Now Playing</span>
+                </button>
+                <button class="ipod-tab-btn" data-ipod-tab="songs">
+                  <span class="ipod-tab-icon">🎶</span>
+                  <span class="ipod-tab-lbl">Songs</span>
+                </button>
+                <button class="ipod-tab-btn" data-ipod-tab="eq">
+                  <span class="ipod-tab-icon">🎚</span>
+                  <span class="ipod-tab-lbl">Equalizer</span>
+                </button>
+                <button class="ipod-tab-btn" data-ipod-tab="youtube">
+                  <span class="ipod-tab-icon">▶️</span>
+                  <span class="ipod-tab-lbl">YouTube</span>
+                </button>
+                <button class="ipod-tab-btn" data-ipod-tab="home">
+                  <span class="ipod-tab-icon">📱</span>
+                  <span class="ipod-tab-lbl">Home</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Bottom Bezel: Concave Physical Home Button -->
+            <div class="ipod-bottom-bezel">
+              <button class="ipod-home-btn" id="ipodHomeBtn" title="Home Button (กดเพื่อกลับหน้าหลัก / สลับหน้าแอป)">
+                <span class="ipod-home-squircle"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       </div> <!-- End #winamp-workspace -->
     </div> <!-- End windows-container -->
 
@@ -589,9 +1040,10 @@
         <div class="walkman-top-header">
           <div class="walkman-brand-title">
             <span class="walkman-brand-stereo">PORTABLE STEREO CASSETTE PLAYER</span>
-            <span class="walkman-brand-logo">WINAMP <em>Walkman</em> <span class="app-ver-badge">v4.5</span></span>
+            <span class="walkman-brand-logo">WINAMP <em>Walkman</em> <span class="app-ver-badge">v4.6</span></span>
           </div>
           <div class="walkman-top-actions">
+            <button class="walkman-action-btn" id="wmIpodBtn" title="สลับไปสกิน iPod touch">📱 iPod</button>
             <button class="walkman-action-btn walkman-yt-btn" id="wmYoutubeBtn" title="วางลิงก์ YouTube (Play YouTube)">
               <svg viewBox="0 0 24 17" class="yt-logo-svg-wm" aria-hidden="true">
                 <path d="M23.5 2.7a3 3 0 0 0-2.1-2.1C19.5 0 12 0 12 0S4.5 0 2.6.6A3 3 0 0 0 .5 2.7C0 4.6 0 8.5 0 8.5s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z" fill="#ff0033"/>
@@ -798,9 +1250,9 @@
   <audio id="audioElement" preload="auto" playsinline webkit-playsinline></audio>
 
   <!-- Scripts -->
-  <script src="db.js?v=4.5"></script>
-  <script src="id3.js?v=4.5"></script>
-  <script src="audio-engine.js?v=4.5"></script>
-  <script src="app.js?v=4.5"></script>
+  <script src="db.js?v=4.6"></script>
+  <script src="id3.js?v=4.6"></script>
+  <script src="audio-engine.js?v=4.6"></script>
+  <script src="app.js?v=4.6"></script>
 </body>
 </html>

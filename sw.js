@@ -4,21 +4,21 @@
  * so the player opens and plays music 100% offline without an internet connection.
  */
 
-const CACHE_NAME = 'winamp-walkman-offline-v4.5';
+const CACHE_NAME = 'winamp-walkman-offline-v4.6';
 
 const PRECACHE_ASSETS = [
   './',
   './index.html',
   './styles.css',
-  './styles.css?v=4.5',
+  './styles.css?v=4.6',
   './app.js',
-  './app.js?v=4.5',
+  './app.js?v=4.6',
   './audio-engine.js',
-  './audio-engine.js?v=4.5',
+  './audio-engine.js?v=4.6',
   './db.js',
-  './db.js?v=4.5',
+  './db.js?v=4.6',
   './id3.js',
-  './id3.js?v=4.5',
+  './id3.js?v=4.6',
   './manifest.json',
   './icon-192.png',
   './icon-512.png',

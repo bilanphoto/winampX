@@ -31,6 +31,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   // DOM Elements - Cassette Deck Window & Walkman Modal
   const cassetteWindow = document.getElementById('cassetteWindow');
+  const ipodWindow = document.getElementById('ipodWindow');
   const cassetteTitlebar = document.getElementById('cassetteTitlebar');
   const cassetteMenuBtn = document.getElementById('cassetteMenuBtn');
   const cassetteContextMenu = document.getElementById('cassetteContextMenu');
@@ -254,11 +255,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   // SKIN SWITCHING LOGIC
   // =========================================================================
   function switchSkin(skinName) {
-    if (skinName !== 'skin-cassette') {
+    if (skinName !== 'skin-cassette' && skinName !== 'skin-ipod') {
       state.lastWinampSkin = skinName;
     }
     state.currentSkin = skinName;
-    document.body.classList.remove('skin-classic', 'skin-modern', 'skin-midnight', 'skin-cassette');
+    document.body.classList.remove('skin-classic', 'skin-modern', 'skin-midnight', 'skin-cassette', 'skin-ipod');
     document.body.classList.add(skinName);
 
     if (btnSkinModern) btnSkinModern.classList.toggle('active', skinName === 'skin-modern');
@@ -270,29 +271,47 @@ document.addEventListener('DOMContentLoaded', async () => {
       'skin-classic': 'Classic 2.91 Original',
       'skin-modern': 'Modern Silver Blue',
       'skin-midnight': 'Midnight Gold (Violet / Gold)',
-      'skin-cassette': '📼 Walkman Cassette Player'
+      'skin-cassette': '📼 Walkman Cassette Player',
+      'skin-ipod': '📱 Apple iPod touch (iOS)'
     };
     showToast(`Switched to ${skinLabels[skinName] || skinName}`);
 
-    if (skinName === 'skin-cassette') {
+    if (skinName === 'skin-ipod') {
+      mainWindow.classList.add('hidden');
+      eqWindow.classList.add('hidden');
+      plWindow.classList.add('hidden');
+      cassetteWindow.classList.add('hidden');
+      if (walkmanModal) walkmanModal.classList.add('hidden');
+      if (ipodWindow) ipodWindow.classList.remove('hidden');
+      if (typeof updateIpodUI === 'function') updateIpodUI();
+      if (typeof renderIpodSongs === 'function') renderIpodSongs();
+      if (typeof updateIpodEQ === 'function') updateIpodEQ();
+      if (typeof drawIpodCoverArt === 'function') drawIpodCoverArt();
+    } else if (skinName === 'skin-cassette') {
+      if (ipodWindow) ipodWindow.classList.add('hidden');
       mainWindow.classList.add('hidden');
       eqWindow.classList.add('hidden');
       cassetteWindow.classList.remove('hidden', 'shaded');
+      const isPlEnabled = document.getElementById('btnCassetteTogglePL')?.classList.contains('active') ?? true;
+      if (isPlEnabled) plWindow.classList.remove('hidden');
       if (state.currentIndex >= 0 && state.currentIndex < state.playlist.length) {
         updateCassetteLabel(state.playlist[state.currentIndex]);
       }
       updateCassetteUI();
     } else {
+      if (ipodWindow) ipodWindow.classList.add('hidden');
       cassetteWindow.classList.add('hidden');
       mainWindow.classList.remove('hidden', 'shaded');
       const isEqEnabled = btnToggleEQ && btnToggleEQ.classList.contains('active');
       if (isEqEnabled) eqWindow.classList.remove('hidden');
+      const isPlEnabled = btnTogglePL && btnTogglePL.classList.contains('active');
+      if (isPlEnabled) plWindow.classList.remove('hidden');
     }
 
     updateResponsiveLayout();
 
     // Update timer display format
-    updateTimerDisplay(audioElement.currentTime, audioElement.duration);
+    updateTimerDisplay(engine.getCurrentTime(), engine.getDuration());
 
     // Redraw EQ
     drawEQCurve();
@@ -309,6 +328,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof updatePlScrollbarThumb === 'function') {
       updatePlScrollbarThumb();
     }
+    if (typeof renderIpodSongs === 'function') renderIpodSongs();
+    if (typeof updateIpodUI === 'function') updateIpodUI();
   }
 
   if (btnSkinModern) btnSkinModern.addEventListener('click', () => switchSkin('skin-modern'));
@@ -408,7 +429,31 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Universal responsive auto-resizing across all screen sizes:
     const isLandscape = window.innerWidth >= window.innerHeight * 1.05;
     const winContainer = document.getElementById('windows-container');
+    const isIpodSkin = document.body.classList.contains('skin-ipod');
     const isCassetteSkin = document.body.classList.contains('skin-cassette');
+
+    if (isIpodSkin) {
+      document.body.classList.remove('layout-portrait', 'layout-desktop', 'layout-landscape');
+      document.body.classList.add(isLandscape ? 'layout-landscape' : 'layout-portrait');
+
+      const availW = Math.max(240, window.innerWidth - 16);
+      const availH = Math.max(300, window.innerHeight - 16);
+      const baseW = 340;
+      const baseH = 640;
+
+      let scale = Math.min(availW / baseW, availH / baseH);
+      scale = Math.max(0.45, Math.min(scale, 1.85));
+
+      document.documentElement.style.setProperty('--mobile-scale', scale.toFixed(3));
+      document.documentElement.style.setProperty('--ws-width', `${baseW}px`);
+      document.documentElement.style.setProperty('--ws-height', `${baseH}px`);
+
+      if (ipodWindow) {
+        ipodWindow.style.left = '0px';
+        ipodWindow.style.top = '0px';
+      }
+      return;
+    }
 
     if (isCassetteSkin) {
       // In Walkman Cassette mode: Winamp main is hidden, EQ and Playlist can be toggled
@@ -712,12 +757,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // Defensive check: ensure mutually exclusive visibility matching active skin
+    const isIpodSkin = document.body.classList.contains('skin-ipod');
     const isCassetteSkin = document.body.classList.contains('skin-cassette');
-    if (isCassetteSkin) {
+    if (isIpodSkin) {
+      if (ipodWindow) ipodWindow.classList.remove('hidden');
+      mainWindow.classList.add('hidden');
+      eqWindow.classList.add('hidden');
+      plWindow.classList.add('hidden');
+      cassetteWindow.classList.add('hidden');
+    } else if (isCassetteSkin) {
+      if (ipodWindow) ipodWindow.classList.add('hidden');
       cassetteWindow.classList.remove('hidden', 'shaded');
       mainWindow.classList.add('hidden');
       eqWindow.classList.add('hidden');
     } else {
+      if (ipodWindow) ipodWindow.classList.add('hidden');
       cassetteWindow.classList.add('hidden');
       mainWindow.classList.remove('hidden');
     }
@@ -993,6 +1047,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const menuSkinModern = document.getElementById('menuSkinModern');
     const menuSkinMidnight = document.getElementById('menuSkinMidnight');
     const menuSkinCassette = document.getElementById('menuSkinCassette');
+    const menuSkinIpod = document.getElementById('menuSkinIpod');
+    const btnTitlebarIpod = document.getElementById('btnTitlebarIpod');
     const menuTogglePlay = document.getElementById('menuTogglePlay');
     const menuStopTrack = document.getElementById('menuStopTrack');
     const menuPrevTrack = document.getElementById('menuPrevTrack');
@@ -1011,6 +1067,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (menuSkinModern) menuSkinModern.addEventListener('click', () => { switchSkin('skin-modern'); mainContextMenu.classList.add('hidden'); });
     if (menuSkinMidnight) menuSkinMidnight.addEventListener('click', () => { switchSkin('skin-midnight'); mainContextMenu.classList.add('hidden'); });
     if (menuSkinCassette) menuSkinCassette.addEventListener('click', () => { switchSkin('skin-cassette'); mainContextMenu.classList.add('hidden'); });
+    if (menuSkinIpod) menuSkinIpod.addEventListener('click', () => { switchSkin('skin-ipod'); mainContextMenu.classList.add('hidden'); });
+    if (btnTitlebarIpod) btnTitlebarIpod.addEventListener('click', (e) => { e.stopPropagation(); switchSkin('skin-ipod'); });
     if (menuTogglePlay) menuTogglePlay.addEventListener('click', () => { btnPlay.click(); mainContextMenu.classList.add('hidden'); });
     if (menuStopTrack) menuStopTrack.addEventListener('click', () => { btnStop.click(); mainContextMenu.classList.add('hidden'); });
     if (menuPrevTrack) menuPrevTrack.addEventListener('click', () => { btnPrev.click(); mainContextMenu.classList.add('hidden'); });
@@ -1433,11 +1491,17 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cmenuSkinModern = document.getElementById('cmenuSkinModern');
     const cmenuSkinMidnight = document.getElementById('cmenuSkinMidnight');
     const cmenuSkinCassette = document.getElementById('cmenuSkinCassette');
+    const cmenuSkinIpod = document.getElementById('cmenuSkinIpod');
+    const btnDeckIpod = document.getElementById('btnDeckIpod');
+    const wmIpodBtn = document.getElementById('wmIpodBtn');
 
     if (cmenuSkinClassic) cmenuSkinClassic.addEventListener('click', () => { switchSkin('skin-classic'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuSkinModern) cmenuSkinModern.addEventListener('click', () => { switchSkin('skin-modern'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuSkinMidnight) cmenuSkinMidnight.addEventListener('click', () => { switchSkin('skin-midnight'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
     if (cmenuSkinCassette) cmenuSkinCassette.addEventListener('click', () => { switchSkin('skin-cassette'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (cmenuSkinIpod) cmenuSkinIpod.addEventListener('click', () => { switchSkin('skin-ipod'); if (cassetteContextMenu) cassetteContextMenu.classList.add('hidden'); });
+    if (btnDeckIpod) btnDeckIpod.addEventListener('click', (e) => { e.stopPropagation(); switchSkin('skin-ipod'); });
+    if (wmIpodBtn) wmIpodBtn.addEventListener('click', (e) => { e.stopPropagation(); closeWalkmanModal(); switchSkin('skin-ipod'); });
 
     const cmenuTapeClear = document.getElementById('cmenuTapeClear');
     const cmenuTapeOrange = document.getElementById('cmenuTapeOrange');
@@ -1758,6 +1822,10 @@ document.addEventListener('DOMContentLoaded', async () => {
       volThumb.style.left = `${Math.round(val * 54) + 7}px`;
     }
     if (wmVolSlider) wmVolSlider.value = val;
+    const ipodVolFill = document.getElementById('ipodVolFill');
+    const ipodVolThumb = document.getElementById('ipodVolThumb');
+    if (ipodVolFill) ipodVolFill.style.width = `${Math.round(val * 100)}%`;
+    if (ipodVolThumb) ipodVolThumb.style.left = `${Math.round(val * 100)}%`;
     window.winampDB.setSetting('volume', val);
   }
 
@@ -1894,6 +1962,16 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     plCurTime.textContent = AudioMetadataParser.formatTime(currentTime);
+
+    const ipodTimeElapsed = document.getElementById('ipodTimeElapsed');
+    const ipodTimeRemaining = document.getElementById('ipodTimeRemaining');
+    if (ipodTimeElapsed) {
+      ipodTimeElapsed.textContent = AudioMetadataParser.formatTime(currentTime || 0);
+    }
+    if (ipodTimeRemaining) {
+      const rem = (duration && isFinite(duration)) ? Math.max(0, duration - (currentTime || 0)) : 0;
+      ipodTimeRemaining.textContent = `-${AudioMetadataParser.formatTime(rem)}`;
+    }
   }
 
   audioElement.addEventListener('loadedmetadata', () => {
@@ -1927,6 +2005,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         const percent = Math.min(100, Math.max(0, (cur / dur) * 100));
         seekThumb.style.left = `${percent}%`;
+        const ipodSeekFill = document.getElementById('ipodSeekFill');
+        const ipodSeekThumb = document.getElementById('ipodSeekThumb');
+        if (ipodSeekFill) ipodSeekFill.style.width = `${percent}%`;
+        if (ipodSeekThumb) ipodSeekThumb.style.left = `${percent}%`;
       }
     }
     updateCassetteUI();
@@ -1941,6 +2023,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateMediaSessionPosition();
     }
     updateCassetteUI();
+    if (typeof updateIpodUI === 'function') updateIpodUI();
   });
 
   audioElement.addEventListener('pause', () => {
@@ -1956,6 +2039,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateMediaSessionPosition();
       }
       updateCassetteUI();
+      if (typeof updateIpodUI === 'function') updateIpodUI();
     }
   });
 
@@ -1967,6 +2051,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     playStatusIcon.className = 'play-status-icon stop';
     if ('mediaSession' in navigator) navigator.mediaSession.playbackState = 'none';
     updateCassetteUI();
+    if (typeof updateIpodUI === 'function') updateIpodUI();
   });
 
   audioElement.addEventListener('ended', () => {
@@ -2002,7 +2087,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     playStatusIcon.className = 'play-status-icon stop';
     updateTimerDisplay(0, 0);
     seekThumb.style.left = '0%';
+    const ipodSeekFill = document.getElementById('ipodSeekFill');
+    const ipodSeekThumb = document.getElementById('ipodSeekThumb');
+    if (ipodSeekFill) ipodSeekFill.style.width = '0%';
+    if (ipodSeekThumb) ipodSeekThumb.style.left = '0%';
     updateCassetteUI();
+    if (typeof updateIpodUI === 'function') updateIpodUI();
   }
 
   // =========================================================================
@@ -2020,7 +2110,36 @@ document.addEventListener('DOMContentLoaded', async () => {
   function renderVisualizer() {
     requestAnimationFrame(renderVisualizer);
 
-    if (document.hidden || document.body.classList.contains('skin-cassette') || mainWindow.classList.contains('hidden')) {
+    if (document.hidden) return;
+
+    if (document.body.classList.contains('skin-ipod')) {
+      const miniVis = document.getElementById('ipodMiniVisCanvas');
+      if (miniVis) {
+        const mCtx = miniVis.getContext('2d');
+        mCtx.clearRect(0, 0, miniVis.width, miniVis.height);
+        if (state.isPlaying) {
+          engine.getFrequencyData(freqArray);
+          const bars = 11;
+          const bw = 4;
+          const gap = 2;
+          for (let i = 0; i < bars; i++) {
+            const idx = Math.min(freqArray.length - 1, Math.floor(Math.pow(i / bars, 1.3) * 32) + 1);
+            const val = freqArray[idx] || 0;
+            const bh = Math.max(2, Math.floor((val / 255) * (miniVis.height - 4)));
+            const x = 3 + i * (bw + gap);
+            const grad = mCtx.createLinearGradient(0, miniVis.height, 0, 2);
+            grad.addColorStop(0, '#0284c7');
+            grad.addColorStop(0.6, '#38bdf8');
+            grad.addColorStop(1, '#fde047');
+            mCtx.fillStyle = grad;
+            mCtx.fillRect(x, miniVis.height - 2 - bh, bw, bh);
+          }
+        }
+      }
+      return;
+    }
+
+    if (document.body.classList.contains('skin-cassette') || mainWindow.classList.contains('hidden')) {
       return;
     }
 
@@ -2124,6 +2243,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       eqCtx.moveTo(0, eqCanvas.height / 2);
       eqCtx.lineTo(eqCanvas.width, eqCanvas.height / 2);
       eqCtx.stroke();
+      if (typeof updateIpodEQ === 'function') updateIpodEQ();
       return;
     }
 
@@ -2147,6 +2267,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
     eqCtx.lineTo(points[points.length - 1].x, points[points.length - 1].y);
     eqCtx.stroke();
+
+    if (typeof updateIpodEQ === 'function') updateIpodEQ();
   }
 
   function setupEQFaders() {
@@ -2166,6 +2288,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (bandAttr === 'preamp') {
         state.preamp = dbVal;
         engine.setPreamp(dbVal, true);
+        if (typeof updateIpodEQ === 'function') updateIpodEQ();
         window.winampDB.setSetting('eq_preamp', dbVal);
       } else {
         const freq = parseInt(bandAttr, 10);
@@ -2354,6 +2477,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (typeof updatePlScrollbarThumb === 'function') {
         updatePlScrollbarThumb();
       }
+      if (typeof renderIpodSongs === 'function') renderIpodSongs();
+      if (typeof updateIpodUI === 'function') updateIpodUI();
       return;
     }
 
@@ -2417,6 +2542,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (typeof updatePlScrollbarThumb === 'function') {
       updatePlScrollbarThumb();
     }
+    if (typeof renderIpodSongs === 'function') renderIpodSongs();
+    if (typeof updateIpodUI === 'function') updateIpodUI();
   }
 
   function updateMediaSession(track) {
@@ -2486,6 +2613,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateCassetteLabel(track);
       updateCassetteUI();
       renderPlaylist();
+      if (typeof drawIpodCoverArt === 'function') drawIpodCoverArt();
+      if (typeof updateIpodUI === 'function') updateIpodUI();
       window.winampDB.setSetting('lastTrackIndex', idx);
 
       if (track.youtubeId) {
@@ -2697,6 +2826,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   btnShuffle.addEventListener('click', () => {
     state.shuffle = !state.shuffle;
     btnShuffle.classList.toggle('active', state.shuffle);
+    if (typeof updateIpodUI === 'function') updateIpodUI();
     showToast(`Shuffle: ${state.shuffle ? 'ON' : 'OFF'}`);
     window.winampDB.setSetting('shuffle', state.shuffle);
   });
@@ -2711,6 +2841,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       btnRepeat.classList.add('active');
       showToast('Repeat Playlist: ON');
     }
+    if (typeof updateIpodUI === 'function') updateIpodUI();
     window.winampDB.setSetting('repeat', state.repeat);
   });
 
@@ -3058,6 +3189,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateMediaSession(track);
         updateCassetteLabel(track);
         updateCassetteUI();
+        if (typeof drawIpodCoverArt === 'function') drawIpodCoverArt();
+        if (typeof updateIpodUI === 'function') updateIpodUI();
         kbpsDisplay.textContent = `${track.bitrate || 128} KBPS`;
         khzDisplay.textContent = `${Math.round((track.sampleRate || 44100) / 1000)} KHZ`;
       }
@@ -3123,6 +3256,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     const cmenuSoundFx = document.getElementById('cmenuSoundFx');
     if (cmenuSoundFx) cmenuSoundFx.textContent = `🔊 เสียงกลไกเทป (Sound FX: ${savedSoundFx ? 'เปิด' : 'ปิด'})`;
     if (wmSoundFxBtn) wmSoundFxBtn.textContent = `🔊 SFX: ${savedSoundFx ? 'ON' : 'OFF'}`;
+
+    const savedIpodCover = await window.winampDB.getSetting('ipod_custom_cover', '');
+    if (savedIpodCover && typeof applyIpodCustomCover === 'function') {
+      applyIpodCustomCover(savedIpodCover, false);
+    }
+    if (typeof updateIpodUI === 'function') updateIpodUI();
+    if (typeof updateIpodEQ === 'function') updateIpodEQ();
   }
 
   // =========================================================================
@@ -3248,6 +3388,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         updateCassetteLabel(trackObj);
         updateMediaSession(trackObj);
         titleMarquee.textContent = `${newIdx + 1}. ${trackObj.artist ? `${trackObj.artist} - ` : ''}${trackObj.title}`;
+        if (typeof drawIpodCoverArt === 'function') drawIpodCoverArt();
+        if (typeof updateIpodUI === 'function') updateIpodUI();
       }
       showToast(`▶️ ${trackObj.title}`);
     }).catch(() => {
@@ -3363,6 +3505,12 @@ document.addEventListener('DOMContentLoaded', async () => {
           openWalkmanModal();
         }
         break;
+      case 'I':
+        if (e.altKey) {
+          e.preventDefault();
+          switchSkin(document.body.classList.contains('skin-ipod') ? (state.lastWinampSkin || 'skin-midnight') : 'skin-ipod');
+        }
+        break;
       case ' ':
         e.preventDefault();
         btnPause.click();
@@ -3393,8 +3541,946 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   });
 
+  // =========================================================================
+  // 7. APPLE iPOD TOUCH SKIN CONTROLLER (iOS 4 / iPod OS Skeuomorphic UI/UX)
+  // =========================================================================
+  const ipodState = {
+    activeView: 'nowplaying', // 'nowplaying', 'songs', 'eq', 'home'
+    isFlipped: false,
+    isLocked: false,
+    searchQuery: '',
+    customCoverUrl: '',
+    customCoverImg: null,
+    ytCoverCache: {},
+    lastDrawnKey: ''
+  };
+
+  const ipodStatusTime = document.getElementById('ipodStatusTime');
+  const ipodStatusPlay = document.getElementById('ipodStatusPlay');
+  const ipodNavbar = document.getElementById('ipodNavbar');
+  const ipodNavLeftBtn = document.getElementById('ipodNavLeftBtn');
+  const ipodNavLeftLabel = document.getElementById('ipodNavLeftLabel');
+  const ipodNavTrackInfo = document.getElementById('ipodNavTrackInfo');
+  const ipodNavArtist = document.getElementById('ipodNavArtist');
+  const ipodNavTitle = document.getElementById('ipodNavTitle');
+  const ipodNavAlbum = document.getElementById('ipodNavAlbum');
+  const ipodNavViewTitle = document.getElementById('ipodNavViewTitle');
+  const ipodNavRightBtn = document.getElementById('ipodNavRightBtn');
+
+  const ipodRepeatBtn = document.getElementById('ipodRepeatBtn');
+  const ipodShuffleBtn = document.getElementById('ipodShuffleBtn');
+  const ipodTrackCount = document.getElementById('ipodTrackCount');
+  const ipodSeekTrack = document.getElementById('ipodSeekTrack');
+  const ipodSeekFill = document.getElementById('ipodSeekFill');
+  const ipodSeekThumb = document.getElementById('ipodSeekThumb');
+  const ipodScrubberBar = document.getElementById('ipodScrubberBar');
+
+  const ipodFlipCard = document.getElementById('ipodFlipCard');
+  const ipodCoverFront = document.getElementById('ipodCoverFront');
+  const ipodArtworkCanvas = document.getElementById('ipodArtworkCanvas');
+  const ipodReflectCanvas = document.getElementById('ipodReflectCanvas');
+  const ipodBackThumbCanvas = document.getElementById('ipodBackThumbCanvas');
+  const ipodLockCoverCanvas = document.getElementById('ipodLockCoverCanvas');
+  const ipodBackTitle = document.getElementById('ipodBackTitle');
+  const ipodBackArtist = document.getElementById('ipodBackArtist');
+  const ipodBackTracklist = document.getElementById('ipodBackTracklist');
+  const ipodStarRating = document.getElementById('ipodStarRating');
+  const ipodBtnCustomCover = document.getElementById('ipodBtnCustomCover');
+  const ipodCoverInput = document.getElementById('ipodCoverInput');
+
+  const ipodPrevBtn = document.getElementById('ipodPrevBtn');
+  const ipodPlayPauseBtn = document.getElementById('ipodPlayPauseBtn');
+  const ipodPlaySvg = document.getElementById('ipodPlaySvg');
+  const ipodPauseSvg = document.getElementById('ipodPauseSvg');
+  const ipodNextBtn = document.getElementById('ipodNextBtn');
+  const ipodVolTrack = document.getElementById('ipodVolTrack');
+
+  const ipodSearchInput = document.getElementById('ipodSearchInput');
+  const ipodBtnAddMp3 = document.getElementById('ipodBtnAddMp3');
+  const ipodBtnAddYt = document.getElementById('ipodBtnAddYt');
+  const ipodBtnLoadDemo = document.getElementById('ipodBtnLoadDemo');
+  const ipodBtnClearPl = document.getElementById('ipodBtnClearPl');
+  const ipodSongsList = document.getElementById('ipodSongsList');
+  const ipodSongsFooter = document.getElementById('ipodSongsFooter');
+
+  const ipodEqToggleBtn = document.getElementById('ipodEqToggleBtn');
+  const ipodEqResetBtn = document.getElementById('ipodEqResetBtn');
+  const ipodEqCanvas = document.getElementById('ipodEqCanvas');
+  const ipodEqSliders = document.getElementById('ipodEqSliders');
+  const ipodEqPresetList = document.getElementById('ipodEqPresetList');
+
+  const ipodSleepBtn = document.getElementById('ipodSleepBtn');
+  const ipodLockOverlay = document.getElementById('ipodLockOverlay');
+  const ipodLockTime = document.getElementById('ipodLockTime');
+  const ipodLockDate = document.getElementById('ipodLockDate');
+  const ipodLockSong = document.getElementById('ipodLockSong');
+  const ipodLockArtist = document.getElementById('ipodLockArtist');
+  const ipodLockPrev = document.getElementById('ipodLockPrev');
+  const ipodLockPlay = document.getElementById('ipodLockPlay');
+  const ipodLockNext = document.getElementById('ipodLockNext');
+  const ipodUnlockTrack = document.getElementById('ipodUnlockTrack');
+  const ipodUnlockThumb = document.getElementById('ipodUnlockThumb');
+  const ipodHomeBtn = document.getElementById('ipodHomeBtn');
+
+  function updateIpodClock() {
+    const now = new Date();
+    let hrs = now.getHours();
+    const mins = String(now.getMinutes()).padStart(2, '0');
+    const ampm = hrs >= 12 ? 'PM' : 'AM';
+    hrs = hrs % 12 || 12;
+    if (ipodStatusTime) ipodStatusTime.textContent = `${hrs}:${mins} ${ampm}`;
+    if (ipodLockTime) ipodLockTime.textContent = `${hrs}:${mins}`;
+    if (ipodLockDate) {
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+      const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      ipodLockDate.textContent = `${days[now.getDay()]}, ${months[now.getMonth()]} ${now.getDate()}`;
+    }
+  }
+
+  function switchIpodView(viewName) {
+    if (viewName === 'youtube') {
+      openYoutubeModal();
+      return;
+    }
+    ipodState.activeView = viewName;
+
+    document.querySelectorAll('#ipodViewport .ipod-view').forEach(v => {
+      v.classList.toggle('active', v.getAttribute('data-view') === viewName);
+    });
+
+    document.querySelectorAll('#ipodTabBar .ipod-tab-btn').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-ipod-tab') === viewName);
+    });
+
+    const isLightNavbar = (viewName === 'songs' || viewName === 'eq');
+    if (ipodNavbar) {
+      ipodNavbar.classList.toggle('navbar-light', isLightNavbar);
+    }
+
+    if (viewName === 'nowplaying') {
+      if (ipodNavTrackInfo) ipodNavTrackInfo.classList.remove('hidden');
+      if (ipodNavViewTitle) ipodNavViewTitle.classList.add('hidden');
+      if (ipodNavLeftLabel) ipodNavLeftLabel.textContent = 'Songs';
+      if (ipodNavRightBtn) ipodNavRightBtn.style.visibility = 'visible';
+    } else {
+      if (ipodNavTrackInfo) ipodNavTrackInfo.classList.add('hidden');
+      if (ipodNavViewTitle) {
+        ipodNavViewTitle.classList.remove('hidden');
+        const titles = {
+          songs: 'Songs',
+          eq: 'Equalizer',
+          home: 'iPod touch'
+        };
+        ipodNavViewTitle.textContent = titles[viewName] || 'iPod';
+      }
+      if (ipodNavLeftLabel) ipodNavLeftLabel.textContent = 'Now Playing';
+      if (ipodNavRightBtn) ipodNavRightBtn.style.visibility = (viewName === 'songs') ? 'visible' : 'hidden';
+    }
+
+    if (viewName === 'songs') renderIpodSongs();
+    if (viewName === 'eq') updateIpodEQ();
+  }
+
+  function toggleIpodCoverFlip(forceState) {
+    ipodState.isFlipped = (typeof forceState === 'boolean') ? forceState : !ipodState.isFlipped;
+    if (ipodFlipCard) {
+      ipodFlipCard.classList.toggle('flipped', ipodState.isFlipped);
+    }
+    if (ipodState.isFlipped) {
+      renderIpodBackTracklist();
+    }
+  }
+
+  function applyIpodCustomCover(dataUrl, notify = true) {
+    ipodState.customCoverUrl = dataUrl || '';
+    ipodState.lastDrawnKey = '';
+    if (dataUrl) {
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        ipodState.customCoverImg = img;
+        drawIpodCoverArt(true);
+        if (notify) showToast('📷 เปลี่ยนรูปปกอัลบั้มบน iPod touch เรียบร้อย!');
+      };
+      img.src = dataUrl;
+      window.winampDB.setSetting('ipod_custom_cover', dataUrl);
+    } else {
+      ipodState.customCoverImg = null;
+      window.winampDB.setSetting('ipod_custom_cover', '');
+      drawIpodCoverArt(true);
+      if (notify) showToast('🔄 ใช้รูปปกอัลบั้มอัตโนมัติตามเพลง');
+    }
+  }
+
+  function copyCanvasToReflectionAndThumbs(srcCanvas) {
+    if (!srcCanvas) return;
+    if (ipodReflectCanvas) {
+      const rCtx = ipodReflectCanvas.getContext('2d');
+      rCtx.clearRect(0, 0, ipodReflectCanvas.width, ipodReflectCanvas.height);
+      rCtx.drawImage(
+        srcCanvas,
+        0, srcCanvas.height - 90, srcCanvas.width, 90,
+        0, 0, ipodReflectCanvas.width, ipodReflectCanvas.height
+      );
+    }
+    if (ipodBackThumbCanvas) {
+      const bCtx = ipodBackThumbCanvas.getContext('2d');
+      bCtx.clearRect(0, 0, ipodBackThumbCanvas.width, ipodBackThumbCanvas.height);
+      bCtx.drawImage(srcCanvas, 0, 0, ipodBackThumbCanvas.width, ipodBackThumbCanvas.height);
+    }
+    if (ipodLockCoverCanvas) {
+      const lCtx = ipodLockCoverCanvas.getContext('2d');
+      lCtx.clearRect(0, 0, ipodLockCoverCanvas.width, ipodLockCoverCanvas.height);
+      lCtx.drawImage(srcCanvas, 0, 0, ipodLockCoverCanvas.width, ipodLockCoverCanvas.height);
+    }
+  }
+
+  function drawIpodCoverArt(force = false) {
+    if (!ipodArtworkCanvas) return;
+    const track = (state.currentIndex >= 0 && state.playlist[state.currentIndex]) ? state.playlist[state.currentIndex] : null;
+    const key = `${ipodState.customCoverUrl ? 'custom' : 'auto'}_${track ? track.id + '_' + track.title : 'empty'}`;
+    if (!force && ipodState.lastDrawnKey === key) return;
+    ipodState.lastDrawnKey = key;
+
+    const ctx = ipodArtworkCanvas.getContext('2d');
+    const W = ipodArtworkCanvas.width;
+    const H = ipodArtworkCanvas.height;
+
+    // 1. If user uploaded custom cover photo, draw it center-cropped
+    if (ipodState.customCoverImg && ipodState.customCoverImg.complete && ipodState.customCoverImg.naturalWidth > 0) {
+      const img = ipodState.customCoverImg;
+      const scale = Math.max(W / img.naturalWidth, H / img.naturalHeight);
+      const dw = img.naturalWidth * scale;
+      const dh = img.naturalHeight * scale;
+      ctx.clearRect(0, 0, W, H);
+      ctx.drawImage(img, (W - dw) / 2, (H - dh) / 2, dw, dh);
+      copyCanvasToReflectionAndThumbs(ipodArtworkCanvas);
+      return;
+    }
+
+    // 2. If playing a YouTube track with thumbnail, load & draw it (with procedural fallback)
+    if (track && track.thumbnail && navigator.onLine) {
+      const cached = ipodState.ytCoverCache[track.thumbnail];
+      if (cached && cached.complete && cached.naturalWidth > 0) {
+        const scale = Math.max(W / cached.naturalWidth, H / cached.naturalHeight);
+        const dw = cached.naturalWidth * scale;
+        const dh = cached.naturalHeight * scale;
+        ctx.clearRect(0, 0, W, H);
+        ctx.drawImage(cached, (W - dw) / 2, (H - dh) / 2, dw, dh);
+        copyCanvasToReflectionAndThumbs(ipodArtworkCanvas);
+        return;
+      } else if (!cached) {
+        const ytImg = new Image();
+        ytImg.crossOrigin = 'anonymous';
+        ipodState.ytCoverCache[track.thumbnail] = ytImg;
+        ytImg.onload = () => {
+          ipodState.lastDrawnKey = '';
+          drawIpodCoverArt(true);
+        };
+        ytImg.src = track.thumbnail;
+      }
+    }
+
+    // 3. Procedural High-Resolution Album Artwork per Song
+    const palettes = [
+      ['#0f172a', '#1d4ed8', '#38bdf8', '#fde047'],
+      ['#1e1b4b', '#6d28d9', '#ec4899', '#f43f5e'],
+      ['#064e3b', '#059669', '#34d399', '#a7f3d0'],
+      ['#451a03', '#d97706', '#f59e0b', '#fef08a'],
+      ['#31102f', '#9d174d', '#f472b6', '#fbcfe8'],
+      ['#090d16', '#0284c7', '#22d3ee', '#ffffff']
+    ];
+    const hash = track ? (track.title || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) : 0;
+    const pal = palettes[hash % palettes.length];
+
+    const grad = ctx.createLinearGradient(0, 0, W, H);
+    grad.addColorStop(0, pal[0]);
+    grad.addColorStop(0.55, pal[1]);
+    grad.addColorStop(1, pal[2]);
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, W, H);
+
+    // Subtle geometric studio glow & vinyl record grooves
+    ctx.save();
+    ctx.translate(W / 2, H / 2 - 14);
+    ctx.beginPath();
+    ctx.arc(0, 0, 108, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(8, 10, 16, 0.88)';
+    ctx.fill();
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.18)';
+    ctx.stroke();
+
+    for (let r = 46; r <= 98; r += 8) {
+      ctx.beginPath();
+      ctx.arc(0, 0, r, 0, Math.PI * 2);
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.07)';
+      ctx.lineWidth = 1;
+      ctx.stroke();
+    }
+
+    // Center vinyl label
+    ctx.beginPath();
+    ctx.arc(0, 0, 34, 0, Math.PI * 2);
+    ctx.fillStyle = pal[2];
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.arc(0, 0, 8, 0, Math.PI * 2);
+    ctx.fillStyle = '#090d16';
+    ctx.fill();
+
+    // Musical note icon in center
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 24px -apple-system, Helvetica, Arial, sans-serif';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('♪', -18, -12);
+    ctx.restore();
+
+    // Bottom album typography banner
+    const bannerGrad = ctx.createLinearGradient(0, H - 105, 0, H);
+    bannerGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+    bannerGrad.addColorStop(0.35, 'rgba(5, 8, 15, 0.78)');
+    bannerGrad.addColorStop(1, 'rgba(5, 8, 15, 0.95)');
+    ctx.fillStyle = bannerGrad;
+    ctx.fillRect(0, H - 105, W, 105);
+
+    const titleStr = track ? (track.title || 'Unknown Title').replace(/^▶️\s*/, '') : 'iPod touch';
+    const artistStr = track ? (track.artist || 'Winamp Audio') : 'Select a Song to Play';
+    const albumStr = track ? (track.album || 'iPod Digital Audio') : 'Apple iOS Retro Edition';
+
+    ctx.fillStyle = '#ffffff';
+    ctx.font = '800 20px -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif';
+    ctx.textAlign = 'left';
+    ctx.fillText(titleStr.slice(0, 26), 18, H - 52);
+
+    ctx.fillStyle = pal[3];
+    ctx.font = '700 14px -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif';
+    ctx.fillText(artistStr.slice(0, 32), 18, H - 30);
+
+    ctx.fillStyle = 'rgba(226, 232, 240, 0.75)';
+    ctx.font = '600 11.5px -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif';
+    ctx.fillText(albumStr.slice(0, 36), 18, H - 13);
+
+    copyCanvasToReflectionAndThumbs(ipodArtworkCanvas);
+  }
+
+  function renderIpodBackTracklist() {
+    if (!ipodBackTracklist) return;
+    const curTrack = (state.currentIndex >= 0 && state.playlist[state.currentIndex]) ? state.playlist[state.currentIndex] : null;
+    if (ipodBackTitle) ipodBackTitle.textContent = curTrack ? curTrack.title : 'No Song Loaded';
+    if (ipodBackArtist) ipodBackArtist.textContent = curTrack ? (curTrack.artist || 'Unknown Artist') : 'iPod touch';
+
+    ipodBackTracklist.innerHTML = '';
+    state.playlist.forEach((t, idx) => {
+      const row = document.createElement('div');
+      const isCur = idx === state.currentIndex;
+      row.className = `ipod-back-row ${isCur ? 'active' : ''}`;
+      row.innerHTML = `
+        <span class="ipod-back-row-num">${isCur ? '🔊' : (idx + 1) + '.'}</span>
+        <span class="ipod-back-row-title">${t.title}</span>
+        <span class="ipod-back-row-time">${AudioMetadataParser.formatTime(t.duration)}</span>
+      `;
+      row.addEventListener('click', (e) => {
+        e.stopPropagation();
+        playTrackIndex(idx);
+      });
+      ipodBackTracklist.appendChild(row);
+    });
+  }
+
+  function renderIpodSongs() {
+    if (!ipodSongsList) return;
+    const q = (ipodState.searchQuery || '').trim().toLowerCase();
+    ipodSongsList.innerHTML = '';
+
+    let visibleCount = 0;
+    state.playlist.forEach((track, idx) => {
+      const text = `${track.title || ''} ${track.artist || ''} ${track.album || ''}`.toLowerCase();
+      if (q && !text.includes(q)) return;
+      visibleCount++;
+
+      const isCurrent = idx === state.currentIndex;
+      const row = document.createElement('div');
+      row.className = `ipod-song-row ${isCurrent ? 'active' : ''}`;
+
+      const durStr = AudioMetadataParser.formatTime(track.duration);
+      const subStr = `${track.artist || 'Unknown Artist'}${track.album ? ' • ' + track.album : ''}`;
+
+      row.innerHTML = `
+        <div class="ipod-song-left">
+          <span class="ipod-song-num">${isCurrent ? '🔊' : (idx + 1)}</span>
+          <div class="ipod-song-meta">
+            <div class="ipod-song-title">${track.title}</div>
+            <div class="ipod-song-sub">${subStr}</div>
+          </div>
+        </div>
+        <div class="ipod-song-right">
+          <span class="ipod-song-dur">${durStr}</span>
+          <button class="ipod-song-del" title="Remove Song">✕</button>
+        </div>
+      `;
+
+      row.addEventListener('click', (e) => {
+        if (e.target.closest('.ipod-song-del')) return;
+        playTrackIndex(idx);
+      });
+
+      const delBtn = row.querySelector('.ipod-song-del');
+      if (delBtn) {
+        delBtn.addEventListener('click', async (e) => {
+          e.stopPropagation();
+          const removed = state.playlist[idx];
+          if (removed && removed.id) {
+            await window.winampDB.deleteTrack(removed.id);
+          }
+          state.playlist.splice(idx, 1);
+          if (state.currentIndex >= state.playlist.length) {
+            state.currentIndex = state.playlist.length - 1;
+          }
+          await window.winampDB.updateOrder(state.playlist);
+          renderPlaylist();
+          showToast('🗑 ลบเพลงออกจากเพลย์ลิสต์แล้ว');
+        });
+      }
+
+      ipodSongsList.appendChild(row);
+    });
+
+    if (visibleCount === 0) {
+      ipodSongsList.innerHTML = `<div style="padding:28px 16px;text-align:center;color:#64748b;font-size:12px;font-weight:600;">No songs found.<br><span style="font-size:10.5px;font-weight:400;">Tap <b>+ MP3</b>, <b>▶️ YouTube</b>, or <b>🎵 Demo</b> above to add music.</span></div>`;
+    }
+
+    if (ipodSongsFooter) {
+      ipodSongsFooter.textContent = `${state.playlist.length} Song${state.playlist.length === 1 ? '' : 's'}`;
+    }
+    renderIpodBackTracklist();
+  }
+
+  function updateIpodEQ() {
+    if (ipodEqToggleBtn) {
+      ipodEqToggleBtn.classList.toggle('active', state.eqEnabled);
+    }
+
+    // Update 11 vertical sliders in iPod EQ view
+    if (ipodEqSliders) {
+      ipodEqSliders.querySelectorAll('.ipod-eq-col').forEach(col => {
+        const bandAttr = col.getAttribute('data-ipod-band');
+        const knob = col.querySelector('.ipod-eq-knob');
+        if (!knob) return;
+        const dbVal = (bandAttr === 'preamp') ? (state.preamp || 0) : (state.bands[parseInt(bandAttr, 10)] || 0);
+        const ratio = Math.max(0, Math.min(1, (dbVal / 24) + 0.5));
+        knob.style.bottom = `${ratio * 100}%`;
+      });
+    }
+
+    // Draw live EQ curve on #ipodEqCanvas
+    if (ipodEqCanvas) {
+      const ctx = ipodEqCanvas.getContext('2d');
+      const W = ipodEqCanvas.width;
+      const H = ipodEqCanvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.2)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(0, H / 2);
+      ctx.lineTo(W, H / 2);
+      ctx.stroke();
+
+      ctx.strokeStyle = state.eqEnabled ? '#38bdf8' : '#64748b';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      const pts = state.bands.map((gain, i) => ({
+        x: (i / (state.bands.length - 1)) * (W - 16) + 8,
+        y: (H / 2) - ((state.eqEnabled ? gain : 0) / 12) * (H / 2 - 5)
+      }));
+      ctx.moveTo(pts[0].x, pts[0].y);
+      for (let i = 0; i < pts.length - 1; i++) {
+        const xc = (pts[i].x + pts[i + 1].x) / 2;
+        const yc = (pts[i].y + pts[i + 1].y) / 2;
+        ctx.quadraticCurveTo(pts[i].x, pts[i].y, xc, yc);
+      }
+      ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
+      ctx.stroke();
+    }
+
+    // Highlight matching preset row if any
+    if (ipodEqPresetList && engine.presets) {
+      ipodEqPresetList.querySelectorAll('.ipod-preset-row').forEach(row => {
+        const key = row.getAttribute('data-ipod-preset');
+        const pVals = engine.presets[key];
+        const isMatch = pVals && pVals.every((v, idx) => Math.abs(v - (state.bands[idx] || 0)) < 0.4);
+        row.classList.toggle('active', Boolean(isMatch));
+      });
+    }
+  }
+
+  function updateIpodUI() {
+    const track = (state.currentIndex >= 0 && state.playlist[state.currentIndex]) ? state.playlist[state.currentIndex] : null;
+
+    if (ipodNavArtist) ipodNavArtist.textContent = track ? (track.artist || 'Winamp') : 'Apple iPod';
+    if (ipodNavTitle) ipodNavTitle.textContent = track ? track.title : 'No Song Playing';
+    if (ipodNavAlbum) ipodNavAlbum.textContent = track ? (track.album || 'iPod touch') : 'Select a Song';
+
+    if (ipodLockSong) ipodLockSong.textContent = track ? track.title : 'No Song Playing';
+    if (ipodLockArtist) ipodLockArtist.textContent = track ? (track.artist || 'iPod touch') : 'iPod touch';
+
+    if (ipodTrackCount) {
+      const total = state.playlist.length;
+      const cur = total > 0 ? Math.max(1, state.currentIndex + 1) : 0;
+      ipodTrackCount.textContent = `${cur} of ${total}`;
+    }
+
+    if (ipodStatusPlay) {
+      ipodStatusPlay.classList.toggle('active', state.isPlaying);
+    }
+
+    if (ipodPlaySvg && ipodPauseSvg) {
+      ipodPlaySvg.classList.toggle('hidden', state.isPlaying);
+      ipodPauseSvg.classList.toggle('hidden', !state.isPlaying);
+    }
+
+    if (ipodRepeatBtn) {
+      ipodRepeatBtn.classList.toggle('active', state.repeat !== 'off');
+    }
+    if (ipodShuffleBtn) {
+      ipodShuffleBtn.classList.toggle('active', Boolean(state.shuffle));
+    }
+
+    drawIpodCoverArt();
+    renderIpodBackTracklist();
+  }
+
+  function setupIpodControls() {
+    updateIpodClock();
+    setInterval(updateIpodClock, 10000);
+
+    // Top Navigation Bar Left & Right Buttons
+    if (ipodNavLeftBtn) {
+      ipodNavLeftBtn.addEventListener('click', () => {
+        if (ipodState.activeView === 'nowplaying') {
+          switchIpodView('songs');
+        } else {
+          switchIpodView('nowplaying');
+        }
+      });
+    }
+
+    if (ipodNavRightBtn) {
+      ipodNavRightBtn.addEventListener('click', () => {
+        if (ipodState.activeView === 'nowplaying') {
+          toggleIpodCoverFlip();
+        } else if (ipodState.activeView === 'songs') {
+          fileInput.click();
+        }
+      });
+    }
+
+    // Physical Concave Home Button
+    if (ipodHomeBtn) {
+      ipodHomeBtn.addEventListener('click', () => {
+        engine.playMechanicalSound('click');
+        if (ipodLockOverlay && !ipodLockOverlay.classList.contains('hidden')) {
+          ipodLockOverlay.classList.add('hidden');
+          ipodState.isLocked = false;
+          return;
+        }
+        if (ipodState.activeView === 'nowplaying') {
+          if (ipodState.isFlipped) {
+            toggleIpodCoverFlip(false);
+          } else {
+            switchIpodView('home');
+          }
+        } else if (ipodState.activeView === 'home') {
+          switchIpodView('nowplaying');
+        } else {
+          switchIpodView('nowplaying');
+        }
+      });
+    }
+
+    // Bottom iOS Tab Bar
+    document.querySelectorAll('#ipodTabBar .ipod-tab-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const tab = btn.getAttribute('data-ipod-tab');
+        if (tab) switchIpodView(tab);
+      });
+    });
+
+    // SpringBoard Home Screen App Icons
+    document.querySelectorAll('[data-ipod-app]').forEach(appBtn => {
+      appBtn.addEventListener('click', () => {
+        const app = appBtn.getAttribute('data-ipod-app');
+        if (app === 'nowplaying' || app === 'songs' || app === 'eq') {
+          switchIpodView(app);
+        } else if (app === 'youtube') {
+          openYoutubeModal();
+        } else if (app === 'addmp3') {
+          fileInput.click();
+        } else if (app === 'coverart') {
+          if (ipodCoverInput) {
+            ipodCoverInput.value = '';
+            ipodCoverInput.click();
+          }
+        } else if (app === 'resetcover') {
+          applyIpodCustomCover('', true);
+        } else if (app === 'lock') {
+          if (ipodLockOverlay) {
+            ipodLockOverlay.classList.remove('hidden');
+            ipodState.isLocked = true;
+            updateIpodClock();
+          }
+        } else if (app && app.startsWith('skin-')) {
+          switchSkin(app);
+        }
+      });
+    });
+
+    // Album Cover Front Click / Double-Click to Flip
+    if (ipodCoverFront) {
+      let lastTap = 0;
+      ipodCoverFront.addEventListener('click', () => {
+        const now = Date.now();
+        if (now - lastTap < 320) {
+          toggleIpodCoverFlip();
+        } else if (ipodScrubberBar) {
+          ipodScrubberBar.classList.toggle('autohide');
+        }
+        lastTap = now;
+      });
+    }
+
+    // Star Rating on Back of Album Cover
+    if (ipodStarRating) {
+      ipodStarRating.querySelectorAll('.ipod-star').forEach(star => {
+        star.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const rating = parseInt(star.getAttribute('data-star'), 10) || 5;
+          ipodStarRating.querySelectorAll('.ipod-star').forEach(s => {
+            const val = parseInt(s.getAttribute('data-star'), 10) || 1;
+            s.classList.toggle('active', val <= rating);
+          });
+          showToast(`Rated ${'★'.repeat(rating)}`);
+        });
+      });
+    }
+
+    // Custom Cover Upload Button
+    if (ipodBtnCustomCover && ipodCoverInput) {
+      ipodBtnCustomCover.addEventListener('click', (e) => {
+        e.stopPropagation();
+        ipodCoverInput.value = '';
+        ipodCoverInput.click();
+      });
+    }
+    if (ipodCoverInput) {
+      ipodCoverInput.addEventListener('change', (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          applyIpodCustomCover(evt.target.result, true);
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    // Repeat & Shuffle Sub-buttons
+    if (ipodRepeatBtn) {
+      ipodRepeatBtn.addEventListener('click', () => btnRepeat.click());
+    }
+    if (ipodShuffleBtn) {
+      ipodShuffleBtn.addEventListener('click', () => btnShuffle.click());
+    }
+
+    // Transport Controls (Play/Pause, Prev, Next)
+    if (ipodPlayPauseBtn) {
+      ipodPlayPauseBtn.addEventListener('click', () => {
+        if (state.isPlaying) {
+          btnPause.click();
+        } else {
+          btnPlay.click();
+        }
+      });
+    }
+    if (ipodPrevBtn) {
+      ipodPrevBtn.addEventListener('click', () => btnPrev.click());
+    }
+    if (ipodNextBtn) {
+      ipodNextBtn.addEventListener('click', () => btnNext.click());
+    }
+
+    // Interactive Scrubber Bar (Mouse + Touch)
+    if (ipodSeekTrack) {
+      const scrubToClientX = (clientX, commitSeek = false) => {
+        const dur = engine.getDuration();
+        if (!dur) return;
+        const rect = ipodSeekTrack.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        const target = ratio * dur;
+        if (ipodSeekFill) ipodSeekFill.style.width = `${ratio * 100}%`;
+        if (ipodSeekThumb) ipodSeekThumb.style.left = `${ratio * 100}%`;
+        updateTimerDisplay(target, dur);
+        if (commitSeek) engine.seek(target);
+      };
+
+      ipodSeekTrack.addEventListener('mousedown', (e) => {
+        if (!engine.getDuration()) return;
+        state.isDraggingSeek = true;
+        scrubToClientX(e.clientX, false);
+        const onMove = (ev) => scrubToClientX(ev.clientX, false);
+        const onUp = (ev) => {
+          state.isDraggingSeek = false;
+          scrubToClientX(ev.clientX, true);
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      ipodSeekTrack.addEventListener('touchstart', (e) => {
+        if (!engine.getDuration() || !e.touches[0]) return;
+        e.preventDefault();
+        state.isDraggingSeek = true;
+        scrubToClientX(e.touches[0].clientX, false);
+        const onTouchMove = (ev) => {
+          if (ev.touches[0]) scrubToClientX(ev.touches[0].clientX, false);
+        };
+        const onTouchEnd = (ev) => {
+          state.isDraggingSeek = false;
+          const touch = (ev.changedTouches && ev.changedTouches[0]) || null;
+          if (touch) scrubToClientX(touch.clientX, true);
+          document.removeEventListener('touchmove', onTouchMove);
+          document.removeEventListener('touchend', onTouchEnd);
+        };
+        document.addEventListener('touchmove', onTouchMove, { passive: false });
+        document.addEventListener('touchend', onTouchEnd);
+      }, { passive: false });
+    }
+
+    // Interactive iOS Brushed-Aluminum Volume Slider (Mouse + Touch)
+    if (ipodVolTrack) {
+      const setVolFromClientX = (clientX) => {
+        const rect = ipodVolTrack.getBoundingClientRect();
+        const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+        updateVolumeUI(ratio);
+      };
+
+      ipodVolTrack.addEventListener('mousedown', (e) => {
+        setVolFromClientX(e.clientX);
+        const onMove = (ev) => setVolFromClientX(ev.clientX);
+        const onUp = () => {
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      ipodVolTrack.addEventListener('touchstart', (e) => {
+        if (!e.touches[0]) return;
+        e.preventDefault();
+        setVolFromClientX(e.touches[0].clientX);
+        const onTouchMove = (ev) => {
+          if (ev.touches[0]) setVolFromClientX(ev.touches[0].clientX);
+        };
+        const onTouchEnd = () => {
+          document.removeEventListener('touchmove', onTouchMove);
+          document.removeEventListener('touchend', onTouchEnd);
+        };
+        document.addEventListener('touchmove', onTouchMove, { passive: false });
+        document.addEventListener('touchend', onTouchEnd);
+      }, { passive: false });
+    }
+
+    // Songs View Search & Action Buttons
+    if (ipodSearchInput) {
+      ipodSearchInput.addEventListener('input', (e) => {
+        ipodState.searchQuery = e.target.value || '';
+        renderIpodSongs();
+      });
+    }
+    if (ipodBtnAddMp3) ipodBtnAddMp3.addEventListener('click', () => fileInput.click());
+    if (ipodBtnAddYt) ipodBtnAddYt.addEventListener('click', () => openYoutubeModal());
+    if (ipodBtnLoadDemo) ipodBtnLoadDemo.addEventListener('click', () => loadDemoSongs());
+    if (ipodBtnClearPl) {
+      ipodBtnClearPl.addEventListener('click', () => {
+        const remAll = document.getElementById('menuRemAll');
+        if (remAll) remAll.click();
+      });
+    }
+
+    // Equalizer View Controls (Switch, Reset, 11 Sliders, Presets)
+    if (ipodEqToggleBtn) {
+      ipodEqToggleBtn.addEventListener('click', () => eqOnBtn.click());
+    }
+    if (ipodEqResetBtn) {
+      ipodEqResetBtn.addEventListener('click', () => btnResetEQ.click());
+    }
+
+    if (ipodEqSliders) {
+      const updateIpodEqBandFromY = (col, clientY) => {
+        const rail = col.querySelector('.ipod-eq-rail');
+        if (!rail) return;
+        engine.ensureRunning(true);
+        const rect = rail.getBoundingClientRect();
+        let ratio = 1 - (clientY - rect.top) / rect.height;
+        ratio = Math.max(0, Math.min(1, ratio));
+        if (Math.abs(ratio - 0.5) < 0.04) ratio = 0.5;
+        const dbVal = (ratio - 0.5) * 24;
+
+        const bandAttr = col.getAttribute('data-ipod-band');
+        if (bandAttr === 'preamp') {
+          state.preamp = dbVal;
+          engine.setPreamp(dbVal, true);
+          if (faderPreamp) faderPreamp.style.bottom = `${ratio * 100}%`;
+          window.winampDB.setSetting('eq_preamp', dbVal);
+        } else {
+          const idx = parseInt(bandAttr, 10);
+          if (!isNaN(idx) && idx >= 0 && idx < 10) {
+            state.bands[idx] = dbVal;
+            engine.setBandGain(idx, dbVal, true);
+            const freq = engine.eqFrequencies[idx];
+            const winTrack = document.querySelector(`.eq-fader-track[data-band="${freq}"] .eq-fader-thumb`);
+            if (winTrack) winTrack.style.bottom = `${ratio * 100}%`;
+            window.winampDB.setSetting('eq_bands', state.bands);
+          }
+        }
+        drawEQCurve();
+      };
+
+      ipodEqSliders.querySelectorAll('.ipod-eq-col').forEach(col => {
+        col.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          updateIpodEqBandFromY(col, e.clientY);
+          const onMove = (ev) => updateIpodEqBandFromY(col, ev.clientY);
+          const onUp = () => {
+            document.removeEventListener('mousemove', onMove);
+            document.removeEventListener('mouseup', onUp);
+          };
+          document.addEventListener('mousemove', onMove);
+          document.addEventListener('mouseup', onUp);
+        });
+
+        col.addEventListener('touchstart', (e) => {
+          if (!e.touches[0]) return;
+          e.preventDefault();
+          updateIpodEqBandFromY(col, e.touches[0].clientY);
+          const onTouchMove = (ev) => {
+            if (ev.touches[0]) updateIpodEqBandFromY(col, ev.touches[0].clientY);
+          };
+          const onTouchEnd = () => {
+            document.removeEventListener('touchmove', onTouchMove);
+            document.removeEventListener('touchend', onTouchEnd);
+          };
+          document.addEventListener('touchmove', onTouchMove, { passive: false });
+          document.addEventListener('touchend', onTouchEnd);
+        }, { passive: false });
+      });
+    }
+
+    if (ipodEqPresetList) {
+      ipodEqPresetList.querySelectorAll('.ipod-preset-row').forEach(row => {
+        row.addEventListener('click', () => {
+          const presetKey = row.getAttribute('data-ipod-preset');
+          if (presetKey && engine.presets[presetKey]) {
+            applyPresetValues(engine.presets[presetKey], true);
+            showToast(`🎚 iPod EQ: ${row.textContent.replace('✓', '').trim()}`);
+          }
+        });
+      });
+    }
+
+    // Sleep / Wake Hardware Button & Slide-to-Unlock Lock Screen
+    if (ipodSleepBtn && ipodLockOverlay) {
+      ipodSleepBtn.addEventListener('click', () => {
+        engine.playMechanicalSound('click');
+        ipodState.isLocked = !ipodLockOverlay.classList.contains('hidden') ? false : true;
+        ipodLockOverlay.classList.toggle('hidden', !ipodState.isLocked);
+        updateIpodClock();
+      });
+    }
+
+    if (ipodLockPrev) ipodLockPrev.addEventListener('click', () => btnPrev.click());
+    if (ipodLockPlay) ipodLockPlay.addEventListener('click', () => (state.isPlaying ? btnPause.click() : btnPlay.click()));
+    if (ipodLockNext) ipodLockNext.addEventListener('click', () => btnNext.click());
+
+    if (ipodUnlockTrack && ipodUnlockThumb && ipodLockOverlay) {
+      let isDraggingUnlock = false;
+      let startX = 0;
+
+      const startUnlockDrag = (clientX) => {
+        isDraggingUnlock = true;
+        startX = clientX;
+        ipodUnlockThumb.style.transition = 'none';
+      };
+
+      const moveUnlockDrag = (clientX) => {
+        if (!isDraggingUnlock) return;
+        const maxScroll = ipodUnlockTrack.clientWidth - ipodUnlockThumb.offsetWidth - 6;
+        const dx = Math.max(0, Math.min(maxScroll, clientX - startX));
+        ipodUnlockThumb.style.left = `${3 + dx}px`;
+        if (dx >= maxScroll * 0.82) {
+          isDraggingUnlock = false;
+          ipodUnlockThumb.style.transition = 'left 0.15s ease';
+          ipodUnlockThumb.style.left = '3px';
+          ipodLockOverlay.classList.add('hidden');
+          ipodState.isLocked = false;
+          engine.playMechanicalSound('click');
+        }
+      };
+
+      const endUnlockDrag = () => {
+        if (!isDraggingUnlock) return;
+        isDraggingUnlock = false;
+        ipodUnlockThumb.style.transition = 'left 0.2s ease';
+        ipodUnlockThumb.style.left = '3px';
+      };
+
+      ipodUnlockThumb.addEventListener('mousedown', (e) => {
+        e.stopPropagation();
+        startUnlockDrag(e.clientX);
+        const onMove = (ev) => moveUnlockDrag(ev.clientX);
+        const onUp = () => {
+          endUnlockDrag();
+          document.removeEventListener('mousemove', onMove);
+          document.removeEventListener('mouseup', onUp);
+        };
+        document.addEventListener('mousemove', onMove);
+        document.addEventListener('mouseup', onUp);
+      });
+
+      ipodUnlockThumb.addEventListener('touchstart', (e) => {
+        if (!e.touches[0]) return;
+        e.preventDefault();
+        e.stopPropagation();
+        startUnlockDrag(e.touches[0].clientX);
+        const onMove = (ev) => {
+          if (ev.touches[0]) moveUnlockDrag(ev.touches[0].clientX);
+        };
+        const onEnd = () => {
+          endUnlockDrag();
+          document.removeEventListener('touchmove', onMove);
+          document.removeEventListener('touchend', onEnd);
+        };
+        document.addEventListener('touchmove', onMove, { passive: false });
+        document.addEventListener('touchend', onEnd);
+      }, { passive: false });
+
+      ipodUnlockTrack.addEventListener('click', () => {
+        ipodLockOverlay.classList.add('hidden');
+        ipodState.isLocked = false;
+        engine.playMechanicalSound('click');
+      });
+    }
+  }
+
   // Init
   setupCassetteControls();
+  setupIpodControls();
   await window.winampDB.init();
   await restoreSettings();
   await restoreWindowPositions();
@@ -3414,7 +4500,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // AUTO VERSION CHECKER & AUTOMATIC UPDATER
   // =========================================================================
   const badgeElem = document.querySelector('.app-ver-badge');
-  const CURRENT_APP_VERSION = badgeElem ? badgeElem.textContent.trim() : 'v4.5';
+  const CURRENT_APP_VERSION = badgeElem ? badgeElem.textContent.trim() : 'v4.6';
   let isAutoUpdating = false;
   let swRegInstance = null;
 
