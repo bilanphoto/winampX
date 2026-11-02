@@ -11,7 +11,7 @@
   <meta name="theme-color" content="#2b283d">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
-  <link rel="stylesheet" href="styles.css?v=4.8">
+  <link rel="stylesheet" href="styles.css?v=4.9">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
 </head>
 <body class="skin-midnight">
@@ -40,11 +40,11 @@
             <div class="popup-menu top-menu hidden" id="mainContextMenu">
               <div class="menu-header">🎨 SELECT SKIN / PLAYER MODE</div>
               <div class="menu-separator"></div>
-              <div class="menu-item" id="menuSkinClassic">🎨 Skin: Classic 2.91 Original</div>
               <div class="menu-item" id="menuSkinModern">🎨 Skin: Modern Silver Blue</div>
               <div class="menu-item" id="menuSkinMidnight">🎨 Skin: Midnight Gold</div>
               <div class="menu-item" id="menuSkinCassette">📼 Skin: Walkman Cassette Player</div>
               <div class="menu-item" id="menuSkinIpod">📱 Skin: iPod touch (Apple iOS)</div>
+              <div class="menu-item" id="menuSkinIpodClassic">💿 Skin: iPod Classic (Click Wheel)</div>
               <div class="menu-separator"></div>
               <div class="menu-item" id="menuTogglePlay">⏯ Play / Pause (Space)</div>
               <div class="menu-item" id="menuStopTrack">⏹ Stop (V)</div>
@@ -65,7 +65,7 @@
               <div class="menu-item" id="menuShowHelp">⌨ Shortcuts & Help (F1)</div>
             </div>
           </div>
-          <div class="wa-titlebar-title-drag">WINAMP <span class="app-ver-badge">v4.8</span></div>
+          <div class="wa-titlebar-title-drag">WINAMP <span class="app-ver-badge">v4.9</span></div>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
             <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
@@ -349,11 +349,11 @@
             <div class="popup-menu top-menu hidden" id="cassetteContextMenu">
               <div class="menu-header">🎨 SELECT SKIN / MODE</div>
               <div class="menu-separator"></div>
-              <div class="menu-item" id="cmenuSkinClassic">🎨 Winamp: Classic 2.91 Original</div>
               <div class="menu-item" id="cmenuSkinModern">🎨 Winamp: Modern Silver Blue</div>
               <div class="menu-item" id="cmenuSkinMidnight">🎨 Winamp: Midnight Gold</div>
               <div class="menu-item active" id="cmenuSkinCassette">📼 Walkman Cassette Player</div>
               <div class="menu-item" id="cmenuSkinIpod">📱 Skin: iPod touch (Apple iOS)</div>
+              <div class="menu-item" id="cmenuSkinIpodClassic">💿 Skin: iPod Classic (Click Wheel)</div>
               <div class="menu-separator"></div>
               <div class="menu-header">📼 CASSETTE TAPE</div>
               <div class="menu-separator"></div>
@@ -373,7 +373,7 @@
               <div class="menu-item" id="cmenuClose">⚡ สลับกลับเป็น Winamp</div>
             </div>
           </div>
-          <div class="wa-titlebar-title-drag">PORTABLE CASSETTE PLAYER <span class="app-ver-badge">v4.8</span></div>
+          <div class="wa-titlebar-title-drag">PORTABLE CASSETTE PLAYER <span class="app-ver-badge">v4.9</span></div>
           <div class="wa-titlebar-controls">
             <button class="win-btn win-btn-shade" id="cassetteShadeBtn" title="Window Shade"></button>
             <button class="win-btn win-btn-close" id="cassetteCloseBtn" title="Back to Winamp"></button>
@@ -574,7 +574,7 @@
                 </div>
                 <div class="ipod-sb-right">
                   <span class="ipod-sb-play" id="ipodStatusPlay">▶</span>
-                  <span class="app-ver-badge ipod-ver-badge">v4.8</span>
+                  <span class="app-ver-badge ipod-ver-badge">v4.9</span>
                   <div class="ipod-battery" title="Battery 100%">
                     <div class="ipod-battery-body">
                       <div class="ipod-battery-fill"></div>
@@ -886,9 +886,9 @@
                       <div class="ipod-squircle app-modern"><span>💎</span></div>
                       <span class="ipod-app-label">Modern</span>
                     </button>
-                    <button class="ipod-app-icon" data-ipod-app="skin-classic">
-                      <div class="ipod-squircle app-classic"><span>🎛</span></div>
-                      <span class="ipod-app-label">Winamp 2.91</span>
+                    <button class="ipod-app-icon" data-ipod-app="skin-ipod-classic">
+                      <div class="ipod-squircle app-classic"><span>💿</span></div>
+                      <span class="ipod-app-label">iPod Classic</span>
                     </button>
                   </div>
 
@@ -988,6 +988,311 @@
         </div>
       </div>
 
+      <!-- ============================================== -->
+      <!-- 6. APPLE iPOD CLASSIC 160GB SKIN (320 x 540)   -->
+      <!-- ============================================== -->
+      <div id="ipodClassicWindow" class="ipc-device ipc-color-silver hidden" data-window="ipod-classic">
+        <!-- Top Physical Hold Switch -->
+        <div class="ipc-top-edge">
+          <button class="ipc-hold-switch" id="ipcHoldSwitch" title="HOLD Switch (ล็อกปุ่มและวงล้อ Click Wheel)">
+            <span class="ipc-hold-orange"></span>
+            <span class="ipc-hold-slider"></span>
+            <span class="ipc-hold-label">HOLD</span>
+          </button>
+        </div>
+
+        <!-- Machined Anodized Aluminum / Polycarbonate Chassis -->
+        <div class="ipc-shell">
+          <div class="ipc-faceplate">
+
+            <!-- 2.5-inch Recessed QVGA Backlit Color LCD Screen (284 x 214) -->
+            <div class="ipc-screen-bezel">
+              <div class="ipc-screen" id="ipcScreen">
+
+                <!-- 1. Classic iPod Top Status Bar (22px) -->
+                <div class="ipc-statusbar" id="ipcStatusbar">
+                  <div class="ipc-sb-left">
+                    <span class="ipc-sb-title" id="ipcStatusTitle">iPod</span>
+                    <span class="ipc-sb-lock hidden" id="ipcStatusLock" title="Hold Switch Engaged">🔒</span>
+                  </div>
+                  <div class="ipc-sb-right">
+                    <span class="ipc-sb-play" id="ipcStatusPlay">▶</span>
+                    <span class="app-ver-badge ipc-ver-badge">v4.9</span>
+                    <div class="ipc-battery" title="Battery 100%">
+                      <div class="ipc-battery-body">
+                        <div class="ipc-battery-fill"></div>
+                      </div>
+                      <div class="ipc-battery-tip"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Main LCD Viewport Area -->
+                <div class="ipc-viewport" id="ipcViewport">
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 1: SPLIT-SCREEN MAIN MENU (6th Gen)   -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view active" id="ipcViewMenu" data-ipc-view="menu">
+                    <div class="ipc-split-left" id="ipcMenuList">
+                      <div class="ipc-menu-row active" data-ipc-idx="0" data-ipc-action="nowplaying">
+                        <span class="ipc-menu-lbl">Now Playing</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="1" data-ipc-action="songs">
+                        <span class="ipc-menu-lbl">Music / Songs</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="2" data-ipc-action="coverflow">
+                        <span class="ipc-menu-lbl">Cover Flow</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="3" data-ipc-action="eq">
+                        <span class="ipc-menu-lbl">Equalizer</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="4" data-ipc-action="youtube">
+                        <span class="ipc-menu-lbl">YouTube Link</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="5" data-ipc-action="addmp3">
+                        <span class="ipc-menu-lbl">Add Audio (MP3)</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="6" data-ipc-action="coverart">
+                        <span class="ipc-menu-lbl">Custom Cover</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="7" data-ipc-action="shuffle">
+                        <span class="ipc-menu-lbl">Shuffle</span>
+                        <span class="ipc-menu-val" id="ipcMenuShuffleVal">Off</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="8" data-ipc-action="repeat">
+                        <span class="ipc-menu-lbl">Repeat</span>
+                        <span class="ipc-menu-val" id="ipcMenuRepeatVal">All</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="9" data-ipc-action="color">
+                        <span class="ipc-menu-lbl">Body Finish</span>
+                        <span class="ipc-menu-val" id="ipcMenuColorVal">Silver</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="10" data-ipc-action="skins">
+                        <span class="ipc-menu-lbl">Switch Player</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                    </div>
+
+                    <div class="ipc-split-right" id="ipcSplitPreview">
+                      <div class="ipc-split-art-card">
+                        <canvas id="ipcSplitCoverCanvas" width="160" height="160" class="ipc-split-cover"></canvas>
+                        <div class="ipc-split-reflect">
+                          <canvas id="ipcSplitReflectCanvas" width="160" height="40" class="ipc-split-reflect-canvas"></canvas>
+                          <div class="ipc-split-reflect-fade"></div>
+                        </div>
+                      </div>
+                      <div class="ipc-split-caption">
+                        <div class="ipc-split-cap-title" id="ipcSplitCaptionTitle">iPod Classic</div>
+                        <div class="ipc-split-cap-sub" id="ipcSplitCaptionSub">160GB • Ready</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 2: NOW PLAYING (iPod Classic 6th Gen) -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewNowPlaying" data-ipc-view="nowplaying">
+                    <div class="ipc-np-body">
+                      <!-- Left 3D Angled Album Artwork + Floor Reflection -->
+                      <div class="ipc-np-cover-col" id="ipcNpCoverWrap" title="คลิกเพื่อเปลี่ยนรูปปกอัลบั้ม (Upload Custom Cover)">
+                        <div class="ipc-np-art-box">
+                          <canvas id="ipcNpCoverCanvas" width="180" height="180" class="ipc-np-cover-canvas"></canvas>
+                          <div class="ipc-np-art-gloss"></div>
+                        </div>
+                        <div class="ipc-np-art-reflect">
+                          <canvas id="ipcNpReflectCanvas" width="180" height="36" class="ipc-np-reflect-canvas"></canvas>
+                          <div class="ipc-np-reflect-fade"></div>
+                        </div>
+                      </div>
+
+                      <!-- Right Track Metadata & Mini Spectrum Analyzer -->
+                      <div class="ipc-np-meta-col">
+                        <div class="ipc-np-index" id="ipcNpIndex">1 of 8</div>
+                        <div class="ipc-np-title" id="ipcNpTitle">Track Title</div>
+                        <div class="ipc-np-artist" id="ipcNpArtist">Artist Name</div>
+                        <div class="ipc-np-album" id="ipcNpAlbum">Album Title</div>
+                        <div class="ipc-np-badges">
+                          <button class="ipc-np-badge" id="ipcNpShuffleBtn" title="Toggle Shuffle">🔀</button>
+                          <button class="ipc-np-badge" id="ipcNpRepeatBtn" title="Toggle Repeat">🔁</button>
+                          <button class="ipc-np-mode-pill" id="ipcNpModeBtn" title="Center Button Mode: Volume / Scrub / Rating">VOL</button>
+                        </div>
+                        <canvas id="ipcMiniVisCanvas" width="110" height="22" class="ipc-mini-vis"></canvas>
+                      </div>
+                    </div>
+
+                    <!-- Bottom Progress / Diamond Scrubber / Volume / Star Rating Area -->
+                    <div class="ipc-np-footer">
+                      <!-- Mode A: Aqua-Blue 3D Progress & Diamond Scrubber Bar -->
+                      <div class="ipc-np-bar-row" id="ipcNpBarProgress">
+                        <span class="ipc-np-time" id="ipcTimeElapsed">0:00</span>
+                        <div class="ipc-seek-track" id="ipcSeekTrack" title="Click or drag to seek">
+                          <div class="ipc-seek-fill" id="ipcSeekFill" style="width: 0%;"></div>
+                          <div class="ipc-seek-diamond hidden" id="ipcSeekDiamond" style="left: 0%;"></div>
+                        </div>
+                        <span class="ipc-np-time ipc-np-rem" id="ipcTimeRemaining">-0:00</span>
+                      </div>
+
+                      <!-- Mode B: Classic Volume Overlay Bar -->
+                      <div class="ipc-np-bar-row hidden" id="ipcNpBarVolume">
+                        <span class="ipc-vol-icon">🔈</span>
+                        <div class="ipc-vol-track" id="ipcVolTrack" title="Volume">
+                          <div class="ipc-vol-fill" id="ipcVolFill" style="width: 80%;"></div>
+                        </div>
+                        <span class="ipc-vol-icon">🔊</span>
+                      </div>
+
+                      <!-- Mode C: 5-Star Rating Bar -->
+                      <div class="ipc-np-bar-row ipc-rating-row hidden" id="ipcNpBarRating">
+                        <div class="ipc-rating-stars" id="ipcRatingStars" title="Rotate Click Wheel or tap stars to rate">
+                          <span class="ipc-star active" data-star="1">★</span>
+                          <span class="ipc-star active" data-star="2">★</span>
+                          <span class="ipc-star active" data-star="3">★</span>
+                          <span class="ipc-star active" data-star="4">★</span>
+                          <span class="ipc-star active" data-star="5">★</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 3: 3D COVER FLOW CAROUSEL             -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewCoverFlow" data-ipc-view="coverflow">
+                    <div class="ipc-cf-stage" id="ipcCoverFlowStage"></div>
+                    <div class="ipc-cf-footer">
+                      <div class="ipc-cf-title" id="ipcCfTitle">Song Title</div>
+                      <div class="ipc-cf-artist" id="ipcCfArtist">Artist Name</div>
+                    </div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 4: SONGS / PLAYLIST                   -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewSongs" data-ipc-view="songs">
+                    <div class="ipc-songs-toolbar">
+                      <button class="ipc-mini-btn ipc-mini-blue" id="ipcBtnAddMp3" title="Add MP3 / Audio">+MP3</button>
+                      <button class="ipc-mini-btn ipc-mini-red" id="ipcBtnAddYt" title="Add YouTube Link">▶️YT</button>
+                      <button class="ipc-mini-btn" id="ipcBtnLoadDemo" title="Load Demo Songs">🎵Demo</button>
+                      <button class="ipc-mini-btn" id="ipcBtnClearPl" title="Clear Playlist">🗑Clear</button>
+                    </div>
+                    <div class="ipc-list-scroll" id="ipcSongsList"></div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 5: EQUALIZER & PRESETS                -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewEQ" data-ipc-view="eq">
+                    <div class="ipc-eq-top">
+                      <div class="ipc-eq-head">
+                        <span class="ipc-eq-head-title">10-Band EQ DSP</span>
+                        <div class="ipc-eq-head-btns">
+                          <button class="ipc-eq-pill" id="ipcEqResetBtn">Flat</button>
+                          <button class="ipc-eq-pill active" id="ipcEqToggleBtn">EQ: ON</button>
+                        </div>
+                      </div>
+                      <canvas id="ipcEqCanvas" width="260" height="32" class="ipc-eq-canvas"></canvas>
+                    </div>
+                    <div class="ipc-list-scroll" id="ipcEqPresetList">
+                      <div class="ipc-eq-row active" data-ipc-preset="flat"><span>Flat (Default)</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="fullbass"><span>Bass Booster</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="fullbasstreble"><span>Bass &amp; Treble</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="rock"><span>Rock</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="pop"><span>Pop</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="dance"><span>Dance</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="techno"><span>Electronic</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="vocal"><span>Vocal Booster</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="softrock"><span>Acoustic</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="classical"><span>Classical</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="club"><span>Club</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="live"><span>Live</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="party"><span>Party</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="reggae"><span>Reggae</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="fulltreble"><span>Treble Booster</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="laptopspeakers"><span>Small Speakers</span><span class="ipc-eq-chk">✓</span></div>
+                    </div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 6: SWITCH PLAYER / SKINS SUBMENU      -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewSkins" data-ipc-view="skins">
+                    <div class="ipc-list-scroll" id="ipcSkinsList">
+                      <div class="ipc-skin-row active" data-ipc-skin="skin-ipod">
+                        <span>📱 iPod touch (Apple iOS)</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-skin-row" data-ipc-skin="skin-cassette">
+                        <span>📼 Walkman Cassette Player</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-skin-row" data-ipc-skin="skin-midnight">
+                        <span>🎨 Winamp: Midnight Gold</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-skin-row" data-ipc-skin="skin-modern">
+                        <span>🎨 Winamp: Modern Silver Blue</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Iconic Capacitive Touch-Sensitive Click Wheel (208 x 208) -->
+            <div class="ipc-wheel-area">
+              <div class="ipc-click-wheel" id="ipcClickWheel" title="หมุนวงล้อ Click Wheel เพื่อเลื่อนเมนู / ปรับระดับเสียง / สกรับเวลาเพลง">
+                <!-- Subtle Rotary Touch Indicator Dot -->
+                <div class="ipc-wheel-dot" id="ipcWheelDot"></div>
+
+                <!-- Top Cardinal Button: MENU -->
+                <button class="ipc-wheel-btn ipc-wheel-menu" id="ipcBtnMenu" title="MENU (ย้อนกลับ / เมนูหลัก)">MENU</button>
+
+                <!-- Left Cardinal Button: PREV / REW -->
+                <button class="ipc-wheel-btn ipc-wheel-prev" id="ipcBtnPrev" title="Previous / Rewind">
+                  <svg viewBox="0 0 28 16" class="ipc-wheel-svg">
+                    <rect x="2" y="2" width="2.6" height="12" fill="currentColor"/>
+                    <polygon points="14,2 4.8,8 14,14" fill="currentColor"/>
+                    <polygon points="24,2 14.8,8 24,14" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Right Cardinal Button: NEXT / FF -->
+                <button class="ipc-wheel-btn ipc-wheel-next" id="ipcBtnNext" title="Next / Fast-Forward">
+                  <svg viewBox="0 0 28 16" class="ipc-wheel-svg">
+                    <polygon points="4,2 13.2,8 4,14" fill="currentColor"/>
+                    <polygon points="14,2 23.2,8 14,14" fill="currentColor"/>
+                    <rect x="23.4" y="2" width="2.6" height="12" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Bottom Cardinal Button: PLAY / PAUSE -->
+                <button class="ipc-wheel-btn ipc-wheel-play" id="ipcBtnPlayPause" title="Play / Pause">
+                  <svg viewBox="0 0 26 16" class="ipc-wheel-svg">
+                    <polygon points="2,2 12,8 2,14" fill="currentColor"/>
+                    <rect x="15.5" y="2" width="2.8" height="12" fill="currentColor"/>
+                    <rect x="20.5" y="2" width="2.8" height="12" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Concave Metallic Center Select Button -->
+                <button class="ipc-center-btn" id="ipcBtnSelect" title="Select / Confirm (ปุ่มกลางเลือกเมนู หรือสลับโหมดในหน้าเล่นเพลง)"></button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
       </div> <!-- End #winamp-workspace -->
     </div> <!-- End windows-container -->
 
@@ -1039,7 +1344,7 @@
         <div class="walkman-top-header">
           <div class="walkman-brand-title">
             <span class="walkman-brand-stereo">PORTABLE STEREO CASSETTE PLAYER</span>
-            <span class="walkman-brand-logo">WINAMP <em>Walkman</em> <span class="app-ver-badge">v4.8</span></span>
+            <span class="walkman-brand-logo">WINAMP <em>Walkman</em> <span class="app-ver-badge">v4.9</span></span>
           </div>
           <div class="walkman-top-actions">
             <button class="walkman-action-btn" id="wmIpodBtn" title="สลับไปสกิน iPod touch">📱 iPod</button>
@@ -1249,9 +1554,9 @@
   <audio id="audioElement" preload="auto" playsinline webkit-playsinline></audio>
 
   <!-- Scripts -->
-  <script src="db.js?v=4.8"></script>
-  <script src="id3.js?v=4.8"></script>
-  <script src="audio-engine.js?v=4.8"></script>
-  <script src="app.js?v=4.8"></script>
+  <script src="db.js?v=4.9"></script>
+  <script src="id3.js?v=4.9"></script>
+  <script src="audio-engine.js?v=4.9"></script>
+  <script src="app.js?v=4.9"></script>
 </body>
 </html>

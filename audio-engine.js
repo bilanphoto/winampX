@@ -1279,6 +1279,18 @@ class WinampAudioEngine {
         gain.connect(fx.destination);
         osc.start(now);
         osc.stop(now + 0.1);
+      } else if (type === 'wheel') {
+        const osc = fx.createOscillator();
+        const gain = fx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(2200, now);
+        osc.frequency.exponentialRampToValueAtTime(850, now + 0.005);
+        gain.gain.setValueAtTime(0.14, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.005);
+        osc.connect(gain);
+        gain.connect(fx.destination);
+        osc.start(now);
+        osc.stop(now + 0.006);
       }
     } catch (e) {}
   }

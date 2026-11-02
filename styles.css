@@ -5946,3 +5946,1185 @@ body.skin-ipod #winamp-workspace {
   pointer-events: none;
 }
 
+/* ==========================================================================
+   8. AUTHENTIC APPLE iPOD CLASSIC 160GB SKIN (6th/7th Gen + Click Wheel)
+   ========================================================================== */
+body.skin-ipod-classic {
+  background: radial-gradient(circle at 50% 25%, #1e293b 0%, #090d16 65%, #030508 100%);
+}
+
+body.skin-ipod-classic #windows-container {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  overflow: hidden !important;
+  padding: 8px !important;
+}
+
+body.skin-ipod-classic #winamp-workspace {
+  margin: auto !important;
+  transform: scale(var(--mobile-scale, 1)) !important;
+  transform-origin: center center !important;
+  flex-shrink: 0;
+}
+
+.ipc-device {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 320px;
+  height: 540px;
+  user-select: none;
+  -webkit-user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  z-index: 65;
+}
+
+/* Top Edge Physical Hold Switch */
+.ipc-top-edge {
+  position: absolute;
+  top: -6px;
+  left: 38px;
+  z-index: 4;
+}
+
+.ipc-hold-switch {
+  position: relative;
+  width: 48px;
+  height: 8px;
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-bottom: none;
+  border-radius: 4px 4px 0 0;
+  padding: 0;
+  cursor: pointer;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 -1px 3px rgba(0, 0, 0, 0.6);
+}
+
+.ipc-hold-orange {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 24px;
+  background: #f97316;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.ipc-hold-switch.locked .ipc-hold-orange {
+  opacity: 1;
+}
+
+.ipc-hold-slider {
+  position: absolute;
+  left: 2px;
+  top: 1px;
+  width: 22px;
+  height: 6px;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #94a3b8 0%, #f8fafc 50%, #64748b 100%);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+  transition: left 0.16s ease;
+}
+
+.ipc-hold-switch.locked .ipc-hold-slider {
+  left: 22px;
+}
+
+.ipc-hold-label {
+  display: none;
+}
+
+/* Outer Polished Stainless Steel Chamfered Rim */
+.ipc-shell {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 34px;
+  padding: 4px;
+  background: linear-gradient(135deg,
+    #ffffff 0%,
+    #94a3b8 18%,
+    #e2e8f0 36%,
+    #475569 52%,
+    #cbd5e1 72%,
+    #64748b 88%,
+    #f8fafc 100%
+  );
+  box-shadow:
+    0 24px 60px rgba(0, 0, 0, 0.92),
+    0 6px 18px rgba(0, 0, 0, 0.75),
+    inset 0 1px 2px rgba(255, 255, 255, 0.95);
+}
+
+/* Anodized Brushed Aluminum Faceplate (Default: Silver 6th Gen) */
+.ipc-faceplate {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 30px;
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.03) 1px,
+      rgba(0, 0, 0, 0.02) 1px,
+      rgba(0, 0, 0, 0.02) 2px
+    ),
+    linear-gradient(165deg,
+      #e5e9f0 0%,
+      #d1d8e2 28%,
+      #bfc8d4 58%,
+      #abb5c4 85%,
+      #c5ced9 100%
+    );
+  border: 1.5px solid rgba(255, 255, 255, 0.75);
+  box-shadow:
+    inset 0 2px 6px rgba(255, 255, 255, 0.85),
+    inset 0 -4px 10px rgba(15, 23, 42, 0.35),
+    inset 3px 0 6px rgba(15, 23, 42, 0.15),
+    inset -3px 0 6px rgba(15, 23, 42, 0.15);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 14px 24px 14px;
+  overflow: hidden;
+}
+
+/* Color Variant 2: 7th Gen Space Gray / Black Anodized Aluminum */
+.ipc-device.ipc-color-black .ipc-faceplate {
+  background:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.015) 0px,
+      rgba(255, 255, 255, 0.015) 1px,
+      rgba(0, 0, 0, 0.03) 1px,
+      rgba(0, 0, 0, 0.03) 2px
+    ),
+    linear-gradient(165deg,
+      #3f444e 0%,
+      #2b303a 30%,
+      #1d2129 65%,
+      #14171d 100%
+    );
+  border-color: rgba(255, 255, 255, 0.22);
+  box-shadow:
+    inset 0 2px 5px rgba(255, 255, 255, 0.22),
+    inset 0 -4px 10px rgba(0, 0, 0, 0.8);
+}
+
+/* Color Variant 3: 5th Gen Classic Polycarbonate Pearl White */
+.ipc-device.ipc-color-white .ipc-faceplate {
+  background: linear-gradient(165deg,
+    #ffffff 0%,
+    #f8fafc 45%,
+    #e2e8f0 88%,
+    #f1f5f9 100%
+  );
+  border-color: #ffffff;
+  box-shadow:
+    inset 0 2px 8px #ffffff,
+    inset 0 -4px 10px rgba(100, 116, 139, 0.25);
+}
+
+/* 2.5-inch Recessed QVGA LCD Bezel & Screen (284 x 214) */
+.ipc-screen-bezel {
+  width: 288px;
+  height: 218px;
+  padding: 3px;
+  background: linear-gradient(180deg, #090c10 0%, #1e242d 100%);
+  border-radius: 9px;
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.65),
+    inset 0 2px 5px rgba(0, 0, 0, 0.95);
+  flex-shrink: 0;
+}
+
+.ipc-device.ipc-color-black .ipc-screen-bezel {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 2px 5px rgba(0, 0, 0, 0.95);
+}
+
+.ipc-screen {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: #ffffff;
+  border-radius: 6px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: inset 0 0 2px rgba(0, 0, 0, 0.5);
+}
+
+/* Subtle diagonal glass reflection on LCD */
+.ipc-screen::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -25%;
+  width: 65%;
+  height: 100%;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 45%, transparent 50%);
+  pointer-events: none;
+  z-index: 40;
+}
+
+/* 1. Classic iPod Top Status Bar (22px) */
+.ipc-statusbar {
+  width: 100%;
+  height: 22px;
+  background: linear-gradient(180deg, #f8fafc 0%, #dce3ec 48%, #b8c4d4 52%, #ced8e4 100%);
+  border-bottom: 1px solid #7c8b9e;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 7px;
+  flex-shrink: 0;
+  z-index: 30;
+}
+
+.ipc-sb-left,
+.ipc-sb-right {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.ipc-sb-title {
+  font-size: 11.5px;
+  font-weight: 800;
+  color: #1e293b;
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.8);
+  max-width: 140px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ipc-sb-lock {
+  font-size: 10px;
+  line-height: 1;
+}
+
+.ipc-sb-play {
+  font-size: 10px;
+  color: #1d4ed8;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.ipc-sb-play.active {
+  opacity: 1;
+}
+
+.ipc-ver-badge {
+  font-size: 7.5px !important;
+  padding: 0 3px !important;
+  margin-left: 0 !important;
+}
+
+/* 3D Glossy Green Battery Icon */
+.ipc-battery {
+  display: flex;
+  align-items: center;
+}
+
+.ipc-battery-body {
+  width: 20px;
+  height: 10px;
+  border: 1px solid #475569;
+  border-radius: 2px;
+  padding: 1px;
+  background: #f8fafc;
+  box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.ipc-battery-fill {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #86efac 0%, #22c55e 48%, #15803d 52%, #4ade80 100%);
+  border-radius: 1px;
+}
+
+.ipc-battery-tip {
+  width: 2px;
+  height: 5px;
+  background: #475569;
+  border-radius: 0 1px 1px 0;
+}
+
+/* 2. Main LCD Viewport (190px) */
+.ipc-viewport {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  background: #ffffff;
+  overflow: hidden;
+}
+
+.ipc-view {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: none;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ipc-view.active {
+  display: flex;
+}
+
+/* =========================================================
+   VIEW 1: SPLIT-SCREEN MAIN MENU (iPod Classic 6th Gen)
+   ========================================================= */
+#ipcViewMenu {
+  flex-direction: row;
+  background: #ffffff;
+}
+
+.ipc-split-left {
+  width: 53%;
+  height: 100%;
+  border-right: 1px solid #cbd5e1;
+  overflow-y: auto;
+  scrollbar-width: none;
+  background: #ffffff;
+}
+.ipc-split-left::-webkit-scrollbar {
+  display: none;
+}
+
+.ipc-menu-row {
+  height: 23px;
+  padding: 0 7px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+}
+
+.ipc-menu-row:hover {
+  background: #f1f5f9;
+}
+
+/* Signature Apple Aqua-Blue Selection Bar */
+.ipc-menu-row.active,
+.ipc-song-row.selected,
+.ipc-eq-row.selected,
+.ipc-skin-row.active {
+  background: linear-gradient(180deg, #60a5fa 0%, #2563eb 50%, #1d4ed8 100%) !important;
+  color: #ffffff !important;
+  text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.45);
+  border-bottom-color: #1e40af;
+}
+
+.ipc-menu-lbl {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ipc-menu-arrow {
+  font-size: 14px;
+  font-weight: 800;
+  color: #94a3b8;
+  line-height: 1;
+}
+
+.ipc-menu-val {
+  font-size: 10px;
+  font-weight: 700;
+  color: #64748b;
+}
+
+.ipc-menu-row.active .ipc-menu-arrow,
+.ipc-menu-row.active .ipc-menu-val,
+.ipc-skin-row.active .ipc-menu-arrow {
+  color: #ffffff;
+}
+
+/* Right Half of Split Screen: 3D Angled Floating Album Cover */
+.ipc-split-right {
+  width: 47%;
+  height: 100%;
+  background: radial-gradient(circle at 50% 40%, #ffffff 0%, #e2e8f0 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 6px 4px 6px;
+  perspective: 450px;
+  overflow: hidden;
+}
+
+.ipc-split-art-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transform: rotateY(-14deg);
+  transform-style: preserve-3d;
+}
+
+.ipc-split-cover {
+  width: 104px;
+  height: 104px;
+  border-radius: 3px;
+  box-shadow:
+    4px 6px 14px rgba(15, 23, 42, 0.45),
+    0 0 0 1px rgba(15, 23, 42, 0.2);
+  background: #0f172a;
+  display: block;
+}
+
+.ipc-split-reflect {
+  position: relative;
+  width: 104px;
+  height: 22px;
+  margin-top: 1px;
+  overflow: hidden;
+  opacity: 0.36;
+  pointer-events: none;
+}
+
+.ipc-split-reflect-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: scaleY(-1);
+}
+
+.ipc-split-reflect-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(226, 232, 240, 0.1) 0%, #e2e8f0 90%);
+}
+
+.ipc-split-caption {
+  margin-top: 4px;
+  text-align: center;
+  width: 100%;
+  padding: 0 4px;
+}
+
+.ipc-split-cap-title {
+  font-size: 10.5px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ipc-split-cap-sub {
+  font-size: 9px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   VIEW 2: NOW PLAYING (iPod Classic 6th Gen Layout)
+   ========================================================= */
+#ipcViewNowPlaying {
+  background: linear-gradient(180deg, #ffffff 0%, #f1f5f9 82%, #e2e8f0 100%);
+  padding: 8px 10px 6px 10px;
+  justify-content: space-between;
+}
+
+.ipc-np-body {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-height: 0;
+}
+
+.ipc-np-cover-col {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  perspective: 420px;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.ipc-np-art-box {
+  position: relative;
+  width: 106px;
+  height: 106px;
+  border-radius: 3px;
+  overflow: hidden;
+  transform: rotateY(12deg);
+  box-shadow:
+    -3px 5px 12px rgba(15, 23, 42, 0.4),
+    0 0 0 1px rgba(15, 23, 42, 0.25);
+  background: #0f172a;
+}
+
+.ipc-np-cover-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ipc-np-art-gloss {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.28) 0%, transparent 48%);
+  pointer-events: none;
+}
+
+.ipc-np-art-reflect {
+  position: relative;
+  width: 106px;
+  height: 18px;
+  margin-top: 1px;
+  transform: rotateY(12deg);
+  overflow: hidden;
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.ipc-np-reflect-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  transform: scaleY(-1);
+}
+
+.ipc-np-reflect-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(241, 245, 249, 0.1) 0%, #f1f5f9 90%);
+}
+
+.ipc-np-meta-col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 2px;
+}
+
+.ipc-np-index {
+  font-size: 9.5px;
+  font-weight: 700;
+  color: #64748b;
+  margin-bottom: 2px;
+}
+
+.ipc-np-title {
+  font-size: 12.5px;
+  font-weight: 800;
+  color: #0f172a;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.ipc-np-artist {
+  font-size: 10.5px;
+  font-weight: 700;
+  color: #334155;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.ipc-np-album {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #64748b;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ipc-np-badges {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 5px;
+}
+
+.ipc-np-badge {
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 4px;
+  font-size: 9.5px;
+  padding: 1px 4px;
+  cursor: pointer;
+  opacity: 0.55;
+  transition: all 0.12s ease;
+}
+
+.ipc-np-badge.active {
+  opacity: 1;
+  background: #dbeafe;
+  border-color: #3b82f6;
+}
+
+.ipc-np-mode-pill {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  border: 1px solid #1e40af;
+  border-radius: 4px;
+  color: #ffffff;
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1.5px 5px;
+  cursor: pointer;
+  letter-spacing: 0.3px;
+}
+
+.ipc-mini-vis {
+  margin-top: 5px;
+  width: 110px;
+  height: 20px;
+  background: rgba(15, 23, 42, 0.06);
+  border: 1px solid #cbd5e1;
+  border-radius: 3px;
+}
+
+/* Now Playing Bottom Scrubber / Volume / Rating Bar */
+.ipc-np-footer {
+  width: 100%;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.ipc-np-bar-row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ipc-np-time {
+  font-size: 9.5px;
+  font-weight: 800;
+  color: #1e293b;
+  min-width: 28px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ipc-np-rem {
+  text-align: right;
+}
+
+.ipc-seek-track,
+.ipc-vol-track {
+  position: relative;
+  flex: 1;
+  height: 10px;
+  background: linear-gradient(180deg, #cbd5e1 0%, #f1f5f9 50%, #e2e8f0 100%);
+  border: 1px solid #94a3b8;
+  border-radius: 6px;
+  box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.25);
+  cursor: pointer;
+}
+
+.ipc-seek-fill,
+.ipc-vol-fill {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #93c5fd 0%, #3b82f6 48%, #1d4ed8 52%, #60a5fa 100%);
+  border-radius: 5px;
+  pointer-events: none;
+}
+
+/* Iconic iPod Classic Diamond Scrubber Thumb */
+.ipc-seek-diamond {
+  position: absolute;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  background: linear-gradient(135deg, #ffffff 0%, #3b82f6 60%, #1e3a8a 100%);
+  border: 1px solid #0f172a;
+  transform: translate(-50%, -50%) rotate(45deg);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+.ipc-vol-icon {
+  font-size: 11px;
+}
+
+.ipc-rating-row {
+  justify-content: center;
+}
+
+.ipc-rating-stars {
+  display: flex;
+  gap: 6px;
+  background: #e2e8f0;
+  border: 1px solid #cbd5e1;
+  border-radius: 12px;
+  padding: 2px 14px;
+}
+
+.ipc-star {
+  font-size: 14px;
+  color: #94a3b8;
+  cursor: pointer;
+}
+
+.ipc-star.active {
+  color: #2563eb;
+  text-shadow: 0 0 2px rgba(37, 99, 235, 0.4);
+}
+
+/* =========================================================
+   VIEW 3: 3D COVER FLOW CAROUSEL
+   ========================================================= */
+#ipcViewCoverFlow {
+  background: linear-gradient(180deg, #0f172a 0%, #020617 75%, #000000 100%);
+  color: #ffffff;
+  justify-content: space-between;
+}
+
+.ipc-cf-stage {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  perspective: 520px;
+  overflow: hidden;
+}
+
+.ipc-cf-card {
+  position: absolute;
+  width: 96px;
+  height: 96px;
+  border-radius: 3px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.85), 0 0 0 1px rgba(255, 255, 255, 0.22);
+  transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.28s ease, z-index 0s;
+  cursor: pointer;
+  overflow: hidden;
+  background: #1e293b;
+  -webkit-box-reflect: below 2px linear-gradient(transparent 60%, rgba(255, 255, 255, 0.22));
+}
+
+.ipc-cf-card canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.ipc-cf-footer {
+  height: 36px;
+  text-align: center;
+  padding: 2px 8px 4px 8px;
+  background: rgba(2, 6, 23, 0.85);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ipc-cf-title {
+  font-size: 11px;
+  font-weight: 800;
+  color: #ffffff;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ipc-cf-artist {
+  font-size: 9.5px;
+  font-weight: 600;
+  color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* =========================================================
+   VIEW 4, 5, 6: SONGS, EQUALIZER, SWITCH PLAYER LISTS
+   ========================================================= */
+.ipc-songs-toolbar {
+  display: flex;
+  gap: 3px;
+  padding: 3px 5px;
+  background: #e2e8f0;
+  border-bottom: 1px solid #cbd5e1;
+  flex-shrink: 0;
+}
+
+.ipc-mini-btn {
+  flex: 1;
+  background: linear-gradient(180deg, #ffffff 0%, #e2e8f0 100%);
+  border: 1px solid #94a3b8;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 800;
+  color: #1e293b;
+  padding: 2.5px 3px;
+  cursor: pointer;
+}
+
+.ipc-mini-blue {
+  background: linear-gradient(180deg, #3b82f6 0%, #1d4ed8 100%);
+  border-color: #1e40af;
+  color: #ffffff;
+}
+
+.ipc-mini-red {
+  background: linear-gradient(180deg, #ef4444 0%, #b91c1c 100%);
+  border-color: #7f1d1d;
+  color: #ffffff;
+}
+
+.ipc-list-scroll {
+  flex: 1;
+  overflow-y: auto;
+  background: #ffffff;
+}
+
+.ipc-song-row,
+.ipc-eq-row,
+.ipc-skin-row {
+  height: 24px;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 11px;
+  font-weight: 700;
+  color: #0f172a;
+  cursor: pointer;
+}
+
+.ipc-song-left {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
+  padding-right: 6px;
+}
+
+.ipc-song-num {
+  font-size: 9.5px;
+  color: #64748b;
+  min-width: 16px;
+}
+
+.ipc-song-title {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ipc-song-dur {
+  font-size: 9.5px;
+  color: #64748b;
+  font-variant-numeric: tabular-nums;
+  flex-shrink: 0;
+}
+
+.ipc-song-row.selected .ipc-song-num,
+.ipc-song-row.selected .ipc-song-dur {
+  color: #ffffff;
+}
+
+/* Equalizer Top Card inside iPod Classic */
+.ipc-eq-top {
+  background: #0f172a;
+  color: #f8fafc;
+  padding: 4px 7px 5px 7px;
+  border-bottom: 1px solid #334155;
+  flex-shrink: 0;
+}
+
+.ipc-eq-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 3px;
+}
+
+.ipc-eq-head-title {
+  font-size: 10px;
+  font-weight: 800;
+  color: #38bdf8;
+}
+
+.ipc-eq-head-btns {
+  display: flex;
+  gap: 4px;
+}
+
+.ipc-eq-pill {
+  background: #1e293b;
+  border: 1px solid #475569;
+  border-radius: 4px;
+  color: #cbd5e1;
+  font-size: 8.5px;
+  font-weight: 800;
+  padding: 1.5px 6px;
+  cursor: pointer;
+}
+
+.ipc-eq-pill.active {
+  background: #0284c7;
+  border-color: #38bdf8;
+  color: #ffffff;
+}
+
+.ipc-eq-canvas {
+  width: 100%;
+  height: 28px;
+  background: #020617;
+  border: 1px solid #1e293b;
+  border-radius: 3px;
+  display: block;
+}
+
+.ipc-eq-chk {
+  opacity: 0;
+  color: #2563eb;
+  font-weight: 900;
+}
+
+.ipc-eq-row.active .ipc-eq-chk {
+  opacity: 1;
+}
+
+.ipc-eq-row.selected .ipc-eq-chk {
+  color: #ffffff;
+}
+
+/* =========================================================
+   ICONIC CAPACITIVE CLICK WHEEL (212 x 212)
+   ========================================================= */
+.ipc-wheel-area {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-top: 6px;
+}
+
+.ipc-click-wheel {
+  position: relative;
+  width: 212px;
+  height: 212px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 42%,
+    #ffffff 0%,
+    #f8fafc 55%,
+    #e2e8f0 88%,
+    #cbd5e1 100%
+  );
+  border: 1.5px solid #94a3b8;
+  box-shadow:
+    0 3px 10px rgba(15, 23, 42, 0.28),
+    inset 0 1px 3px #ffffff,
+    inset 0 -2px 5px rgba(100, 116, 139, 0.25);
+  touch-action: none;
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.ipc-click-wheel:active {
+  cursor: grabbing;
+}
+
+/* Click Wheel Variant for Space Gray / Black 7th Gen */
+.ipc-device.ipc-color-black .ipc-click-wheel {
+  background: radial-gradient(circle at 50% 42%,
+    #22262f 0%,
+    #161920 60%,
+    #0d0f14 100%
+  );
+  border-color: #090b0e;
+  box-shadow:
+    0 3px 10px rgba(0, 0, 0, 0.7),
+    inset 0 1px 2px rgba(255, 255, 255, 0.12),
+    inset 0 -2px 5px rgba(0, 0, 0, 0.85);
+}
+
+/* Click Wheel Variant for 5th Gen White */
+.ipc-device.ipc-color-white .ipc-click-wheel {
+  background: radial-gradient(circle at 50% 42%,
+    #e2e8f0 0%,
+    #cbd5e1 65%,
+    #b6c2d1 100%
+  );
+  border-color: #94a3b8;
+}
+
+/* Visual Rotary Indicator Dot when turning the Click Wheel */
+.ipc-wheel-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #3b82f6;
+  box-shadow: 0 0 8px rgba(59, 130, 246, 0.9);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 6;
+}
+
+.ipc-wheel-dot.active {
+  opacity: 0.9;
+}
+
+/* 4 Cardinal Click Wheel Action Buttons */
+.ipc-wheel-btn {
+  position: absolute;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  cursor: pointer;
+  padding: 6px 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 4;
+  transition: color 0.1s ease, transform 0.08s ease;
+}
+
+.ipc-device.ipc-color-black .ipc-wheel-btn,
+.ipc-device.ipc-color-white .ipc-wheel-btn {
+  color: #f1f5f9;
+}
+
+.ipc-wheel-btn:hover {
+  color: #1d4ed8;
+}
+
+.ipc-device.ipc-color-black .ipc-wheel-btn:hover {
+  color: #38bdf8;
+}
+
+.ipc-wheel-btn:active {
+  transform: scale(0.92);
+}
+
+.ipc-wheel-menu {
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.ipc-wheel-menu:active {
+  transform: translateX(-50%) scale(0.92);
+}
+
+.ipc-wheel-prev {
+  left: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.ipc-wheel-prev:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.ipc-wheel-next {
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.ipc-wheel-next:active {
+  transform: translateY(-50%) scale(0.92);
+}
+
+.ipc-wheel-play {
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+.ipc-wheel-play:active {
+  transform: translateX(-50%) scale(0.92);
+}
+
+.ipc-wheel-svg {
+  width: 22px;
+  height: 13px;
+  display: block;
+}
+
+/* Concave Metallic Center Select Button (72 x 72) */
+.ipc-center-btn {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 60% 65%,
+    #e2e8f0 0%,
+    #cbd5e1 45%,
+    #94a3b8 85%,
+    #64748b 100%
+  );
+  border: 1.5px solid #94a3b8;
+  box-shadow:
+    inset 0 3px 6px rgba(15, 23, 42, 0.35),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.85),
+    0 1px 2px rgba(255, 255, 255, 0.8);
+  cursor: pointer;
+  z-index: 5;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+
+.ipc-device.ipc-color-black .ipc-center-btn {
+  background: radial-gradient(circle at 60% 65%,
+    #3f444e 0%,
+    #272b34 50%,
+    #15181e 90%
+  );
+  border-color: #090b0e;
+  box-shadow:
+    inset 0 3px 7px rgba(0, 0, 0, 0.85),
+    inset 0 -2px 4px rgba(255, 255, 255, 0.16),
+    0 1px 2px rgba(255, 255, 255, 0.1);
+}
+
+.ipc-device.ipc-color-white .ipc-center-btn {
+  background: radial-gradient(circle at 60% 65%,
+    #ffffff 0%,
+    #f1f5f9 60%,
+    #cbd5e1 100%
+  );
+  border-color: #94a3b8;
+}
+
+.ipc-center-btn:active {
+  transform: scale(0.95);
+  box-shadow:
+    inset 0 5px 10px rgba(0, 0, 0, 0.6),
+    0 0 8px rgba(59, 130, 246, 0.4);
+}
+
+
