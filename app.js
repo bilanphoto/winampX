@@ -1944,7 +1944,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   audioElement.addEventListener('pause', () => {
-    if (engine.isSwappingEqBuffer) return;
+    if (engine.isSwappingEqBuffer || engine._suppressNativeEvents || engine._isUsingBufferEngine) return;
     const cur = engine.getCurrentTime();
     const dur = engine.getDuration();
     if (cur > 0 && (!dur || cur < dur - 0.2)) {
