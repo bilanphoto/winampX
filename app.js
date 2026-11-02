@@ -1048,7 +1048,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     const menuSkinMidnight = document.getElementById('menuSkinMidnight');
     const menuSkinCassette = document.getElementById('menuSkinCassette');
     const menuSkinIpod = document.getElementById('menuSkinIpod');
-    const btnTitlebarIpod = document.getElementById('btnTitlebarIpod');
     const menuTogglePlay = document.getElementById('menuTogglePlay');
     const menuStopTrack = document.getElementById('menuStopTrack');
     const menuPrevTrack = document.getElementById('menuPrevTrack');
@@ -1068,7 +1067,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (menuSkinMidnight) menuSkinMidnight.addEventListener('click', () => { switchSkin('skin-midnight'); mainContextMenu.classList.add('hidden'); });
     if (menuSkinCassette) menuSkinCassette.addEventListener('click', () => { switchSkin('skin-cassette'); mainContextMenu.classList.add('hidden'); });
     if (menuSkinIpod) menuSkinIpod.addEventListener('click', () => { switchSkin('skin-ipod'); mainContextMenu.classList.add('hidden'); });
-    if (btnTitlebarIpod) btnTitlebarIpod.addEventListener('click', (e) => { e.stopPropagation(); switchSkin('skin-ipod'); });
     if (menuTogglePlay) menuTogglePlay.addEventListener('click', () => { btnPlay.click(); mainContextMenu.classList.add('hidden'); });
     if (menuStopTrack) menuStopTrack.addEventListener('click', () => { btnStop.click(); mainContextMenu.classList.add('hidden'); });
     if (menuPrevTrack) menuPrevTrack.addEventListener('click', () => { btnPrev.click(); mainContextMenu.classList.add('hidden'); });
@@ -4500,7 +4498,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // AUTO VERSION CHECKER & AUTOMATIC UPDATER
   // =========================================================================
   const badgeElem = document.querySelector('.app-ver-badge');
-  const CURRENT_APP_VERSION = badgeElem ? badgeElem.textContent.trim() : 'v4.6';
+  const CURRENT_APP_VERSION = badgeElem ? badgeElem.textContent.trim() : 'v4.7';
   let isAutoUpdating = false;
   let swRegInstance = null;
 

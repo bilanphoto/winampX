@@ -4221,32 +4221,6 @@ body.skin-midnight .btn-tape.active {
   vertical-align: middle;
 }
 
-/* Titlebar iPod Quick-Switch Button on Main Winamp Window */
-.titlebar-ipod-btn {
-  position: absolute;
-  right: 36px;
-  top: 1px;
-  height: 11px;
-  background: linear-gradient(180deg, #475569 0%, #1e293b 100%);
-  border: 1px solid #94a3b8;
-  border-radius: 2px;
-  color: #f8fafc;
-  font-family: -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
-  font-size: 7.5px;
-  font-weight: 800;
-  padding: 0 4px;
-  line-height: 9px;
-  cursor: pointer;
-  letter-spacing: 0.2px;
-  z-index: 50;
-  transition: all 0.15s ease;
-}
-.titlebar-ipod-btn:hover {
-  background: linear-gradient(180deg, #0284c7 0%, #0369a1 100%);
-  border-color: #38bdf8;
-  box-shadow: 0 0 5px #38bdf8;
-}
-
 /* ==========================================================================
    7. AUTHENTIC APPLE iPOD TOUCH SKIN (iOS 4 / iPod OS Skeuomorphic Edition)
    ========================================================================== */
