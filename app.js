@@ -3414,7 +3414,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // AUTO VERSION CHECKER & AUTOMATIC UPDATER
   // =========================================================================
   const badgeElem = document.querySelector('.app-ver-badge');
-  const CURRENT_APP_VERSION = badgeElem ? badgeElem.textContent.trim() : 'v4.4';
+  const CURRENT_APP_VERSION = badgeElem ? badgeElem.textContent.trim() : 'v4.5';
   let isAutoUpdating = false;
   let swRegInstance = null;
 

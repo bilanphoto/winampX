@@ -1,23 +1,24 @@
 /**
- * Winamp Web Player - Audio Engine (Bluetooth A2DP & Background Lock-Screen Engine + 10-Band EQ + YouTube Bridge)
+ * Winamp Web Player - Audio Engine (Unified Sound Signature + Background EQ Bake + Bluetooth A2DP + YouTube Bridge)
  *
- * Architecture (v4.3 - Clean Studio Audio + Background/Lock-Screen Playback + Bluetooth A2DP):
- * 1. When App is minimized / screen is locked (`document.hidden`) OR EQ is Flat/OFF:
- *    100% pure native hardware `<audio>` element plays the pre-buffered RAM Blob directly!
- *    - Zero Web Audio API interference -> Never stops when minimizing app or locking screen!
- *    - Full iOS / Android Lock Screen, Control Center, Apple CarPlay & Bluetooth AVRCP integration!
- * 2. When App is in foreground AND EQ / Preamp / Balance is active:
- *    - Decodes the track into a float PCM `AudioBuffer` in RAM (`AudioBufferSourceNode`).
- *    - Eliminates the radio-static / clipping distortion by:
- *      (a) Stopping and pausing `<audio>` while `AudioBufferSourceNode` is playing (so the OS Bluetooth A2DP
- *          mixer never mixes two concurrent streams or resamples dual clocks!).
- *      (b) Auto-Gain Headroom Compensation + transparent brickwall DynamicsCompressor limiter (-1.0 dBFS ceiling)
- *          so boosting EQ bands (+12dB) never clips 0dBFS into digital static/crackling!
- *      (c) Removing `AnalyserNode` from the audio output path so the main UI thread never touches audio buffers.
- * 3. Instant Background Handover (`visibilitychange` / `pagehide`):
- *    - The instant the user minimizes the app or turns off the screen while Buffer Engine is playing,
- *      we synchronously hand over the exact playback timestamp (`getCurrentTime()`) to `<audio>` and call
- *      `this.audio.play()`, so the song continues playing seamlessly with the screen off!
+ * Architecture (v4.5 - 100% Identical Sound & Loudness in Foreground and Background / Screen Off):
+ * 1. Why Foreground & Background sounded different in v4.3:
+ *    - In v4.3, minimizing the app switched from the Web Audio EQ engine back to the raw un-equalized MP3 file
+ *      on `<audio>`, AND the foreground engine was applying a large headroom reduction (`overlapHeadroomDb`),
+ *      making the foreground quieter and EQ-colored while the background was louder and flat!
+ * 2. How v4.5 makes Foreground & Background 100% Identical in both Volume and EQ Tone:
+ *    - **True Unity Preamp Gain**: Removed the artificial volume-drop penalty so 0dB Preamp = 100% identical
+ *      base loudness (`1.0`) in both foreground and background, while a transparent 0dBFS safety ceiling
+ *      (`threshold: -0.3 dB`) prevents digital clipping on heavy boosts.
+ *    - **Background EQ WAV Pre-Baking (`OfflineAudioContext`)**:
+ *      Whenever an EQ curve is active (or adjusted), the engine quietly renders an exact 16-bit PCM WAV Blob
+ *      of the track through the exact same 10-band BiquadFilter + Preamp + Balance + Limiter chain in the background!
+ *      When you minimize the app or turn off the screen (`visibilitychange` / `pagehide`), `<audio>` plays that
+ *      **EQ-baked WAV Blob** at the exact current timestamp!
+ *      Result:
+ *      - Moving EQ sliders in the app responds in **0ms real-time** (via `AudioBufferSourceNode`).
+ *      - Minimizing the app or locking the screen plays **the exact same EQ sound & exact same volume**
+ *        through native hardware `<audio>` without stopping or changing tone!
  */
 
 class WinampAudioEngine {
@@ -37,7 +38,7 @@ class WinampAudioEngine {
     this.volumeValue = 0.8;
     this.balanceValue = 0.0;
 
-    // Decoded PCM AudioBuffer Engine state (for foreground 0ms EQ without MediaElementSource)
+    // Decoded PCM AudioBuffer Engine state (for foreground 0ms EQ)
     this._rawArrayBuffer = null;
     this._decodedAudioBuffer = null;
     this._decodePromise = null;
@@ -51,6 +52,13 @@ class WinampAudioEngine {
     this._bufferTimer = null;
     this._suppressNativeEvents = false;
     this._wantPlaying = false;
+
+    // Background EQ-Baked WAV state (so minimizing/screen-off has 100% identical EQ & volume!)
+    this._originalBlobUrl = '';
+    this._bakedEqBlobUrl = '';
+    this._bakedDspSignature = '';
+    this._bakeDebounceTimer = null;
+    this._bakeRenderId = 0;
 
     // Playback mode: 'audio' (Local/Demo file) or 'youtube' (YouTube IFrame API)
     this.activeMode = 'audio';
@@ -95,8 +103,6 @@ class WinampAudioEngine {
     }
 
     // Seamless Background / Lock-Screen Handover:
-    // Mobile browsers suspend Web Audio `AudioContext` when the app is minimized or screen is locked,
-    // whereas a native `<audio>` element is allowed by iOS/Android to play indefinitely in the background!
     const handleVisibilityChange = () => {
       if (this.activeMode !== 'audio') return;
       if (document.hidden) {
@@ -104,7 +110,15 @@ class WinampAudioEngine {
           this._handoverBufferToNativeAudio();
         }
       } else {
-        if (this._wantPlaying && !this.audio.paused && this.hasActiveDsp()) {
+        // When returning to foreground, if <audio> is already playing the exact up-to-date EQ-baked WAV,
+        // keep playing it smoothly until the user touches an EQ slider!
+        // Only switch to BufferEngine if the baked WAV isn't ready yet.
+        if (
+          this._wantPlaying &&
+          !this.audio.paused &&
+          this.hasActiveDsp() &&
+          this._bakedDspSignature !== this._getDspSignature()
+        ) {
           this._syncPlaybackEngine();
         }
       }
@@ -118,13 +132,26 @@ class WinampAudioEngine {
     });
   }
 
-  // Hand over playback from Web Audio Buffer Engine to Native Hardware <audio> before backgrounding/locking screen
+  // Unique signature of current EQ/Preamp/Balance settings
+  _getDspSignature() {
+    if (!this.hasActiveDsp()) return 'flat';
+    return `${this.eqEnabled ? 1 : 0}_${this.preampValue.toFixed(2)}_${this.balanceValue.toFixed(2)}_${this.eqGains.map(g => g.toFixed(2)).join(',')}`;
+  }
+
+  // Hand over playback from Web Audio Buffer Engine to Native Hardware <audio> (using EQ-baked WAV if ready!)
   _handoverBufferToNativeAudio() {
     const curTime = this.getCurrentTime();
     this._isUsingBufferEngine = false;
     this._bufferPlaying = false;
     this._stopBufferTimer();
     this._stopBufferSource();
+
+    const targetUrl = (this.hasActiveDsp() && this._bakedEqBlobUrl) ? this._bakedEqBlobUrl : this._originalBlobUrl;
+    if (targetUrl && this.audio.src !== targetUrl) {
+      this._suppressNativeEvents = true;
+      this.audio.src = targetUrl;
+      this._suppressNativeEvents = false;
+    }
 
     this.audio.muted = false;
     this.audio.volume = this.volumeValue;
@@ -148,24 +175,152 @@ class WinampAudioEngine {
     return hasEq || Math.abs(this.balanceValue) > 0.05;
   }
 
-  // Calculate clean headroom gain so overlapping peaking EQ boosts never clip into radio-like static distortion
+  // True Unity Gain (0dB Preamp = 1.0x gain) with gentle anti-clipping protection only on extreme multi-band boosts
+  // Ensures foreground and background loudness match 1:1!
   _computeEffectivePreampGain() {
     if (!this.eqEnabled) return 1.0;
     let maxBoostDb = 0;
-    let positiveSumDb = 0;
     for (let i = 0; i < this.eqGains.length; i++) {
       const g = this.eqGains[i] || 0;
       if (g > maxBoostDb) maxBoostDb = g;
-      if (g > 0) positiveSumDb += g;
     }
-    // Adjacent 10-band filters with Q=1.4 overlap in gain; pad headroom proportionally so peaks stay below 0dBFS
-    const overlapHeadroomDb = (maxBoostDb * 0.55) + Math.min(4.5, positiveSumDb * 0.08);
-    const netDb = this.preampValue - overlapHeadroomDb;
+    // Only attenuate slightly if boost exceeds +6dB so normal presets & flat settings have 100% identical loudness
+    const excessBoostDb = Math.max(0, maxBoostDb - 6.0) * 0.35;
+    const netDb = this.preampValue - excessBoostDb;
     return Math.pow(10, netDb / 20);
+  }
+
+  // Schedule quiet background rendering of the EQ-processed WAV so native <audio> has the exact same EQ sound
+  _scheduleBackgroundEqBake(delayMs = 350) {
+    if (this._bakeDebounceTimer) {
+      clearTimeout(this._bakeDebounceTimer);
+      this._bakeDebounceTimer = null;
+    }
+
+    if (!this.hasActiveDsp()) {
+      this._bakedDspSignature = 'flat';
+      if (this._originalBlobUrl && !this._isUsingBufferEngine && this.audio.src !== this._originalBlobUrl) {
+        const wasPlaying = !this.audio.paused;
+        const cur = this.audio.currentTime || 0;
+        this._suppressNativeEvents = true;
+        this.audio.src = this._originalBlobUrl;
+        try { this.audio.currentTime = cur; } catch (e) {}
+        this._suppressNativeEvents = false;
+        if (wasPlaying) this.audio.play().catch(() => {});
+      }
+      return;
+    }
+
+    const targetSig = this._getDspSignature();
+    if (this._bakedDspSignature === targetSig && this._bakedEqBlobUrl) {
+      return;
+    }
+
+    this._bakeDebounceTimer = setTimeout(() => {
+      this._bakeEqToNativeWav().catch(() => {});
+    }, delayMs);
+  }
+
+  // Render the decoded AudioBuffer through an OfflineAudioContext with identical 10-band EQ + Preamp + Limiter
+  async _bakeEqToNativeWav() {
+    if (this.activeMode !== 'audio' || !this.hasActiveDsp()) return;
+    const decoded = await this._ensureAudioDecoded();
+    if (!decoded || this.activeMode !== 'audio' || !this.hasActiveDsp()) return;
+
+    const OfflineCtx = window.OfflineAudioContext || window.webkitOfflineAudioContext;
+    if (!OfflineCtx) return;
+
+    const renderId = ++this._bakeRenderId;
+    const token = this._decodeToken;
+    const sig = this._getDspSignature();
+
+    try {
+      const numChannels = Math.min(2, decoded.numberOfChannels || 2);
+      const sampleRate = decoded.sampleRate || 44100;
+      const length = decoded.length;
+
+      const offline = new OfflineCtx(numChannels, length, sampleRate);
+
+      const src = offline.createBufferSource();
+      src.buffer = decoded;
+
+      const preamp = offline.createGain();
+      preamp.gain.value = this._computeEffectivePreampGain();
+
+      let currentNode = src;
+      currentNode.connect(preamp);
+      currentNode = preamp;
+
+      for (let i = 0; i < this.eqFrequencies.length; i++) {
+        const filter = offline.createBiquadFilter();
+        filter.type = 'peaking';
+        filter.frequency.value = this.eqFrequencies[i];
+        filter.Q.value = 1.4;
+        filter.gain.value = this.eqEnabled ? (this.eqGains[i] || 0) : 0;
+        currentNode.connect(filter);
+        currentNode = filter;
+      }
+
+      if (offline.createStereoPanner && Math.abs(this.balanceValue) > 0.05) {
+        const panner = offline.createStereoPanner();
+        panner.pan.value = this.balanceValue;
+        currentNode.connect(panner);
+        currentNode = panner;
+      }
+
+      if (offline.createDynamicsCompressor) {
+        const limiter = offline.createDynamicsCompressor();
+        limiter.threshold.value = -0.3;
+        limiter.knee.value = 0.0;
+        limiter.ratio.value = 20.0;
+        limiter.attack.value = 0.001;
+        limiter.release.value = 0.050;
+        currentNode.connect(limiter);
+        currentNode = limiter;
+      }
+
+      currentNode.connect(offline.destination);
+      src.start(0);
+
+      const renderedBuffer = await offline.startRendering();
+      if (renderId !== this._bakeRenderId || token !== this._decodeToken) return;
+
+      const wavBlob = WinampAudioEngine.encodeAudioBufferWAV(renderedBuffer);
+      if (renderId !== this._bakeRenderId || token !== this._decodeToken) return;
+
+      if (this._bakedEqBlobUrl) {
+        try { URL.revokeObjectURL(this._bakedEqBlobUrl); } catch (e) {}
+      }
+      this._bakedEqBlobUrl = URL.createObjectURL(wavBlob);
+      this._bakedDspSignature = sig;
+
+      // Pre-load the EQ-baked WAV into the paused <audio> element so when the user minimizes the app or
+      // locks the screen, <audio> is ALREADY loaded with the exact same EQ sound!
+      if (this._isUsingBufferEngine && this.audio.paused) {
+        this._suppressNativeEvents = true;
+        this.audio.src = this._bakedEqBlobUrl;
+        this.audio.load();
+        this._suppressNativeEvents = false;
+      } else if (!this._isUsingBufferEngine && this.hasActiveDsp()) {
+        // If already in background / native mode, hot-swap to the baked EQ WAV at the current position
+        const wasPlaying = !this.audio.paused;
+        const cur = this.audio.currentTime || 0;
+        this._suppressNativeEvents = true;
+        this.audio.src = this._bakedEqBlobUrl;
+        try { this.audio.currentTime = cur; } catch (e) {}
+        this._suppressNativeEvents = false;
+        if (wasPlaying) {
+          this.audio.play().catch(() => {});
+        }
+      }
+    } catch (err) {
+      console.warn('Background EQ WAV bake skipped:', err);
+    }
   }
 
   rewireGraph() {
     this._syncPlaybackEngine();
+    this._scheduleBackgroundEqBake(300);
   }
 
   // Initialize Pure Web Audio DSP Graph (NO createMediaElementSource & NO AnalyserNode in series)
@@ -188,14 +343,14 @@ class WinampAudioEngine {
       this.panner = this.ctx.createStereoPanner ? this.ctx.createStereoPanner() : null;
       this.masterGain = this.ctx.createGain();
 
-      // Transparent Studio Brickwall Limiter to guarantee 0% digital clipping / static noise when EQ is boosted
+      // Transparent 0dBFS Peak Ceiling Limiter (does NOT reduce normal volume; only catches > -0.3dBFS peaks)
       if (this.ctx.createDynamicsCompressor) {
         this.limiter = this.ctx.createDynamicsCompressor();
-        this.limiter.threshold.value = -1.5; // dBFS ceiling
-        this.limiter.knee.value = 3.0;       // soft knee
+        this.limiter.threshold.value = -0.3; // dBFS ceiling (unity loudness)
+        this.limiter.knee.value = 0.0;       // hard ceiling only at peak
         this.limiter.ratio.value = 20.0;     // brickwall limiting
-        this.limiter.attack.value = 0.002;   // 2ms fast attack
-        this.limiter.release.value = 0.080;  // 80ms smooth release
+        this.limiter.attack.value = 0.001;   // 1ms fast attack
+        this.limiter.release.value = 0.050;  // 50ms release
       }
 
       this.preampGain.gain.value = this._computeEffectivePreampGain();
@@ -215,7 +370,7 @@ class WinampAudioEngine {
         return filter;
       });
 
-      // Clean Audio-Thread-Only Chain: Preamp -> 10 EQ Filters -> Panner -> Soft Limiter -> MasterGain -> Destination
+      // Clean Audio-Thread-Only Chain: Preamp -> 10 EQ Filters -> Panner -> Peak Limiter -> MasterGain -> Destination
       let currentNode = this.preampGain;
       for (const filter of this.eqFilters) {
         currentNode.connect(filter);
@@ -263,7 +418,7 @@ class WinampAudioEngine {
         this.ctx.resume().catch(() => {});
       }
 
-      // Pause native <audio> so OS Bluetooth A2DP mixer only receives ONE single audio stream (eliminates static/crackling!)
+      // Pause native <audio> so OS Bluetooth A2DP mixer only receives ONE single audio stream
       if (!this.audio.paused) {
         this._suppressNativeEvents = true;
         try { this.audio.pause(); } catch (e) {}
@@ -382,7 +537,6 @@ class WinampAudioEngine {
   async _syncPlaybackEngine() {
     if (this.activeMode !== 'audio') return;
 
-    // When minimized or screen is locked, always stay on Native Hardware <audio> so OS never suspends playback!
     const needDsp = this.hasActiveDsp() && !document.hidden;
 
     if (!needDsp) {
@@ -393,6 +547,13 @@ class WinampAudioEngine {
         this._bufferPlaying = false;
         this._stopBufferTimer();
         this._stopBufferSource();
+
+        const targetUrl = (this.hasActiveDsp() && this._bakedEqBlobUrl) ? this._bakedEqBlobUrl : this._originalBlobUrl;
+        if (targetUrl && this.audio.src !== targetUrl) {
+          this._suppressNativeEvents = true;
+          this.audio.src = targetUrl;
+          this._suppressNativeEvents = false;
+        }
 
         this.audio.muted = false;
         this.audio.volume = this.volumeValue;
@@ -534,10 +695,11 @@ class WinampAudioEngine {
     }
     if (userInitiated) {
       this._syncPlaybackEngine();
+      this._scheduleBackgroundEqBake(350);
     }
   }
 
-  // Preamp Gain (-12dB to +12dB) - Instant 0ms real-time response with auto-headroom
+  // Preamp Gain (-12dB to +12dB) - Instant 0ms real-time response
   setPreamp(db, userInitiated = false) {
     this.preampValue = db;
     if (userInitiated && Math.abs(db) > 0.05 && !this.isInitialized) {
@@ -552,6 +714,7 @@ class WinampAudioEngine {
     }
     if (userInitiated) {
       this._syncPlaybackEngine();
+      this._scheduleBackgroundEqBake(350);
     }
   }
 
@@ -578,6 +741,7 @@ class WinampAudioEngine {
       }
       if (userInitiated) {
         this._syncPlaybackEngine();
+        this._scheduleBackgroundEqBake(350);
       }
     }
   }
@@ -600,6 +764,7 @@ class WinampAudioEngine {
     }
     if (userInitiated) {
       this._syncPlaybackEngine();
+      this._scheduleBackgroundEqBake(250);
     }
   }
 
@@ -611,6 +776,7 @@ class WinampAudioEngine {
       this.setBandGain(idx, val, false);
     });
     this._syncPlaybackEngine();
+    this._scheduleBackgroundEqBake(250);
     return true;
   }
 
@@ -864,6 +1030,17 @@ class WinampAudioEngine {
       }
     }
 
+    if (this._bakeDebounceTimer) {
+      clearTimeout(this._bakeDebounceTimer);
+      this._bakeDebounceTimer = null;
+    }
+    this._bakeRenderId++;
+    if (this._bakedEqBlobUrl) {
+      try { URL.revokeObjectURL(this._bakedEqBlobUrl); } catch (e) {}
+      this._bakedEqBlobUrl = '';
+    }
+    this._bakedDspSignature = '';
+
     this._stopBufferTimer();
     this._stopBufferSource();
     this._bufferPlaying = false;
@@ -901,17 +1078,22 @@ class WinampAudioEngine {
       srcUrl = source;
     }
 
-    // Always prepare the native <audio> element (used for background/lock-screen playback and flat EQ mode)
+    this._originalBlobUrl = srcUrl;
+
+    // Prepare the native <audio> element
     this.audio.muted = false;
     this.audio.volume = this.volumeValue;
     this.audio.src = srcUrl;
     this.audio.load();
 
-    const useDspNow = this.hasActiveDsp() && !document.hidden;
+    const useDspNow = this.hasActiveDsp();
     if (useDspNow && this._rawArrayBuffer) {
       this.initAudioGraph();
       await this._ensureAudioDecoded();
-      this._isUsingBufferEngine = Boolean(this._decodedAudioBuffer);
+      this._isUsingBufferEngine = Boolean(this._decodedAudioBuffer) && !document.hidden;
+      // Immediately start baking the EQ WAV in the background so if the user locks screen or minimizes,
+      // the background <audio> has the exact same EQ curve & volume!
+      this._scheduleBackgroundEqBake(80);
     } else {
       this._isUsingBufferEngine = false;
       if (this.isInitialized && this._rawArrayBuffer) {
@@ -946,7 +1128,7 @@ class WinampAudioEngine {
       return;
     }
 
-    // Use Web Audio Buffer Engine ONLY when in foreground AND EQ/DSP is active
+    // Use Web Audio Buffer Engine when in foreground AND EQ/DSP is active
     if (this.hasActiveDsp() && !document.hidden && this._rawArrayBuffer) {
       this.initAudioGraph();
       if (this.ctx && (this.ctx.state === 'suspended' || this.ctx.state === 'interrupted')) {
@@ -958,15 +1140,22 @@ class WinampAudioEngine {
       if (this._decodedAudioBuffer && !document.hidden) {
         this._isUsingBufferEngine = true;
         this._startBufferSourceAt(this._bufferPauseOffset || this.audio.currentTime || 0);
+        this._scheduleBackgroundEqBake(150);
         return;
       }
     }
 
-    // Otherwise play via 100% pure native hardware <audio>
+    // Otherwise play via native hardware <audio> (using EQ-baked WAV if DSP is active!)
     this._isUsingBufferEngine = false;
     this._bufferPlaying = false;
     this._stopBufferTimer();
     this._stopBufferSource();
+    const targetUrl = (this.hasActiveDsp() && this._bakedEqBlobUrl) ? this._bakedEqBlobUrl : this._originalBlobUrl;
+    if (targetUrl && this.audio.src !== targetUrl) {
+      this._suppressNativeEvents = true;
+      this.audio.src = targetUrl;
+      this._suppressNativeEvents = false;
+    }
     this.audio.muted = false;
     this.audio.volume = this.volumeValue;
     return this.audio.play();
@@ -1181,6 +1370,58 @@ class WinampAudioEngine {
     }
 
     return this.encodeWAV(buffer, sampleRate);
+  }
+
+  // Ultra-fast Stereo/Mono AudioBuffer -> 16-bit PCM WAV Blob encoder
+  static encodeAudioBufferWAV(audioBuffer) {
+    const numChannels = Math.min(2, audioBuffer.numberOfChannels || 1);
+    const sampleRate = audioBuffer.sampleRate || 44100;
+    const numFrames = audioBuffer.length;
+    const bytesPerSample = 2;
+    const blockAlign = numChannels * bytesPerSample;
+    const dataByteLength = numFrames * blockAlign;
+    const buffer = new ArrayBuffer(44 + dataByteLength);
+    const view = new DataView(buffer);
+
+    this.writeString(view, 0, 'RIFF');
+    view.setUint32(4, 36 + dataByteLength, true);
+    this.writeString(view, 8, 'WAVE');
+
+    this.writeString(view, 12, 'fmt ');
+    view.setUint32(16, 16, true);
+    view.setUint16(20, 1, true);
+    view.setUint16(22, numChannels, true);
+    view.setUint32(24, sampleRate, true);
+    view.setUint32(28, sampleRate * blockAlign, true);
+    view.setUint16(32, blockAlign, true);
+    view.setUint16(34, 16, true);
+
+    this.writeString(view, 36, 'data');
+    view.setUint32(40, dataByteLength, true);
+
+    const pcm16 = new Int16Array(buffer, 44, numFrames * numChannels);
+    if (numChannels === 2) {
+      const ch0 = audioBuffer.getChannelData(0);
+      const ch1 = audioBuffer.getChannelData(1);
+      let outIdx = 0;
+      for (let i = 0; i < numFrames; i++) {
+        let s0 = ch0[i];
+        let s1 = ch1[i];
+        s0 = s0 < -1 ? -1 : (s0 > 1 ? 1 : s0);
+        s1 = s1 < -1 ? -1 : (s1 > 1 ? 1 : s1);
+        pcm16[outIdx++] = s0 < 0 ? (s0 * 32768) | 0 : (s0 * 32767) | 0;
+        pcm16[outIdx++] = s1 < 0 ? (s1 * 32768) | 0 : (s1 * 32767) | 0;
+      }
+    } else {
+      const ch0 = audioBuffer.getChannelData(0);
+      for (let i = 0; i < numFrames; i++) {
+        let s0 = ch0[i];
+        s0 = s0 < -1 ? -1 : (s0 > 1 ? 1 : s0);
+        pcm16[i] = s0 < 0 ? (s0 * 32768) | 0 : (s0 * 32767) | 0;
+      }
+    }
+
+    return new Blob([buffer], { type: 'audio/wav' });
   }
 
   static encodeWAV(samples, sampleRate) {
