@@ -1,0 +1,1562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <title>Winamp</title>
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Winamp">
+  <meta name="theme-color" content="#2b283d">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <link rel="stylesheet" href="styles.css?v=4.9">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><polygon points='10,1 4,9 8,9 6,15 13,6 9,6' fill='%23ffcc00'/></svg>">
+</head>
+<body class="skin-midnight">
+  <!-- Hidden File Input for Custom Cassette Tape Skin Artwork -->
+  <input type="file" id="customTapeSkinInput" accept="image/*" style="display: none;" />
+  <!-- Hidden File Input for Custom iPod Album Cover Artwork -->
+  <input type="file" id="ipodCoverInput" accept="image/*" style="display: none;" />
+  <!-- Desktop / Background container -->
+  <div id="desktop">
+    <!-- Hidden file inputs -->
+    <input type="file" id="fileInput" accept="audio/*,.mp3,.wav,.ogg,.m4a,.flac" multiple style="display:none">
+    <input type="file" id="folderInput" webkitdirectory directory multiple style="display:none">
+
+    <!-- WINAMP WINDOW WORKSPACE -->
+    <div id="windows-container">
+      <div id="winamp-workspace">
+
+        <!-- ============================================== -->
+        <!-- 1. MAIN PLAYER WINDOW (275 x 116) -->
+        <!-- ============================================== -->
+      <div id="mainWindow" class="wa-window winamp-main" data-window="main">
+        <!-- Title Bar -->
+        <div class="wa-titlebar" id="mainTitlebar">
+          <div class="menu-btn-wrap main-menu-wrap">
+            <div class="wa-titlebar-menu" id="mainMenuBtn" title="Winamp Menu"></div>
+            <div class="popup-menu top-menu hidden" id="mainContextMenu">
+              <div class="menu-header">🎨 SELECT SKIN / PLAYER MODE</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuSkinModern">🎨 Skin: Modern Silver Blue</div>
+              <div class="menu-item" id="menuSkinMidnight">🎨 Skin: Midnight Gold</div>
+              <div class="menu-item" id="menuSkinCassette">📼 Skin: Walkman Cassette Player</div>
+              <div class="menu-item" id="menuSkinIpod">📱 Skin: iPod touch (Apple iOS)</div>
+              <div class="menu-item" id="menuSkinIpodClassic">💿 Skin: iPod Classic (Click Wheel)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuTogglePlay">⏯ Play / Pause (Space)</div>
+              <div class="menu-item" id="menuStopTrack">⏹ Stop (V)</div>
+              <div class="menu-item" id="menuPrevTrack">⏮ Previous (Z)</div>
+              <div class="menu-item" id="menuNextTrack">⏭ Next (B)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuToggleEqWin">🎚 Equalizer (Alt+G)</div>
+              <div class="menu-item" id="menuTogglePlWin">📜 Playlist Editor (Alt+E)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuTapeClear">📼 Tape: Clear Crystal (ม้วนใส)</div>
+              <div class="menu-item" id="menuTapeOrange">📼 Tape: Neon Orange (ม้วนส้มใส)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuOpenFiles">📂 Add Audio Files... (L)</div>
+              <div class="menu-item" id="menuOpenYoutube">▶️ Add YouTube Link... (Y)</div>
+              <div class="menu-item" id="menuOpenDemo">🎵 Load Demo Songs</div>
+              <div class="menu-item" id="menuResetWin">⟲ Reset Windows</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="menuShowHelp">⌨ Shortcuts & Help (F1)</div>
+            </div>
+          </div>
+          <div class="wa-titlebar-title-drag">WINAMP <span class="app-ver-badge">v4.9</span></div>
+          <div class="wa-titlebar-controls">
+            <button class="win-btn win-btn-minimize" id="mainMinBtn" title="Minimize"></button>
+            <button class="win-btn win-btn-shade" id="mainShadeBtn" title="Window Shade Mode"></button>
+            <button class="win-btn win-btn-close" id="mainCloseBtn" title="Close"></button>
+          </div>
+        </div>
+
+        <!-- Main Window Body -->
+        <div class="main-body">
+          <!-- Play / Pause / Stop Status Indicator -->
+          <div id="playStatusIcon" class="play-status-icon stop"></div>
+
+          <!-- 7-Segment Digital Time Display -->
+          <div class="time-display" id="timeDisplay" title="Click to toggle Elapsed / Remaining time">
+            <div class="digit-box digit-minus" id="timeMinus"></div>
+            <div class="digit-box digit-0" id="timeMinTen"></div>
+            <div class="digit-box digit-0" id="timeMinOne"></div>
+            <div class="digit-box digit-colon"></div>
+            <div class="digit-box digit-0" id="timeSecTen"></div>
+            <div class="digit-box digit-0" id="timeSecOne"></div>
+          </div>
+
+          <!-- Visualizer canvas (Spectrum Analyzer & Oscilloscope) -->
+          <div class="visualizer-container" id="visContainer" title="Click to switch Visualizer Mode (Spectrum / Oscilloscope / Off)">
+            <canvas id="visCanvas" width="76" height="16"></canvas>
+          </div>
+
+          <!-- Song title scrolling marquee banner -->
+          <div class="title-marquee-container" id="titleMarqueeContainer">
+            <div class="title-marquee" id="titleMarquee">WINAMP 2.91 (READY)</div>
+          </div>
+
+          <!-- KBPS, KHZ, MONO/STEREO Indicators -->
+          <div class="info-indicators">
+            <div class="kbps-box" id="kbpsDisplay">128</div>
+            <div class="khz-box" id="khzDisplay">44</div>
+            <div class="monoster-box stereo" id="monosterIndicator"></div>
+          </div>
+
+          <!-- Volume Slider -->
+          <div class="vol-slider-wrap" id="volTrack" title="Volume">
+            <div class="vol-track-bg" id="volTrackBg"></div>
+            <div class="vol-thumb" id="volThumb"></div>
+          </div>
+
+          <!-- Balance Slider -->
+          <div class="bal-slider-wrap" id="balTrack" title="Balance / Pan">
+            <div class="bal-track-bg" id="balTrackBg"></div>
+            <div class="bal-thumb" id="balThumb"></div>
+          </div>
+
+          <!-- EQ and PL Toggle Buttons -->
+          <button class="toggle-btn btn-eq active" id="btnToggleEQ" title="Toggle Equalizer Window (Alt+G)"></button>
+          <button class="toggle-btn btn-pl active" id="btnTogglePL" title="Toggle Playlist Window (Alt+E)"></button>
+
+          <!-- Song Position Scrubber (POSBAR) -->
+          <div class="posbar-wrap" id="seekTrack" title="Seek Position">
+            <div class="posbar-thumb" id="seekThumb"></div>
+          </div>
+
+          <!-- Bottom Transport Buttons (CBUTTONS) -->
+          <button class="cbutton btn-prev" id="btnPrev" title="Previous Track (Z)"></button>
+          <button class="cbutton btn-play" id="btnPlay" title="Play (X)"></button>
+          <button class="cbutton btn-pause" id="btnPause" title="Pause (C)"></button>
+          <button class="cbutton btn-stop" id="btnStop" title="Stop (V)"></button>
+          <button class="cbutton btn-next" id="btnNext" title="Next Track (B)"></button>
+          <button class="cbutton btn-eject" id="btnEject" title="Open Audio File(s) (L)"></button>
+
+          <!-- Shuffle & Repeat (SHUFREP) -->
+          <button class="shufrep-btn btn-shuffle" id="btnShuffle" title="Shuffle Mode (S)"></button>
+          <button class="shufrep-btn btn-repeat active" id="btnRepeat" title="Repeat Mode (R)"></button>
+
+          <!-- About / Lightning bolt button -->
+          <div class="lightning-btn" id="btnAbout" title="Winamp Web - Info"></div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- 2. EQUALIZER WINDOW (275 x 116) -->
+      <!-- ============================================== -->
+      <div id="eqWindow" class="wa-window winamp-eq" data-window="eq">
+        <!-- Title Bar -->
+        <div class="wa-titlebar eq-titlebar" id="eqTitlebar">
+          <div class="wa-titlebar-menu"></div>
+          <div class="wa-titlebar-title-drag">WINAMP EQUALIZER</div>
+          <div class="wa-titlebar-controls">
+            <button class="win-btn win-btn-shade" id="eqShadeBtn" title="Window Shade Mode"></button>
+            <button class="win-btn win-btn-close" id="eqCloseBtn" title="Close Equalizer"></button>
+          </div>
+        </div>
+
+        <!-- Equalizer Body -->
+        <div class="eq-body">
+          <!-- Top Row: On/Auto switches, curve screen, and presets -->
+          <button class="eq-toggle-btn eq-on-btn active" id="eqOnBtn" title="Toggle EQ"></button>
+          <button class="eq-toggle-btn eq-auto-btn" id="eqAutoBtn" title="Toggle Auto EQ"></button>
+
+          <!-- EQ Curve Graphic Display -->
+          <div class="eq-curve-display">
+            <canvas id="eqCanvas" width="113" height="19"></canvas>
+          </div>
+
+          <!-- Presets Button & Dropdown Menu -->
+          <div class="eq-presets-wrap">
+            <button class="eq-presets-btn" id="eqPresetsBtn" title="Presets"></button>
+            <div class="presets-dropdown hidden" id="presetsMenu">
+              <div class="preset-item" data-preset="flat">Flat (Default)</div>
+              <div class="preset-item" data-preset="rock">Rock</div>
+              <div class="preset-item" data-preset="pop">Pop</div>
+              <div class="preset-item" data-preset="techno">Techno</div>
+              <div class="preset-item" data-preset="classical">Classical</div>
+              <div class="preset-item" data-preset="club">Club</div>
+              <div class="preset-item" data-preset="dance">Dance</div>
+              <div class="preset-item" data-preset="fullbass">Full Bass</div>
+              <div class="preset-item" data-preset="fullbasstreble">Full Bass & Treble</div>
+              <div class="preset-item" data-preset="fulltreble">Full Treble</div>
+              <div class="preset-item" data-preset="laptopspeakers">Laptop Speakers</div>
+              <div class="preset-item" data-preset="live">Live</div>
+              <div class="preset-item" data-preset="party">Party</div>
+              <div class="preset-item" data-preset="reggae">Reggae</div>
+              <div class="preset-item" data-preset="softrock">Soft Rock</div>
+              <div class="preset-item" data-preset="vocal">Vocal</div>
+              <div class="preset-divider"></div>
+              <div class="preset-item" id="btnResetEQ">Reset to Flat</div>
+            </div>
+          </div>
+
+          <!-- Sliders Grid: Preamp + 10 Bands -->
+          <div class="eq-sliders-container">
+            <!-- Preamp Slider -->
+            <div class="eq-fader-track" data-band="preamp" id="faderTrackPreamp">
+              <div class="eq-fader-thumb" id="faderPreamp" style="bottom: 50%;"></div>
+            </div>
+
+            <!-- 10 Frequency Bands -->
+            <div class="eq-fader-track" data-band="60" id="faderTrack60">
+              <div class="eq-fader-thumb" id="fader60" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="170" id="faderTrack170">
+              <div class="eq-fader-thumb" id="fader170" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="310" id="faderTrack310">
+              <div class="eq-fader-thumb" id="fader310" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="600" id="faderTrack600">
+              <div class="eq-fader-thumb" id="fader600" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="1000" id="faderTrack1000">
+              <div class="eq-fader-thumb" id="fader1000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="3000" id="faderTrack3000">
+              <div class="eq-fader-thumb" id="fader3000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="6000" id="faderTrack6000">
+              <div class="eq-fader-thumb" id="fader6000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="12000" id="faderTrack12000">
+              <div class="eq-fader-thumb" id="fader12000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="14000" id="faderTrack14000">
+              <div class="eq-fader-thumb" id="fader14000" style="bottom: 50%;"></div>
+            </div>
+            <div class="eq-fader-track" data-band="16000" id="faderTrack16000">
+              <div class="eq-fader-thumb" id="fader16000" style="bottom: 50%;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- 3. PLAYLIST WINDOW (275 x RESIZABLE) -->
+      <!-- ============================================== -->
+      <div id="plWindow" class="wa-window winamp-pl" data-window="pl">
+        <!-- Title Bar -->
+        <div class="pl-top-bar" id="plTitlebar">
+          <div class="pl-titlebar-drag"></div>
+          <div class="pl-titlebar-controls">
+            <button class="win-btn win-btn-shade" id="plShadeBtn" title="Window Shade Mode"></button>
+            <button class="win-btn win-btn-close" id="plCloseBtn" title="Close Playlist"></button>
+          </div>
+        </div>
+
+        <!-- Playlist Middle Screen Area (Bounded & Scrollable) -->
+        <div class="pl-middle-wrap">
+          <div class="pl-border-left"></div>
+          
+          <div class="pl-screen" id="plListDropZone">
+            <div class="pl-scrollable" id="plList">
+              <div class="pl-empty-tip">
+                <div>(Playlist is empty)</div>
+                <div class="pl-sub-tip">Drop MP3 / WAV files here or click + ADD below</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="pl-border-right">
+            <div class="pl-scrollbar-track" id="plScrollTrack">
+              <div class="pl-scrollbar-thumb" id="plScrollThumb"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Playlist Bottom Control Bar (Fixed Anchor) -->
+        <div class="pl-bottom-bar">
+          <!-- Action Buttons: ADD, REM, SEL, MISC -->
+          <div class="menu-btn-wrap pl-btn-wrap-add">
+            <button class="pledif-btn btn-pl-add" id="plAddBtn" title="Add tracks"></button>
+            <div class="popup-menu hidden" id="plAddMenu">
+              <div class="menu-item" id="menuAddYoutube">▶️ Add YouTube Link...</div>
+              <div class="menu-item" id="menuAddFile">Add File(s)...</div>
+              <div class="menu-item" id="menuAddFolder">Add Directory...</div>
+              <div class="menu-item" id="menuAddDemo">Add Demo Songs</div>
+            </div>
+          </div>
+
+          <div class="menu-btn-wrap pl-btn-wrap-rem">
+            <button class="pledif-btn btn-pl-rem" id="plRemBtn" title="Remove tracks"></button>
+            <div class="popup-menu hidden" id="plRemMenu">
+              <div class="menu-item" id="menuRemSelected">Remove Selected</div>
+              <div class="menu-item" id="menuRemCrop">Crop (Keep Selected)</div>
+              <div class="menu-item" id="menuRemAll">Clear Entire Playlist</div>
+            </div>
+          </div>
+
+          <div class="menu-btn-wrap pl-btn-wrap-sel">
+            <button class="pledif-btn btn-pl-sel" id="plSelBtn" title="Selection options"></button>
+            <div class="popup-menu hidden" id="plSelMenu">
+              <div class="menu-item" id="menuSelAll">Select All</div>
+              <div class="menu-item" id="menuSelNone">Select None</div>
+              <div class="menu-item" id="menuSelInvert">Invert Selection</div>
+            </div>
+          </div>
+
+          <div class="menu-btn-wrap pl-btn-wrap-misc">
+            <button class="pledif-btn btn-pl-misc" id="plMiscBtn" title="Misc actions"></button>
+            <div class="popup-menu hidden" id="plMiscMenu">
+              <div class="menu-item" id="menuSortTitle">Sort List by Title</div>
+              <div class="menu-item" id="menuSortFilename">Sort List by Filename</div>
+              <div class="menu-item" id="menuShuffleList">Randomize / Shuffle List</div>
+              <div class="menu-item" id="menuReverseList">Reverse List</div>
+            </div>
+          </div>
+
+          <!-- Time Displays in Playlist -->
+          <div class="pl-time-display-box" id="plTotalTime">0:00/0:00</div>
+          <div class="pl-cur-time-box" id="plCurTime">00:00</div>
+
+          <!-- Mini Transport Controls in Playlist -->
+          <div class="pl-mini-transport">
+            <button class="pl-mini-btn mini-prev" id="plMiniPrev" title="Previous"></button>
+            <button class="pl-mini-btn mini-play" id="plMiniPlay" title="Play"></button>
+            <button class="pl-mini-btn mini-pause" id="plMiniPause" title="Pause"></button>
+            <button class="pl-mini-btn mini-stop" id="plMiniStop" title="Stop"></button>
+            <button class="pl-mini-btn mini-next" id="plMiniNext" title="Next"></button>
+            <button class="pl-mini-btn mini-eject" id="plMiniEject" title="Open"></button>
+          </div>
+
+          <!-- LIST OPTS Button on Right -->
+          <div class="menu-btn-wrap pl-btn-wrap-opts">
+            <button class="pledif-btn btn-pl-opts" id="plOptsBtn" title="Playlist Options"></button>
+            <div class="popup-menu right-aligned hidden" id="plOptsMenu">
+              <div class="menu-item" id="menuExportM3U">Export to M3U...</div>
+              <div class="menu-item" id="menuSavePlaylist">Save Playlist to DB</div>
+              <div class="menu-item" id="menuReloadStorage">Reload Stored Songs</div>
+            </div>
+          </div>
+
+          <!-- Resizable Handles (Authentic Winamp Bottom-Right Grip & Bottom Edge) -->
+          <div class="pl-resize-bottom" id="plResizeBottom" title="Drag to Resize Playlist Window"></div>
+          <div class="pl-resize-handle" id="plResizeHandle" title="Drag to Resize Playlist (Double-click to toggle size)"></div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- 4. CASSETTE PLAYER DECK WINDOW (275 x 232) -->
+      <!-- ============================================== -->
+      <div id="cassetteWindow" class="wa-window winamp-cassette" data-window="cassette">
+        <div class="wa-titlebar" id="cassetteTitlebar">
+          <div class="menu-btn-wrap">
+            <div class="wa-titlebar-menu" id="cassetteMenuBtn" title="Tape & Skin Menu"></div>
+            <div class="popup-menu top-menu hidden" id="cassetteContextMenu">
+              <div class="menu-header">🎨 SELECT SKIN / MODE</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuSkinModern">🎨 Winamp: Modern Silver Blue</div>
+              <div class="menu-item" id="cmenuSkinMidnight">🎨 Winamp: Midnight Gold</div>
+              <div class="menu-item active" id="cmenuSkinCassette">📼 Walkman Cassette Player</div>
+              <div class="menu-item" id="cmenuSkinIpod">📱 Skin: iPod touch (Apple iOS)</div>
+              <div class="menu-item" id="cmenuSkinIpodClassic">💿 Skin: iPod Classic (Click Wheel)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-header">📼 CASSETTE TAPE</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuTapeClear">📼 ม้วนใสคริสตัล (Clear Crystal)</div>
+              <div class="menu-item" id="cmenuTapeOrange">📼 ม้วนส้มใส (Neon Orange)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuCustomTapeSkin">🎨 ใส่รูปลวดลายบนม้วนเทป (Custom Tape Art...)</div>
+              <div class="menu-item hidden" id="cmenuResetTapeSkin">❌ ลบลวดลายม้วนเทป (Reset Default)</div>
+              <div class="menu-item" id="cmenuYoutube">▶️ วางลิงก์ YouTube (Play YouTube Link...)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuTapeFlip">🔄 พลิกหน้าเทป (Side A / Side B)</div>
+              <div class="menu-item" id="cmenuSoundFx">🔊 เสียงกลไกเทป (Sound FX: เปิด)</div>
+              <div class="menu-separator"></div>
+              <div class="menu-item" id="cmenuToggleEQ">🎚 เปิด/ปิด อีควอไลเซอร์ (Equalizer)</div>
+              <div class="menu-item" id="cmenuTogglePL">📜 เปิด/ปิด เพลย์ลิสต์ (Playlist)</div>
+              <div class="menu-item" id="cmenuOpenWalkman">📻 ขยายเป็น Walkman เต็มจอ</div>
+              <div class="menu-item" id="cmenuClose">⚡ สลับกลับเป็น Winamp</div>
+            </div>
+          </div>
+          <div class="wa-titlebar-title-drag">PORTABLE CASSETTE PLAYER <span class="app-ver-badge">v4.9</span></div>
+          <div class="wa-titlebar-controls">
+            <button class="win-btn win-btn-shade" id="cassetteShadeBtn" title="Window Shade"></button>
+            <button class="win-btn win-btn-close" id="cassetteCloseBtn" title="Back to Winamp"></button>
+          </div>
+        </div>
+
+        <!-- Cassette Deck Window Body -->
+        <div class="cassette-deck-body">
+          <!-- Header bar with Model, Counter and LED -->
+          <div class="deck-top-bar">
+            <div class="deck-model-tag">PORTABLE STEREO</div>
+            <div class="deck-counter-wrap">
+              <span class="deck-counter-label">TAPE</span>
+              <span class="deck-counter-num" id="deckCounter">000</span>
+              <button class="deck-counter-rst" id="deckCounterReset" title="Reset Counter">R</button>
+            </div>
+            <div class="deck-top-controls">
+              <button class="deck-yt-btn" id="btnDeckYoutube" title="วางลิงก์ YouTube เพื่อเล่นเพลง (Play YouTube Link)">
+                <svg viewBox="0 0 24 17" class="yt-logo-svg" aria-hidden="true">
+                  <path d="M23.5 2.7a3 3 0 0 0-2.1-2.1C19.5 0 12 0 12 0S4.5 0 2.6.6A3 3 0 0 0 .5 2.7C0 4.6 0 8.5 0 8.5s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z" fill="#ff0033"/>
+                  <polygon points="9.5,12.2 16,8.5 9.5,4.8" fill="#ffffff"/>
+                </svg>
+              </button>
+              <button class="deck-photo-btn" id="btnUploadTapePhoto" title="เลือกรูปใส่บนม้วนเทป (Custom Tape Photo)">📷</button>
+              <div class="deck-status-led" id="deckLed" title="Tape Motor Running"></div>
+              <button class="deck-winamp-btn" id="btnDeckIpod" title="สลับไปสกิน iPod touch (Switch to iPod touch)">📱</button>
+              <button class="deck-winamp-btn" id="btnCassetteToWinamp" title="สลับกลับไปสกิน Winamp (Switch to Winamp)">⚡</button>
+            </div>
+          </div>
+
+          <!-- Cassette Compartment Window -->
+          <div class="cassette-well">
+            <div class="cassette-housing" id="cassetteHousing">
+              <!-- Cassette Card (Click to cycle tape color) -->
+              <div class="cassette-tape-card tape-clear" id="cassetteCard" title="คลิกเพื่อเปลี่ยนสีม้วนเทป (Click to switch tape color)">
+                <!-- The Razor-Sharp Image -->
+                <img class="cassette-img" id="cassetteImg" src="assets/cassette/tape-clear-clean.png?v=3.1" alt="Cassette Tape" />
+                
+                <!-- Dynamic Tape Ribbon Spools -->
+                <div class="tape-pack tape-pack-left" id="tapePackLeft"></div>
+                <div class="tape-pack tape-pack-right" id="tapePackRight"></div>
+
+                <!-- 6-Tooth High-Contrast Spinning Hubs with Central Drive Spindle -->
+                <div class="tape-hub hub-left" id="hubLeft">
+                  <img class="hub-img" src="assets/cassette/cassette-reel-spool.png?v=3.1" alt="Cassette Reel" />
+                </div>
+                <div class="tape-hub hub-right" id="hubRight">
+                  <img class="hub-img" src="assets/cassette/cassette-reel-spool.png?v=3.1" alt="Cassette Reel" />
+                </div>
+
+                <!-- Custom Uploaded Tape Photo (Frontmost with punched spool holes) -->
+                <div class="cassette-custom-skin" id="cassetteCustomSkin"></div>
+
+                <!-- Cassette Tape Paper Label -->
+                <div class="cassette-label-strip" id="cassetteLabelStrip">
+                  <div class="tape-side-stamp" id="tapeSideStamp">A</div>
+                  <div class="tape-info-text">
+                    <div class="tape-title" id="tapeTitle">WINAMP DEMO TRACK</div>
+                    <div class="tape-artist" id="tapeArtist">MIXTAPE 1998</div>
+                  </div>
+                  <div class="tape-c60-badge">C-60</div>
+                </div>
+
+                <!-- Acrylic Window Glare Overlay -->
+                <div class="cassette-glare"></div>
+              </div>
+
+              <!-- Vintage Transparent Acrylic Lid / Door (Sony Walkman TCS-350 Style) -->
+              <div class="cassette-door-lid" id="cassetteDoorLid" aria-hidden="true">
+                <div class="lid-bezel-frame">
+                  <div class="lid-hinge lid-hinge-top"></div>
+                  <div class="lid-hinge lid-hinge-btm"></div>
+                  <div class="lid-latch-grip"></div>
+                </div>
+                <div class="lid-acrylic-pane">
+                  <div class="lid-glass-sheen"></div>
+                  <!-- Sony Walkman Scale Ruler & Arrow -->
+                  <div class="lid-scale-marks">
+                    <span class="scale-val scale-10">10</span>
+                    <div class="scale-ruler-col">
+                      <span class="scale-tick major"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick major"></span>
+                      <span class="scale-arrow-icon">⬇</span>
+                      <span class="scale-tick major"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick"></span>
+                      <span class="scale-tick major"></span>
+                    </div>
+                    <span class="scale-val scale-0">0</span>
+                  </div>
+                  <!-- Walkman Vintage Brand Stamp on Glass -->
+                  <div class="lid-brand-stamp">
+                    <span>STEREO CASSETTE-CORDER</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Deck Bar: Hardware Transport Controls -->
+          <div class="deck-bottom-bar">
+            <!-- Hardware Vector Control Buttons (No Emoji) -->
+            <div class="deck-transport">
+              <!-- Rewind -->
+              <button class="mech-btn btn-mech-rew" id="mechRew" title="Rewind 10s">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <polygon points="11,5 1,12 11,19"/>
+                  <polygon points="21,5 11,12 21,19"/>
+                </svg>
+              </button>
+              <!-- Play -->
+              <button class="mech-btn btn-mech-play" id="mechPlay" title="Play">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <polygon points="6,4 20,12 6,20"/>
+                </svg>
+              </button>
+              <!-- Pause -->
+              <button class="mech-btn btn-mech-pause" id="mechPause" title="Pause">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <rect x="5" y="4" width="4.5" height="16" rx="1"/>
+                  <rect x="14.5" y="4" width="4.5" height="16" rx="1"/>
+                </svg>
+              </button>
+              <!-- Stop -->
+              <button class="mech-btn btn-mech-stop" id="mechStop" title="Stop">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <rect x="4.5" y="4.5" width="15" height="15" rx="1.5"/>
+                </svg>
+              </button>
+              <!-- Fast Forward -->
+              <button class="mech-btn btn-mech-ff" id="mechFF" title="Fast Forward 10s">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <polygon points="3,5 13,12 3,19"/>
+                  <polygon points="13,5 23,12 13,19"/>
+                </svg>
+              </button>
+              <!-- Eject / Flip Side -->
+              <button class="mech-btn btn-mech-eject" id="mechEject" title="Flip Side A/B (Eject)">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <polygon points="12,4 4,13 20,13"/>
+                  <rect x="4" y="16" width="16" height="3" rx="0.5"/>
+                </svg>
+              </button>
+            </div>
+
+            <!-- Equalizer, Playlist and Walkman expand buttons -->
+            <div class="deck-extra-actions">
+              <button class="deck-action-icon-btn" id="btnCassetteToggleEQ" title="เปิด/ปิด Equalizer (EQ)">EQ</button>
+              <button class="deck-action-icon-btn active" id="btnCassetteTogglePL" title="Toggle Playlist Drawer">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <line x1="4" y1="6" x2="20" y2="6" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="4" y1="12" x2="20" y2="12" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                  <line x1="4" y1="18" x2="14" y2="18" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/>
+                </svg>
+              </button>
+              <button class="walkman-open-btn" id="btnOpenWalkmanModal" title="Full Portable Walkman Mode">
+                <svg viewBox="0 0 24 24" class="btn-icon-svg">
+                  <path d="M4 8V4h4M16 4h4v4M4 16v4h4M20 16v4h-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- 5. APPLE iPOD TOUCH SKIN (340 x 640)           -->
+      <!-- ============================================== -->
+      <div id="ipodWindow" class="ipod-device hidden" data-window="ipod">
+        <!-- Top Physical Sleep / Wake Power Button -->
+        <button class="ipod-sleep-btn" id="ipodSleepBtn" title="Sleep / Wake Lock Screen (ล็อกหน้าจอ iPod)"></button>
+
+        <!-- Polished Stainless Steel Outer Rim & Piano Black Glass Chassis -->
+        <div class="ipod-steel-frame">
+          <div class="ipod-glass-face">
+            <!-- Top Bezel: Ambient Light Sensor & Front Camera -->
+            <div class="ipod-top-bezel">
+              <div class="ipod-sensor-pill"></div>
+              <div class="ipod-camera-dot"></div>
+            </div>
+
+            <!-- 3.5-inch Multi-Touch Retina Display (320 x 480) -->
+            <div class="ipod-screen" id="ipodScreen">
+              <!-- 1. iOS Status Bar (20px) -->
+              <div class="ipod-statusbar" id="ipodStatusbar">
+                <div class="ipod-sb-left">
+                  <span class="ipod-carrier">iPod</span>
+                  <svg class="ipod-wifi-svg" viewBox="0 0 16 12" aria-hidden="true">
+                    <path d="M8 9.5a1.3 1.3 0 1 0 0 2.6 1.3 1.3 0 0 0 0-2.6zm-3.2-2a4.6 4.6 0 0 1 6.4 0l1.1-1.1a6.2 6.2 0 0 0-8.6 0l1.1 1.1zm-2.4-2.4a8 8 0 0 1 11.2 0l1.1-1.1a9.6 9.6 0 0 0-13.4 0l1.1 1.1z" fill="currentColor"/>
+                  </svg>
+                </div>
+                <div class="ipod-sb-center">
+                  <span id="ipodStatusTime">10:42 AM</span>
+                </div>
+                <div class="ipod-sb-right">
+                  <span class="ipod-sb-play" id="ipodStatusPlay">▶</span>
+                  <span class="app-ver-badge ipod-ver-badge">v4.9</span>
+                  <div class="ipod-battery" title="Battery 100%">
+                    <div class="ipod-battery-body">
+                      <div class="ipod-battery-fill"></div>
+                    </div>
+                    <div class="ipod-battery-tip"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- 2. iOS Top Navigation Bar (44px) -->
+              <div class="ipod-navbar" id="ipodNavbar">
+                <button class="ipod-nav-btn ipod-nav-back" id="ipodNavLeftBtn" title="Songs / Playlists">
+                  <span class="ipod-back-arrow">◄</span>
+                  <span id="ipodNavLeftLabel">Songs</span>
+                </button>
+                <div class="ipod-nav-center" id="ipodNavCenter">
+                  <div class="ipod-nav-track-info" id="ipodNavTrackInfo">
+                    <div class="ipod-nav-artist" id="ipodNavArtist">Winamp</div>
+                    <div class="ipod-nav-title" id="ipodNavTitle">Now Playing</div>
+                    <div class="ipod-nav-album" id="ipodNavAlbum">iPod touch</div>
+                  </div>
+                  <div class="ipod-nav-view-title hidden" id="ipodNavViewTitle">Songs</div>
+                </div>
+                <button class="ipod-nav-btn ipod-nav-right" id="ipodNavRightBtn" title="Flip Album Tracklist / Options">
+                  <svg viewBox="0 0 20 20" class="ipod-flip-svg" id="ipodNavRightIcon">
+                    <rect x="2" y="3" width="16" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/>
+                    <line x1="5.5" y1="7" x2="14.5" y2="7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="5.5" y1="10" x2="14.5" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                    <line x1="5.5" y1="13" x2="11.5" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                  </svg>
+                </button>
+              </div>
+
+              <!-- 3. Main iOS Viewport Area -->
+              <div class="ipod-viewport" id="ipodViewport">
+
+                <!-- ========================================== -->
+                <!-- VIEW A: NOW PLAYING (3D Cover + Controls)  -->
+                <!-- ========================================== -->
+                <div class="ipod-view active" id="ipodViewNowPlaying" data-view="nowplaying">
+                  <!-- Top Translucent Scrubber Overlay -->
+                  <div class="ipod-scrubber-bar" id="ipodScrubberBar">
+                    <div class="ipod-scrubber-top">
+                      <button class="ipod-sub-btn" id="ipodRepeatBtn" title="Repeat Mode">
+                        <svg viewBox="0 0 20 20" class="ipod-sub-svg">
+                          <path d="M5 6h9v2.5l3.5-3.5L14 1.5V4H4a2 2 0 0 0-2 2v4h2V6zm10 8H6v-2.5L2.5 15 6 18.5V16h10a2 2 0 0 0 2-2v-4h-2v4z" fill="currentColor"/>
+                        </svg>
+                      </button>
+                      <span class="ipod-track-index" id="ipodTrackCount">1 of 8</span>
+                      <button class="ipod-sub-btn" id="ipodShuffleBtn" title="Shuffle Mode">
+                        <svg viewBox="0 0 20 20" class="ipod-sub-svg">
+                          <path d="M14 4h2.5L13 7.5 14.4 9 18 5.4V8h1.5V2.5H14V4zM2 5.5h3.2l8.3 9H16v2.5l3.5-3.5L16 10v2.5h-1.8l-8.3-9H2v2zm0 9h3.8l2.7-2.9-1.4-1.4L5 12.5H2v2z" fill="currentColor"/>
+                        </svg>
+                      </button>
+                    </div>
+                    <div class="ipod-scrubber-row">
+                      <span class="ipod-time-lbl" id="ipodTimeElapsed">0:00</span>
+                      <div class="ipod-seek-track" id="ipodSeekTrack" title="Drag to scrub song">
+                        <div class="ipod-seek-fill" id="ipodSeekFill" style="width: 0%;"></div>
+                        <div class="ipod-seek-thumb" id="ipodSeekThumb" style="left: 0%;"></div>
+                      </div>
+                      <span class="ipod-time-lbl ipod-time-rem" id="ipodTimeRemaining">-0:00</span>
+                    </div>
+                  </div>
+
+                  <!-- Center 3D Flippable Album Stage with Floor Reflection -->
+                  <div class="ipod-album-stage" id="ipodAlbumStage">
+                    <div class="ipod-flip-card" id="ipodFlipCard">
+                      <!-- FRONT: Glossy Album Cover + 3D Floor Reflection -->
+                      <div class="ipod-cover-face ipod-cover-front" id="ipodCoverFront" title="แตะเพื่อเปิด/ปิดแถบเวลา หรือดับเบิลคลิกเพื่อพลิกดูรายชื่อเพลงหลังอัลบั้ม">
+                        <div class="ipod-artwork-wrap">
+                          <canvas id="ipodArtworkCanvas" width="360" height="360" class="ipod-artwork-canvas"></canvas>
+                          <img id="ipodArtworkImg" class="ipod-artwork-img hidden" alt="Album Cover" crossorigin="anonymous" />
+                          <div class="ipod-artwork-gloss"></div>
+                          <!-- Mini EQ Spectrum Visualizer Badge on Cover -->
+                          <canvas id="ipodMiniVisCanvas" width="68" height="22" class="ipod-mini-vis"></canvas>
+                        </div>
+                        <!-- Authentic iPod touch 3D Floor Reflection -->
+                        <div class="ipod-artwork-reflection">
+                          <canvas id="ipodReflectCanvas" width="360" height="90" class="ipod-reflect-canvas"></canvas>
+                          <div class="ipod-reflect-fade"></div>
+                        </div>
+                      </div>
+
+                      <!-- BACK: On-Album Tracklist & 5-Star Rating -->
+                      <div class="ipod-cover-face ipod-cover-back" id="ipodCoverBack">
+                        <div class="ipod-back-header">
+                          <canvas id="ipodBackThumbCanvas" width="64" height="64" class="ipod-back-thumb"></canvas>
+                          <div class="ipod-back-meta">
+                            <div class="ipod-back-title" id="ipodBackTitle">Track Title</div>
+                            <div class="ipod-back-artist" id="ipodBackArtist">Artist</div>
+                            <div class="ipod-star-rating" id="ipodStarRating" title="Rate this song">
+                              <span class="ipod-star active" data-star="1">★</span>
+                              <span class="ipod-star active" data-star="2">★</span>
+                              <span class="ipod-star active" data-star="3">★</span>
+                              <span class="ipod-star active" data-star="4">★</span>
+                              <span class="ipod-star active" data-star="5">★</span>
+                            </div>
+                          </div>
+                          <button class="ipod-back-cover-btn" id="ipodBtnCustomCover" title="เปลี่ยนรูปปกอัลบั้ม (Upload Custom Cover)">📷</button>
+                        </div>
+                        <div class="ipod-back-tracklist" id="ipodBackTracklist"></div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Bottom Glossy Black Glass Transport & Volume Dock -->
+                  <div class="ipod-bottom-dock" id="ipodBottomDock">
+                    <div class="ipod-dock-transport">
+                      <!-- Previous / Rewind -->
+                      <button class="ipod-trans-btn" id="ipodPrevBtn" title="Previous / Hold to Rewind">
+                        <svg viewBox="0 0 32 22" class="ipod-trans-svg">
+                          <rect x="2" y="3" width="3.2" height="16" rx="0.8" fill="currentColor"/>
+                          <polygon points="17,3 5.5,11 17,19" fill="currentColor"/>
+                          <polygon points="29,3 17.5,11 29,19" fill="currentColor"/>
+                        </svg>
+                      </button>
+
+                      <!-- Play / Pause -->
+                      <button class="ipod-trans-btn ipod-play-btn" id="ipodPlayPauseBtn" title="Play / Pause">
+                        <svg viewBox="0 0 26 24" class="ipod-trans-svg" id="ipodPlaySvg">
+                          <polygon points="5,2 23,12 5,22" fill="currentColor"/>
+                        </svg>
+                        <svg viewBox="0 0 26 24" class="ipod-trans-svg hidden" id="ipodPauseSvg">
+                          <rect x="5" y="3" width="5.5" height="18" rx="1.2" fill="currentColor"/>
+                          <rect x="15.5" y="3" width="5.5" height="18" rx="1.2" fill="currentColor"/>
+                        </svg>
+                      </button>
+
+                      <!-- Next / Fast-Forward -->
+                      <button class="ipod-trans-btn" id="ipodNextBtn" title="Next / Hold to Fast-Forward">
+                        <svg viewBox="0 0 32 22" class="ipod-trans-svg">
+                          <polygon points="3,3 14.5,11 3,19" fill="currentColor"/>
+                          <polygon points="15,3 26.5,11 15,19" fill="currentColor"/>
+                          <rect x="26.8" y="3" width="3.2" height="16" rx="0.8" fill="currentColor"/>
+                        </svg>
+                      </button>
+                    </div>
+
+                    <!-- Iconic iOS Brushed Aluminum Volume Slider -->
+                    <div class="ipod-volume-row">
+                      <svg viewBox="0 0 16 16" class="ipod-vol-icon">
+                        <path d="M2 6h3l4-3.5v11L5 10H2V6z" fill="currentColor"/>
+                      </svg>
+                      <div class="ipod-vol-track" id="ipodVolTrack" title="Volume">
+                        <div class="ipod-vol-fill" id="ipodVolFill" style="width: 80%;"></div>
+                        <div class="ipod-vol-thumb" id="ipodVolThumb" style="left: 80%;"></div>
+                      </div>
+                      <svg viewBox="0 0 20 16" class="ipod-vol-icon">
+                        <path d="M2 6h3l4-3.5v11L5 10H2V6zm10.5-1.5a4.5 4.5 0 0 1 0 7l-1.1-1.1a3 3 0 0 0 0-4.8l1.1-1.1zm2.3-2.3a7.8 7.8 0 0 1 0 11.6l-1.1-1.1a6.2 6.2 0 0 0 0-9.4l1.1-1.1z" fill="currentColor"/>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- VIEW B: SONGS / PLAYLIST (UITableView)     -->
+                <!-- ========================================== -->
+                <div class="ipod-view" id="ipodViewSongs" data-view="songs">
+                  <div class="ipod-search-toolbar">
+                    <div class="ipod-search-box">
+                      <span class="ipod-search-icon">🔍</span>
+                      <input type="text" id="ipodSearchInput" class="ipod-search-input" placeholder="Search Songs, Artists..." autocomplete="off" />
+                    </div>
+                    <div class="ipod-playlist-actions">
+                      <button class="ipod-pill-btn ipod-pill-blue" id="ipodBtnAddMp3" title="Add MP3 / Audio Files">+ MP3</button>
+                      <button class="ipod-pill-btn ipod-pill-red" id="ipodBtnAddYt" title="Add YouTube Link">▶️ YouTube</button>
+                      <button class="ipod-pill-btn" id="ipodBtnLoadDemo" title="Load Demo Tracks">🎵 Demo</button>
+                      <button class="ipod-pill-btn ipod-pill-gray" id="ipodBtnClearPl" title="Clear Playlist">🗑 Clear</button>
+                    </div>
+                  </div>
+                  <div class="ipod-table-scroll" id="ipodSongsList"></div>
+                  <div class="ipod-table-footer" id="ipodSongsFooter">8 Songs</div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- VIEW C: EQUALIZER (10-Band + iOS Presets)  -->
+                <!-- ========================================== -->
+                <div class="ipod-view" id="ipodViewEQ" data-view="eq">
+                  <div class="ipod-eq-header-card">
+                    <div class="ipod-eq-switch-row">
+                      <span class="ipod-eq-lbl">Equalizer DSP</span>
+                      <div class="ipod-eq-top-btns">
+                        <button class="ipod-eq-reset-btn" id="ipodEqResetBtn">Flat (0dB)</button>
+                        <button class="ipod-ios-switch active" id="ipodEqToggleBtn" title="Toggle Equalizer ON/OFF">
+                          <span class="ipod-switch-on">ON</span>
+                          <span class="ipod-switch-off">OFF</span>
+                          <span class="ipod-switch-thumb"></span>
+                        </button>
+                      </div>
+                    </div>
+                    <!-- Live EQ Curve + 10-Band Touch Sliders -->
+                    <canvas id="ipodEqCanvas" width="288" height="40" class="ipod-eq-canvas"></canvas>
+                    <div class="ipod-eq-sliders" id="ipodEqSliders">
+                      <div class="ipod-eq-col" data-ipod-band="preamp">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq pre">PRE</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="0">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">60</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="1">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">170</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="2">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">310</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="3">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">600</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="4">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">1K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="5">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">3K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="6">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">6K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="7">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">12K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="8">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">14K</span>
+                      </div>
+                      <div class="ipod-eq-col" data-ipod-band="9">
+                        <div class="ipod-eq-rail"><div class="ipod-eq-fill"></div><div class="ipod-eq-knob" style="bottom:50%"></div></div>
+                        <span class="ipod-eq-freq">16K</span>
+                      </div>
+                    </div>
+                  </div>
+                  <!-- iOS Grouped Table of EQ Presets -->
+                  <div class="ipod-eq-presets-title">iPod EQ Presets</div>
+                  <div class="ipod-eq-preset-list" id="ipodEqPresetList">
+                    <div class="ipod-preset-row active" data-ipod-preset="flat"><span>Flat (Default)</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="fullbass"><span>Bass Booster</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="fullbasstreble"><span>Bass &amp; Treble Booster</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="rock"><span>Rock</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="pop"><span>Pop</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="dance"><span>Dance</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="techno"><span>Electronic / Techno</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="vocal"><span>Vocal Booster</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="softrock"><span>Acoustic / Soft Rock</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="classical"><span>Classical</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="club"><span>Club</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="live"><span>Live</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="party"><span>Party</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="reggae"><span>Reggae</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="fulltreble"><span>Treble Booster</span><span class="ipod-check">✓</span></div>
+                    <div class="ipod-preset-row" data-ipod-preset="laptopspeakers"><span>Small Speakers</span><span class="ipod-check">✓</span></div>
+                  </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- VIEW D: iOS SPRINGBOARD HOME SCREEN        -->
+                <!-- ========================================== -->
+                <div class="ipod-view" id="ipodViewHome" data-view="home">
+                  <div class="ipod-springboard-grid">
+                    <button class="ipod-app-icon" data-ipod-app="nowplaying">
+                      <div class="ipod-squircle app-music"><span>🎵</span></div>
+                      <span class="ipod-app-label">Now Playing</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="songs">
+                      <div class="ipod-squircle app-songs"><span>🎶</span></div>
+                      <span class="ipod-app-label">Songs</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="eq">
+                      <div class="ipod-squircle app-eq"><span>🎚</span></div>
+                      <span class="ipod-app-label">Equalizer</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="youtube">
+                      <div class="ipod-squircle app-yt"><span>▶️</span></div>
+                      <span class="ipod-app-label">YouTube</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="addmp3">
+                      <div class="ipod-squircle app-files"><span>📂</span></div>
+                      <span class="ipod-app-label">Add MP3</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="coverart">
+                      <div class="ipod-squircle app-photos"><span>🌻</span></div>
+                      <span class="ipod-app-label">Cover Art</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="resetcover">
+                      <div class="ipod-squircle app-reset"><span>🔄</span></div>
+                      <span class="ipod-app-label">Auto Cover</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="lock">
+                      <div class="ipod-squircle app-lock"><span>🔒</span></div>
+                      <span class="ipod-app-label">Lock Screen</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="skin-cassette">
+                      <div class="ipod-squircle app-walkman"><span>📼</span></div>
+                      <span class="ipod-app-label">Walkman</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="skin-midnight">
+                      <div class="ipod-squircle app-midnight"><span>⚡</span></div>
+                      <span class="ipod-app-label">Midnight</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="skin-modern">
+                      <div class="ipod-squircle app-modern"><span>💎</span></div>
+                      <span class="ipod-app-label">Modern</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="skin-ipod-classic">
+                      <div class="ipod-squircle app-classic"><span>💿</span></div>
+                      <span class="ipod-app-label">iPod Classic</span>
+                    </button>
+                  </div>
+
+                  <div class="ipod-page-dots">
+                    <span class="ipod-dot active"></span>
+                    <span class="ipod-dot"></span>
+                  </div>
+
+                  <!-- Reflective 3D Glass iOS Dock -->
+                  <div class="ipod-springboard-dock">
+                    <div class="ipod-dock-glass"></div>
+                    <button class="ipod-app-icon" data-ipod-app="nowplaying">
+                      <div class="ipod-squircle app-music"><span>🎵</span></div>
+                      <span class="ipod-app-label">Music</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="songs">
+                      <div class="ipod-squircle app-songs"><span>🎶</span></div>
+                      <span class="ipod-app-label">Playlists</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="eq">
+                      <div class="ipod-squircle app-eq"><span>🎚</span></div>
+                      <span class="ipod-app-label">EQ</span>
+                    </button>
+                    <button class="ipod-app-icon" data-ipod-app="youtube">
+                      <div class="ipod-squircle app-yt"><span>▶️</span></div>
+                      <span class="ipod-app-label">YouTube</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- ========================================== -->
+                <!-- OVERLAY: iOS "SLIDE TO UNLOCK" LOCK SCREEN -->
+                <!-- ========================================== -->
+                <div class="ipod-lock-overlay hidden" id="ipodLockOverlay">
+                  <div class="ipod-lock-header">
+                    <div class="ipod-lock-time" id="ipodLockTime">10:42</div>
+                    <div class="ipod-lock-date" id="ipodLockDate">Sunday, November 2</div>
+                    <div class="ipod-lock-nowplaying">
+                      <div class="ipod-lock-song" id="ipodLockSong">No Song Playing</div>
+                      <div class="ipod-lock-artist" id="ipodLockArtist">iPod touch</div>
+                      <div class="ipod-lock-controls">
+                        <button class="ipod-lock-btn" id="ipodLockPrev">⏮</button>
+                        <button class="ipod-lock-btn" id="ipodLockPlay">⏯</button>
+                        <button class="ipod-lock-btn" id="ipodLockNext">⏭</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="ipod-lock-center">
+                    <canvas id="ipodLockCoverCanvas" width="180" height="180" class="ipod-lock-cover"></canvas>
+                  </div>
+                  <div class="ipod-unlock-bar">
+                    <div class="ipod-unlock-track" id="ipodUnlockTrack">
+                      <div class="ipod-unlock-text">slide to unlock</div>
+                      <div class="ipod-unlock-thumb" id="ipodUnlockThumb">
+                        <svg viewBox="0 0 24 20" class="ipod-unlock-arrow">
+                          <path d="M4 8h10V4l7 6-7 6v-4H4V8z" fill="currentColor"/>
+                        </svg>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- 4. Persistent Bottom iOS Tab Bar (49px) -->
+              <div class="ipod-tabbar" id="ipodTabBar">
+                <button class="ipod-tab-btn active" data-ipod-tab="nowplaying">
+                  <span class="ipod-tab-icon">🎵</span>
+                  <span class="ipod-tab-lbl">Now Playing</span>
+                </button>
+                <button class="ipod-tab-btn" data-ipod-tab="songs">
+                  <span class="ipod-tab-icon">🎶</span>
+                  <span class="ipod-tab-lbl">Songs</span>
+                </button>
+                <button class="ipod-tab-btn" data-ipod-tab="eq">
+                  <span class="ipod-tab-icon">🎚</span>
+                  <span class="ipod-tab-lbl">Equalizer</span>
+                </button>
+                <button class="ipod-tab-btn" data-ipod-tab="youtube">
+                  <span class="ipod-tab-icon">▶️</span>
+                  <span class="ipod-tab-lbl">YouTube</span>
+                </button>
+                <button class="ipod-tab-btn" data-ipod-tab="home">
+                  <span class="ipod-tab-icon">📱</span>
+                  <span class="ipod-tab-lbl">Home</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Bottom Bezel: Concave Physical Home Button -->
+            <div class="ipod-bottom-bezel">
+              <button class="ipod-home-btn" id="ipodHomeBtn" title="Home Button (กดเพื่อกลับหน้าหลัก / สลับหน้าแอป)">
+                <span class="ipod-home-squircle"></span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- 6. APPLE iPOD CLASSIC 160GB SKIN (320 x 540)   -->
+      <!-- ============================================== -->
+      <div id="ipodClassicWindow" class="ipc-device ipc-color-silver hidden" data-window="ipod-classic">
+        <!-- Top Physical Hold Switch -->
+        <div class="ipc-top-edge">
+          <button class="ipc-hold-switch" id="ipcHoldSwitch" title="HOLD Switch (ล็อกปุ่มและวงล้อ Click Wheel)">
+            <span class="ipc-hold-orange"></span>
+            <span class="ipc-hold-slider"></span>
+            <span class="ipc-hold-label">HOLD</span>
+          </button>
+        </div>
+
+        <!-- Machined Anodized Aluminum / Polycarbonate Chassis -->
+        <div class="ipc-shell">
+          <div class="ipc-faceplate">
+
+            <!-- 2.5-inch Recessed QVGA Backlit Color LCD Screen (284 x 214) -->
+            <div class="ipc-screen-bezel">
+              <div class="ipc-screen" id="ipcScreen">
+
+                <!-- 1. Classic iPod Top Status Bar (22px) -->
+                <div class="ipc-statusbar" id="ipcStatusbar">
+                  <div class="ipc-sb-left">
+                    <span class="ipc-sb-title" id="ipcStatusTitle">iPod</span>
+                    <span class="ipc-sb-lock hidden" id="ipcStatusLock" title="Hold Switch Engaged">🔒</span>
+                  </div>
+                  <div class="ipc-sb-right">
+                    <span class="ipc-sb-play" id="ipcStatusPlay">▶</span>
+                    <span class="app-ver-badge ipc-ver-badge">v4.9</span>
+                    <div class="ipc-battery" title="Battery 100%">
+                      <div class="ipc-battery-body">
+                        <div class="ipc-battery-fill"></div>
+                      </div>
+                      <div class="ipc-battery-tip"></div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- 2. Main LCD Viewport Area -->
+                <div class="ipc-viewport" id="ipcViewport">
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 1: SPLIT-SCREEN MAIN MENU (6th Gen)   -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view active" id="ipcViewMenu" data-ipc-view="menu">
+                    <div class="ipc-split-left" id="ipcMenuList">
+                      <div class="ipc-menu-row active" data-ipc-idx="0" data-ipc-action="nowplaying">
+                        <span class="ipc-menu-lbl">Now Playing</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="1" data-ipc-action="songs">
+                        <span class="ipc-menu-lbl">Music / Songs</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="2" data-ipc-action="coverflow">
+                        <span class="ipc-menu-lbl">Cover Flow</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="3" data-ipc-action="eq">
+                        <span class="ipc-menu-lbl">Equalizer</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="4" data-ipc-action="youtube">
+                        <span class="ipc-menu-lbl">YouTube Link</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="5" data-ipc-action="addmp3">
+                        <span class="ipc-menu-lbl">Add Audio (MP3)</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="6" data-ipc-action="coverart">
+                        <span class="ipc-menu-lbl">Custom Cover</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="7" data-ipc-action="shuffle">
+                        <span class="ipc-menu-lbl">Shuffle</span>
+                        <span class="ipc-menu-val" id="ipcMenuShuffleVal">Off</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="8" data-ipc-action="repeat">
+                        <span class="ipc-menu-lbl">Repeat</span>
+                        <span class="ipc-menu-val" id="ipcMenuRepeatVal">All</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="9" data-ipc-action="color">
+                        <span class="ipc-menu-lbl">Body Finish</span>
+                        <span class="ipc-menu-val" id="ipcMenuColorVal">Silver</span>
+                      </div>
+                      <div class="ipc-menu-row" data-ipc-idx="10" data-ipc-action="skins">
+                        <span class="ipc-menu-lbl">Switch Player</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                    </div>
+
+                    <div class="ipc-split-right" id="ipcSplitPreview">
+                      <div class="ipc-split-art-card">
+                        <canvas id="ipcSplitCoverCanvas" width="160" height="160" class="ipc-split-cover"></canvas>
+                        <div class="ipc-split-reflect">
+                          <canvas id="ipcSplitReflectCanvas" width="160" height="40" class="ipc-split-reflect-canvas"></canvas>
+                          <div class="ipc-split-reflect-fade"></div>
+                        </div>
+                      </div>
+                      <div class="ipc-split-caption">
+                        <div class="ipc-split-cap-title" id="ipcSplitCaptionTitle">iPod Classic</div>
+                        <div class="ipc-split-cap-sub" id="ipcSplitCaptionSub">160GB • Ready</div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 2: NOW PLAYING (iPod Classic 6th Gen) -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewNowPlaying" data-ipc-view="nowplaying">
+                    <div class="ipc-np-body">
+                      <!-- Left 3D Angled Album Artwork + Floor Reflection -->
+                      <div class="ipc-np-cover-col" id="ipcNpCoverWrap" title="คลิกเพื่อเปลี่ยนรูปปกอัลบั้ม (Upload Custom Cover)">
+                        <div class="ipc-np-art-box">
+                          <canvas id="ipcNpCoverCanvas" width="180" height="180" class="ipc-np-cover-canvas"></canvas>
+                          <div class="ipc-np-art-gloss"></div>
+                        </div>
+                        <div class="ipc-np-art-reflect">
+                          <canvas id="ipcNpReflectCanvas" width="180" height="36" class="ipc-np-reflect-canvas"></canvas>
+                          <div class="ipc-np-reflect-fade"></div>
+                        </div>
+                      </div>
+
+                      <!-- Right Track Metadata & Mini Spectrum Analyzer -->
+                      <div class="ipc-np-meta-col">
+                        <div class="ipc-np-index" id="ipcNpIndex">1 of 8</div>
+                        <div class="ipc-np-title" id="ipcNpTitle">Track Title</div>
+                        <div class="ipc-np-artist" id="ipcNpArtist">Artist Name</div>
+                        <div class="ipc-np-album" id="ipcNpAlbum">Album Title</div>
+                        <div class="ipc-np-badges">
+                          <button class="ipc-np-badge" id="ipcNpShuffleBtn" title="Toggle Shuffle">🔀</button>
+                          <button class="ipc-np-badge" id="ipcNpRepeatBtn" title="Toggle Repeat">🔁</button>
+                          <button class="ipc-np-mode-pill" id="ipcNpModeBtn" title="Center Button Mode: Volume / Scrub / Rating">VOL</button>
+                        </div>
+                        <canvas id="ipcMiniVisCanvas" width="110" height="22" class="ipc-mini-vis"></canvas>
+                      </div>
+                    </div>
+
+                    <!-- Bottom Progress / Diamond Scrubber / Volume / Star Rating Area -->
+                    <div class="ipc-np-footer">
+                      <!-- Mode A: Aqua-Blue 3D Progress & Diamond Scrubber Bar -->
+                      <div class="ipc-np-bar-row" id="ipcNpBarProgress">
+                        <span class="ipc-np-time" id="ipcTimeElapsed">0:00</span>
+                        <div class="ipc-seek-track" id="ipcSeekTrack" title="Click or drag to seek">
+                          <div class="ipc-seek-fill" id="ipcSeekFill" style="width: 0%;"></div>
+                          <div class="ipc-seek-diamond hidden" id="ipcSeekDiamond" style="left: 0%;"></div>
+                        </div>
+                        <span class="ipc-np-time ipc-np-rem" id="ipcTimeRemaining">-0:00</span>
+                      </div>
+
+                      <!-- Mode B: Classic Volume Overlay Bar -->
+                      <div class="ipc-np-bar-row hidden" id="ipcNpBarVolume">
+                        <span class="ipc-vol-icon">🔈</span>
+                        <div class="ipc-vol-track" id="ipcVolTrack" title="Volume">
+                          <div class="ipc-vol-fill" id="ipcVolFill" style="width: 80%;"></div>
+                        </div>
+                        <span class="ipc-vol-icon">🔊</span>
+                      </div>
+
+                      <!-- Mode C: 5-Star Rating Bar -->
+                      <div class="ipc-np-bar-row ipc-rating-row hidden" id="ipcNpBarRating">
+                        <div class="ipc-rating-stars" id="ipcRatingStars" title="Rotate Click Wheel or tap stars to rate">
+                          <span class="ipc-star active" data-star="1">★</span>
+                          <span class="ipc-star active" data-star="2">★</span>
+                          <span class="ipc-star active" data-star="3">★</span>
+                          <span class="ipc-star active" data-star="4">★</span>
+                          <span class="ipc-star active" data-star="5">★</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 3: 3D COVER FLOW CAROUSEL             -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewCoverFlow" data-ipc-view="coverflow">
+                    <div class="ipc-cf-stage" id="ipcCoverFlowStage"></div>
+                    <div class="ipc-cf-footer">
+                      <div class="ipc-cf-title" id="ipcCfTitle">Song Title</div>
+                      <div class="ipc-cf-artist" id="ipcCfArtist">Artist Name</div>
+                    </div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 4: SONGS / PLAYLIST                   -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewSongs" data-ipc-view="songs">
+                    <div class="ipc-songs-toolbar">
+                      <button class="ipc-mini-btn ipc-mini-blue" id="ipcBtnAddMp3" title="Add MP3 / Audio">+MP3</button>
+                      <button class="ipc-mini-btn ipc-mini-red" id="ipcBtnAddYt" title="Add YouTube Link">▶️YT</button>
+                      <button class="ipc-mini-btn" id="ipcBtnLoadDemo" title="Load Demo Songs">🎵Demo</button>
+                      <button class="ipc-mini-btn" id="ipcBtnClearPl" title="Clear Playlist">🗑Clear</button>
+                    </div>
+                    <div class="ipc-list-scroll" id="ipcSongsList"></div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 5: EQUALIZER & PRESETS                -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewEQ" data-ipc-view="eq">
+                    <div class="ipc-eq-top">
+                      <div class="ipc-eq-head">
+                        <span class="ipc-eq-head-title">10-Band EQ DSP</span>
+                        <div class="ipc-eq-head-btns">
+                          <button class="ipc-eq-pill" id="ipcEqResetBtn">Flat</button>
+                          <button class="ipc-eq-pill active" id="ipcEqToggleBtn">EQ: ON</button>
+                        </div>
+                      </div>
+                      <canvas id="ipcEqCanvas" width="260" height="32" class="ipc-eq-canvas"></canvas>
+                    </div>
+                    <div class="ipc-list-scroll" id="ipcEqPresetList">
+                      <div class="ipc-eq-row active" data-ipc-preset="flat"><span>Flat (Default)</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="fullbass"><span>Bass Booster</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="fullbasstreble"><span>Bass &amp; Treble</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="rock"><span>Rock</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="pop"><span>Pop</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="dance"><span>Dance</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="techno"><span>Electronic</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="vocal"><span>Vocal Booster</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="softrock"><span>Acoustic</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="classical"><span>Classical</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="club"><span>Club</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="live"><span>Live</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="party"><span>Party</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="reggae"><span>Reggae</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="fulltreble"><span>Treble Booster</span><span class="ipc-eq-chk">✓</span></div>
+                      <div class="ipc-eq-row" data-ipc-preset="laptopspeakers"><span>Small Speakers</span><span class="ipc-eq-chk">✓</span></div>
+                    </div>
+                  </div>
+
+                  <!-- ========================================== -->
+                  <!-- VIEW 6: SWITCH PLAYER / SKINS SUBMENU      -->
+                  <!-- ========================================== -->
+                  <div class="ipc-view" id="ipcViewSkins" data-ipc-view="skins">
+                    <div class="ipc-list-scroll" id="ipcSkinsList">
+                      <div class="ipc-skin-row active" data-ipc-skin="skin-ipod">
+                        <span>📱 iPod touch (Apple iOS)</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-skin-row" data-ipc-skin="skin-cassette">
+                        <span>📼 Walkman Cassette Player</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-skin-row" data-ipc-skin="skin-midnight">
+                        <span>🎨 Winamp: Midnight Gold</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                      <div class="ipc-skin-row" data-ipc-skin="skin-modern">
+                        <span>🎨 Winamp: Modern Silver Blue</span>
+                        <span class="ipc-menu-arrow">›</span>
+                      </div>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+
+            <!-- Iconic Capacitive Touch-Sensitive Click Wheel (208 x 208) -->
+            <div class="ipc-wheel-area">
+              <div class="ipc-click-wheel" id="ipcClickWheel" title="หมุนวงล้อ Click Wheel เพื่อเลื่อนเมนู / ปรับระดับเสียง / สกรับเวลาเพลง">
+                <!-- Subtle Rotary Touch Indicator Dot -->
+                <div class="ipc-wheel-dot" id="ipcWheelDot"></div>
+
+                <!-- Top Cardinal Button: MENU -->
+                <button class="ipc-wheel-btn ipc-wheel-menu" id="ipcBtnMenu" title="MENU (ย้อนกลับ / เมนูหลัก)">MENU</button>
+
+                <!-- Left Cardinal Button: PREV / REW -->
+                <button class="ipc-wheel-btn ipc-wheel-prev" id="ipcBtnPrev" title="Previous / Rewind">
+                  <svg viewBox="0 0 28 16" class="ipc-wheel-svg">
+                    <rect x="2" y="2" width="2.6" height="12" fill="currentColor"/>
+                    <polygon points="14,2 4.8,8 14,14" fill="currentColor"/>
+                    <polygon points="24,2 14.8,8 24,14" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Right Cardinal Button: NEXT / FF -->
+                <button class="ipc-wheel-btn ipc-wheel-next" id="ipcBtnNext" title="Next / Fast-Forward">
+                  <svg viewBox="0 0 28 16" class="ipc-wheel-svg">
+                    <polygon points="4,2 13.2,8 4,14" fill="currentColor"/>
+                    <polygon points="14,2 23.2,8 14,14" fill="currentColor"/>
+                    <rect x="23.4" y="2" width="2.6" height="12" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Bottom Cardinal Button: PLAY / PAUSE -->
+                <button class="ipc-wheel-btn ipc-wheel-play" id="ipcBtnPlayPause" title="Play / Pause">
+                  <svg viewBox="0 0 26 16" class="ipc-wheel-svg">
+                    <polygon points="2,2 12,8 2,14" fill="currentColor"/>
+                    <rect x="15.5" y="2" width="2.8" height="12" fill="currentColor"/>
+                    <rect x="20.5" y="2" width="2.8" height="12" fill="currentColor"/>
+                  </svg>
+                </button>
+
+                <!-- Concave Metallic Center Select Button -->
+                <button class="ipc-center-btn" id="ipcBtnSelect" title="Select / Confirm (ปุ่มกลางเลือกเมนู หรือสลับโหมดในหน้าเล่นเพลง)"></button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+
+      </div> <!-- End #winamp-workspace -->
+    </div> <!-- End windows-container -->
+
+    <!-- Status toast message -->
+    <div id="toast" class="toast hidden"></div>
+
+    <!-- Modal for Help / Shortcuts -->
+    <div id="helpModal" class="modal-backdrop hidden">
+      <div class="modal-window">
+        <div class="modal-titlebar">
+          <span>Winamp 2.91 Web Player - Shortcuts & Guide</span>
+          <button class="modal-close" id="modalCloseBtn">✕</button>
+        </div>
+        <div class="modal-content">
+          <h3>Keyboard Shortcuts</h3>
+          <table>
+            <tr><td><kbd>Z</kbd></td><td>Previous Track</td></tr>
+            <tr><td><kbd>X</kbd></td><td>Play</td></tr>
+            <tr><td><kbd>C</kbd></td><td>Pause / Unpause</td></tr>
+            <tr><td><kbd>V</kbd></td><td>Stop</td></tr>
+            <tr><td><kbd>B</kbd></td><td>Next Track</td></tr>
+            <tr><td><kbd>L</kbd></td><td>Open File(s)</td></tr>
+            <tr><td><kbd>S</kbd></td><td>Toggle Shuffle</td></tr>
+            <tr><td><kbd>R</kbd></td><td>Toggle Repeat</td></tr>
+            <tr><td><kbd>↑</kbd> / <kbd>↓</kbd></td><td>Volume Up / Down (5%)</td></tr>
+            <tr><td><kbd>←</kbd> / <kbd>→</kbd></td><td>Seek Back / Forward (5s)</td></tr>
+            <tr><td><kbd>Space</kbd></td><td>Toggle Play / Pause</td></tr>
+            <tr><td><kbd>Delete</kbd></td><td>Remove Selected Song from Playlist</td></tr>
+          </table>
+          <h3>Features</h3>
+          <ul>
+            <li><strong>Authentic Winamp 2.91 Engine:</strong> 275px modular windows with magnetic snapping.</li>
+            <li><strong>Resizable Playlist:</strong> Drag the bottom-right corner of the Playlist window to resize it to any height!</li>
+            <li><strong>Skins:</strong> Classic 2.91 (Original Titanium) and Modern Silver Blue.</li>
+            <li><strong>Persistence:</strong> Audio files and playlists are saved automatically to browser <em>IndexedDB</em> and restored across reloads!</li>
+            <li><strong>Equalizer:</strong> Genuine 10-band BiquadFilter equalizer (-12dB to +12dB) with Preamp and 16 presets.</li>
+            <li><strong>Visualizer:</strong> Real-time 60FPS frequency spectrum analyzer with falling peak dots and oscilloscope!</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 5. FULL PORTABLE CASSETTE WALKMAN PLAYER MODAL -->
+    <!-- ============================================== -->
+    <div id="walkmanModal" class="walkman-modal-backdrop hidden">
+      <div class="walkman-player-body">
+        <!-- Walkman Top Shell Header -->
+        <div class="walkman-top-header">
+          <div class="walkman-brand-title">
+            <span class="walkman-brand-stereo">PORTABLE STEREO CASSETTE PLAYER</span>
+            <span class="walkman-brand-logo">WINAMP <em>Walkman</em> <span class="app-ver-badge">v4.9</span></span>
+          </div>
+          <div class="walkman-top-actions">
+            <button class="walkman-action-btn" id="wmIpodBtn" title="สลับไปสกิน iPod touch">📱 iPod</button>
+            <button class="walkman-action-btn walkman-yt-btn" id="wmYoutubeBtn" title="วางลิงก์ YouTube (Play YouTube)">
+              <svg viewBox="0 0 24 17" class="yt-logo-svg-wm" aria-hidden="true">
+                <path d="M23.5 2.7a3 3 0 0 0-2.1-2.1C19.5 0 12 0 12 0S4.5 0 2.6.6A3 3 0 0 0 .5 2.7C0 4.6 0 8.5 0 8.5s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8z" fill="#ff0033"/>
+                <polygon points="9.5,12.2 16,8.5 9.5,4.8" fill="#ffffff"/>
+              </svg>
+            </button>
+            <button class="walkman-action-btn" id="wmSoundFxBtn" title="Toggle Mechanical Sound FX">🔊 SFX: ON</button>
+            <button class="walkman-action-btn" id="wmSideBtn" title="Flip Tape Side (Side A / B)">SIDE A</button>
+            <button class="walkman-close-btn" id="wmCloseBtn" title="Back to Winamp Windows">✕</button>
+          </div>
+        </div>
+
+        <!-- Walkman Main Cassette Door & Well -->
+        <div class="walkman-door-chassis">
+          <!-- Metallic Hinges & Corner Screws -->
+          <div class="wm-screw wm-screw-tl"></div>
+          <div class="wm-screw wm-screw-tr"></div>
+          <div class="wm-screw wm-screw-bl"></div>
+          <div class="wm-screw wm-screw-br"></div>
+
+          <!-- Walkman Door Viewing Window -->
+          <div class="walkman-window-frame">
+            <div class="walkman-glass-glare"></div>
+            
+            <!-- Large Cassette Tape in Walkman (Click to cycle tape color) -->
+            <div class="wm-cassette-card tape-clear" id="wmCassetteCard" title="คลิกเพื่อเปลี่ยนสีม้วนเทป (Click to switch tape color)">
+              <img class="wm-cassette-img" id="wmCassetteImg" src="assets/cassette/tape-clear-clean.png?v=3.1" alt="Cassette Tape" />
+
+              <!-- Dynamic Tape Ribbon Spools -->
+              <div class="wm-spool-pack wm-spool-left" id="wmSpoolLeft"></div>
+              <div class="wm-spool-pack wm-spool-right" id="wmSpoolRight"></div>
+
+              <!-- Large 6-Tooth High-Contrast Hubs with Central Drive Spindle -->
+              <div class="wm-hub wm-hub-left" id="wmHubLeft">
+                <img class="wm-hub-img" src="assets/cassette/cassette-reel-spool.png?v=3.1" alt="Cassette Reel" />
+              </div>
+              <div class="wm-hub wm-hub-right" id="wmHubRight">
+                <img class="wm-hub-img" src="assets/cassette/cassette-reel-spool.png?v=3.1" alt="Cassette Reel" />
+              </div>
+
+              <!-- Custom Uploaded Tape Photo (Frontmost with punched spool holes) -->
+              <div class="wm-custom-skin" id="wmCustomSkin"></div>
+
+              <!-- Cassette Paper Label with Handwritten Mixtape Title -->
+              <div class="wm-label-strip">
+                <div class="wm-side-badge" id="wmSideBadge">A</div>
+                <div class="wm-label-text">
+                  <div class="wm-track-title" id="wmTrackTitle">WINAMP DEMO TRACK</div>
+                  <div class="wm-track-artist" id="wmTrackArtist">AUTHENTIC RETRO CASSETTE</div>
+                </div>
+                <div class="wm-format-badge">CrO2 • 70µs</div>
+              </div>
+            </div>
+
+            <!-- Vintage Acrylic Transparent Door / Lid for Walkman Modal -->
+            <div class="wm-door-lid" id="wmDoorLid" aria-hidden="true">
+              <div class="wm-lid-bezel-frame">
+                <div class="wm-lid-hinge wm-lid-hinge-top"></div>
+                <div class="wm-lid-hinge wm-lid-hinge-btm"></div>
+                <div class="wm-lid-latch-grip"></div>
+              </div>
+              <div class="wm-lid-acrylic-pane">
+                <div class="wm-lid-glass-sheen"></div>
+                <!-- Sony Walkman Scale Ruler & Arrow -->
+                <div class="wm-lid-scale-marks">
+                  <span class="wm-scale-val wm-scale-10">10</span>
+                  <div class="wm-scale-ruler-col">
+                    <span class="wm-scale-tick major"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick major"></span>
+                    <span class="wm-scale-arrow-icon">⬇</span>
+                    <span class="wm-scale-tick major"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick"></span>
+                    <span class="wm-scale-tick major"></span>
+                  </div>
+                  <span class="wm-scale-val wm-scale-0">0</span>
+                </div>
+                <!-- Walkman Brand Stamp on Modal Glass -->
+                <div class="wm-lid-brand-stamp">
+                  <span>STEREO CASSETTE-CORDER • AUTO REVERSE</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Walkman Indicators Bar -->
+          <div class="walkman-tape-bar">
+            <!-- Tape Counter & LED -->
+            <div class="wm-counter-block">
+              <div class="wm-counter-display">
+                <span class="wm-counter-label">INDEX</span>
+                <span class="wm-counter-val" id="wmCounter">000</span>
+                <button class="wm-counter-rst" id="wmCounterReset" title="Reset Counter">RST</button>
+              </div>
+              <div class="wm-indicator-block">
+                <div class="wm-led" id="wmLed"></div>
+                <span class="wm-led-label">BATT / RUN</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Heavy Mechanical Piano Push Buttons (Unified Sequence Matching Normal Deck) -->
+        <div class="walkman-mechanical-deck">
+          <div class="wm-piano-keys">
+            <!-- REW -->
+            <button class="wm-key wm-key-rew" id="wmKeyRew" title="Rewind 10s">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="11,5 1,12 11,19" fill="currentColor"/><polygon points="21,5 11,12 21,19" fill="currentColor"/></svg>
+              </span>
+              <span class="wm-key-label">REW</span>
+            </button>
+            <!-- PLAY -->
+            <button class="wm-key wm-key-play" id="wmKeyPlay" title="Play">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="6,4 20,12 6,20" fill="currentColor"/></svg>
+              </span>
+              <span class="wm-key-label">PLAY</span>
+            </button>
+            <!-- PAUSE -->
+            <button class="wm-key wm-key-pause" id="wmKeyPause" title="Pause">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><rect x="5" y="4" width="4.5" height="16" rx="1" fill="currentColor"/><rect x="14.5" y="4" width="4.5" height="16" rx="1" fill="currentColor"/></svg>
+              </span>
+              <span class="wm-key-label">PAUSE</span>
+            </button>
+            <!-- STOP -->
+            <button class="wm-key wm-key-stop" id="wmKeyStop" title="Stop">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><rect x="4.5" y="4.5" width="15" height="15" rx="1.5" fill="currentColor"/></svg>
+              </span>
+              <span class="wm-key-label">STOP</span>
+            </button>
+            <!-- FF -->
+            <button class="wm-key wm-key-ff" id="wmKeyFF" title="Fast Forward 10s">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="3,5 13,12 3,19" fill="currentColor"/><polygon points="13,5 23,12 13,19" fill="currentColor"/></svg>
+              </span>
+              <span class="wm-key-label">FF</span>
+            </button>
+            <!-- EJECT -->
+            <button class="wm-key wm-key-eject" id="wmKeyEject" title="Flip Side A/B (Eject)">
+              <span class="wm-key-top">
+                <svg viewBox="0 0 24 24" class="wm-key-svg"><polygon points="12,4 4,13 20,13" fill="currentColor"/><rect x="4" y="16" width="16" height="3" rx="0.5" fill="currentColor"/></svg>
+              </span>
+              <span class="wm-key-label">EJECT</span>
+            </button>
+          </div>
+
+          <!-- Volume & Headphone Jack -->
+          <div class="wm-volume-section">
+            <div class="wm-phones-jack" title="Stereo Mini-Jack 3.5mm">
+              <div class="wm-jack-hole"></div>
+              <span>PHONES</span>
+            </div>
+            <div class="wm-vol-slider-wrap">
+              <span class="wm-vol-label">VOL</span>
+              <input type="range" class="wm-vol-slider" id="wmVolSlider" min="0" max="1" step="0.01" value="0.8" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- 6. YOUTUBE LINK MODAL                          -->
+    <!-- ============================================== -->
+    <div id="youtubeModal" class="modal-backdrop hidden">
+      <div class="modal-window yt-modal-window">
+        <div class="modal-titlebar yt-modal-titlebar">
+          <span>▶️ เล่นเพลงจากลิงก์ YouTube (YouTube Link Player)</span>
+          <button class="modal-close" id="ytModalCloseBtn">✕</button>
+        </div>
+        <div class="modal-content yt-modal-content">
+          <label class="yt-input-label" for="ytUrlInput">วางลิงก์ YouTube หรือ YouTube Music ที่นี่:</label>
+          <div class="yt-input-row">
+            <input type="url" id="ytUrlInput" class="yt-url-input" placeholder="https://www.youtube.com/watch?v=... หรือ https://youtu.be/..." autocomplete="off" />
+            <button type="button" class="yt-paste-btn" id="ytPasteBtn" title="วางจากคลิปบอร์ด (Paste)">📋 วาง</button>
+          </div>
+          <div id="ytStatusMsg" class="yt-status-msg hidden"></div>
+          <div class="yt-modal-actions">
+            <button type="button" class="yt-btn yt-btn-play" id="ytPlayNowBtn">▶️ เล่นทันที (Play Now)</button>
+            <button type="button" class="yt-btn yt-btn-add" id="ytAddQueueBtn">➕ เพิ่มเข้าเพลย์ลิสต์</button>
+          </div>
+          <div class="yt-tip-box">
+            💡 <strong>ทิป:</strong> สามารถกด <kbd>Ctrl+V</kbd> (หรือ <kbd>Cmd+V</kbd>) บนหน้าเว็บเพื่อวางลิงก์และเล่นทันทีได้เลย!
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Hidden YouTube Audio Player Bridge -->
+  <div id="ytPlayerContainer" class="yt-hidden-player" aria-hidden="true">
+    <div id="ytPlayerFrame"></div>
+  </div>
+
+  <!-- Audio Element (Configured for native iOS / Apple CarPlay / Bluetooth A2DP & background playback) -->
+  <audio id="audioElement" preload="auto" playsinline webkit-playsinline></audio>
+
+  <!-- Scripts -->
+  <script src="db.js?v=4.9"></script>
+  <script src="id3.js?v=4.9"></script>
+  <script src="audio-engine.js?v=4.9"></script>
+  <script src="app.js?v=4.9"></script>
+</body>
+</html>

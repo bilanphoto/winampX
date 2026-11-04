@@ -2094,6 +2094,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     updateCassetteUI();
     if (typeof updateIpodUI === 'function') updateIpodUI();
     if (typeof updateIpcUI === 'function') updateIpcUI();
+    if (window.AndroidBridge && typeof window.AndroidBridge.onPlaybackStateChanged === 'function') {
+      try {
+        const trk = state.playlist[state.currentIndex];
+        window.AndroidBridge.onPlaybackStateChanged(
+          true,
+          trk ? (trk.title || 'Unknown Title') : 'Winamp Walkman',
+          trk ? (trk.artist || '') : '',
+          trk ? Math.floor((trk.duration || 0) * 1000) : 0,
+          Math.floor((engine.getCurrentTime() || 0) * 1000)
+        );
+      } catch (e) {}
+    }
   });
 
   audioElement.addEventListener('pause', () => {
@@ -2111,6 +2123,18 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateCassetteUI();
       if (typeof updateIpodUI === 'function') updateIpodUI();
       if (typeof updateIpcUI === 'function') updateIpcUI();
+      if (window.AndroidBridge && typeof window.AndroidBridge.onPlaybackStateChanged === 'function') {
+        try {
+          const trk = state.playlist[state.currentIndex];
+          window.AndroidBridge.onPlaybackStateChanged(
+            false,
+            trk ? (trk.title || 'Unknown Title') : 'Winamp Walkman',
+            trk ? (trk.artist || '') : '',
+            trk ? Math.floor((trk.duration || 0) * 1000) : 0,
+            Math.floor((engine.getCurrentTime() || 0) * 1000)
+          );
+        } catch (e) {}
+      }
     }
   });
 
@@ -2659,6 +2683,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   function updateMediaSession(track) {
+    if (window.AndroidBridge && typeof window.AndroidBridge.onPlaybackStateChanged === 'function') {
+      try {
+        const isPlaying = !audioElement.paused;
+        window.AndroidBridge.onPlaybackStateChanged(
+          isPlaying,
+          track ? (track.title || 'Unknown Title') : 'Winamp Walkman',
+          track ? (track.artist || '') : '',
+          track ? Math.floor((track.duration || 0) * 1000) : 0,
+          Math.floor((engine.getCurrentTime() || 0) * 1000)
+        );
+      } catch (e) {}
+    }
     if ('mediaSession' in navigator && track) {
       try {
         const icon192 = new URL('icon-192.png', window.location.href).href;
@@ -2935,6 +2971,19 @@ document.addEventListener('DOMContentLoaded', async () => {
       try {
         navigator.mediaSession.setActionHandler(action, handler);
       } catch (e) {}
+    });
+
+    window.addEventListener('android-media-control', (e) => {
+      const act = e.detail && e.detail.action;
+      if (act === 'play') {
+        if (handlers.play) handlers.play();
+      } else if (act === 'pause') {
+        if (handlers.pause) handlers.pause();
+      } else if (act === 'next') {
+        if (handlers.nexttrack) handlers.nexttrack();
+      } else if (act === 'previous') {
+        if (handlers.previoustrack) handlers.previoustrack();
+      }
     });
   }
 
